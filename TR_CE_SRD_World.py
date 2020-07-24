@@ -17,6 +17,7 @@
 # Things to do:
 #
 #  - Add stellar generation method based on Book 6 / MT
+#  - Move supporting functions to a separate module
 # 
 
 
@@ -407,6 +408,8 @@ class World:
         elif self.law == 0 or self.law >= 9: self.tZone = "A"
         else: self.tZone = " "
 
+        
+    def formatUWPString_text_SEC(self):
         # Capitalise the world name if it is a high population world
 
         if self.pop >= 9: self.worldname = self.worldname.upper()
@@ -450,12 +453,6 @@ class World:
         # Add the PBG data
 
         self.UWPString += " " + str(self.pMod) + str(self.nBelts) + str(self.nGiants)
-
-
-        
-
-
-
 
 # Print a formatted UWP line for the world/system
 
