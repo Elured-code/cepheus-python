@@ -430,6 +430,17 @@ class World:
         self.atm = D2Roll() - 7 + self.siz
         if self.atm < 0: self.atm = 0
         elif self.atm > 15: self.atm = 15
+
+        # Burn the atmosphere off worlds with dwarf primaries
+
+        if tP == 'D':
+            i = D2Roll()
+            if i == 12: self.atm = 14
+            elif i == 11: self.atm = 3
+            elif i == 10: self.atm = 2
+            elif i == 9: self.atm = 1
+            else: self.atm = 0 
+
         if self.siz == 0: self.atm = 0
         
         if self.siz == 0: self.hyd = 0

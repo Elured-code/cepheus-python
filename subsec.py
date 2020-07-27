@@ -26,11 +26,8 @@
 import argparse
 import random
 import TR_CE_EXT_World
-# import TR_CE_EXT_Stellar
-
-# import sys
-
-# print (str(sys.argv))
+import TR_CE_SRD_World
+import sys
 
 # Define common functions
 
@@ -48,6 +45,7 @@ parser = argparse.ArgumentParser(description='Generate a CE subsector', formatte
 parser.add_argument('name', help = 'Enter the name of the subsector to be generated')
 parser.add_argument('-d', '--density', type=int, choices=[1, 2, 3, 4, 5], default=3, help='density value (1 = rift, 2 = sparse, 3 = scattered, 4 = standard, 5 = dense).', metavar='DENSITY')
 parser.add_argument('-s', '--stellar', action = 'store_true', help= "Generate stellar data")
+parser.add_argument('-t', '--type', choices=['CE', 'CEEX', 'CT'], default='CE', help='system type (CE = Cepheus Engine SRS no mods, CEEX Cepheus Engine with Extensions, CT Classic Traveller)', metavar='TYPE')
 args = parser.parse_args()
 
 print(args)
@@ -55,6 +53,12 @@ print(args)
 # Set the probability of system presence in any given hex
 
 prob = DENSITY_LOOKUP.get(args.density)
+
+# Break out if unimplemented types are requested
+
+if args.type in ['CT']:
+    print("Type not yet implemented - coming soon")
+    sys.exit()
 
 # Print the header text
 
@@ -71,7 +75,8 @@ while i <= 8:
             # print(loc, end=" ")
 
             isMainWorld = True
-            w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld)
+            if args.type == 'CEEX': w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld)
+            elif args.type == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
             w1.loc = loc
             w1.genWorld()
             w1.formatUWPString_text_SEC()
