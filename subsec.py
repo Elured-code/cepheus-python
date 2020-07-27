@@ -11,6 +11,7 @@
 # 1. CE SRD system generation rules; and
 # 2. Stellar data generation kludged together by myself with some quickly researched type/spectra
 #    distribution
+#
 
 # 
 # Run subsec.py -h for usage
@@ -19,7 +20,7 @@
 #
 # Things to do:
 #
-# 
+# - Add capability to define 'core', 'settled', 'frontier' and 'wild' worlds with definitions 
 
 
 import argparse
