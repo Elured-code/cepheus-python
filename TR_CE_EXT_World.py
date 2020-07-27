@@ -1,5 +1,9 @@
 #
-# Cepheus Engine SRD World Generation
+# Cepheus Engine SRD World Generation with extensions
+# 
+# Extensions:
+# 1. Stellar data generation kludged together by myself with some quickly researched type/spectra
+#    distribution
 #
 # Version:  0.2
 # Author:   Michael Bailey
@@ -16,9 +20,9 @@
 #
 # Things to do:
 #
-#  - Add stellar generation method based on Book 6 / MT
-#  - Move supporting functions to a separate module
-# 
+# - Move supporting functions to a separate module
+# - Skew population towards larger stars
+#  
 
 
 # Import modules here
