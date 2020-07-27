@@ -195,6 +195,13 @@ class Stellar:
         # Determine the primary type
         
         tP = gen_starType('x')
+
+        # No dwarf mains
+
+        if tP == 'D': tP = 'V'
+        
+        # Determine the primary spectral classification
+        
         sP = gen_Spectral(tP)
 
         self.starList.append(sP + tP)
