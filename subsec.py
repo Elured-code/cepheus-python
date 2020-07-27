@@ -1,7 +1,7 @@
 import argparse
 import random
-import TR_CE_SRD_World
-import TR_CE_EXT_Stellar
+import TR_CE_EXT_World
+# import TR_CE_EXT_Stellar
 
 # import sys
 
@@ -44,23 +44,13 @@ while i <= 8:
         if D100Roll() < prob:
             loc = format(i, '02d') + format(j, '02d')
             # print(loc, end=" ")
-            w1 = TR_CE_SRD_World.World("Main-" + loc)
+
+            isMainWorld = True
+            w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld)
             w1.loc = loc
             w1.genWorld()
             w1.formatUWPString_text_SEC()
             
-# If the stellar flag is set then generate and add stellar data
-
-            stellarString = ""
-            if args.stellar == True:
-                
-                s1 = TR_CE_EXT_Stellar.Stellar()
-                s1.genStellar()
-
-                for star in s1.starList:
-                    stellarString += star + " "
-                stellarString.rstrip()
-
-            print(f'{w1.UWPString}' + " " + stellarString)
+            print(f'{w1.UWPString}')
         j += 1
     i += 1
