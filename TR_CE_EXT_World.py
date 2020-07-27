@@ -21,7 +21,7 @@
 # Things to do:
 #
 # - Move supporting functions to a separate module
-# - Skew population towards larger stars
+# 
 #  
 
 
@@ -401,11 +401,7 @@ class World:
         # Determine the primary type
         
         tP = gen_starType('x')
-
-        # No dwarf mains
-
-        if tP == 'D': tP = 'V'
-        
+     
         # Determine the primary spectral classification
         
         sP = gen_Spectral(tP)
@@ -446,6 +442,21 @@ class World:
         # Generate social stats
 
         self.pop = D2Roll() - 2
+
+        # Skew the population away from smaller (flares) and giant primaries
+
+        if tP == 'I' or tP == 'II':
+            self.pop -= 3
+        elif tP == 'III':
+            self.pop -= 2
+        elif tP == 'V':
+            if sP[0] == 'M': self.pop -= 2
+            elif sP[0] == 'K':  self.pop -= 1
+        elif tP == 'VI':
+            self.pop -= 2 
+        elif tP == 'D':
+            self.pop -= 4
+
         if self.siz <= 2: self.pop -= 1
         if self.atm in [0, 1, 10, 11, 12]: self.pop -= 2
         if self.atm == 6: self.pop  += 3
