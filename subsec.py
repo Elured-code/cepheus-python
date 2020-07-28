@@ -45,7 +45,6 @@ DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
 parser = argparse.ArgumentParser(description='Generate a CE subsector', formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('name', help = 'Enter the name of the subsector to be generated')
 parser.add_argument('-d', '--density', type=int, choices=[1, 2, 3, 4, 5], default=3, help='density value (1 = rift, 2 = sparse, 3 = scattered, 4 = standard, 5 = dense).', metavar='DENSITY')
-parser.add_argument('-s', '--stellar', action = 'store_true', help= "Generate stellar data")
 parser.add_argument('-e', '--engine', choices=['CE', 'CEEX', 'CT'], default='CE', help='Generation engine (CE = Cepheus Engine SRS no mods, CEEX Cepheus Engine with Extensions, CT Classic Traveller)', metavar='TYPE')
 parser.add_argument('-p', '--parent', default = '', help = 'The name of the parent sector (omit for no parent)')
 parser.add_argument('-l', '--letter', default = '', help = 'The subsector position letter (omit for no position')
