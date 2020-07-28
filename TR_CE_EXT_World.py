@@ -349,7 +349,6 @@ class World:
 
     @loc.setter
     def loc(self, loc):
-
         self.__loc = loc
 
 # Initialise the world class        
