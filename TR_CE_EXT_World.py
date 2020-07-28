@@ -165,6 +165,10 @@ class World:
         return self.__mainWorld
 
     @property
+    def popType(self):
+        return self.__popType
+
+    @property
     def nStars(self):
         return self.__nStars
 
@@ -255,6 +259,11 @@ class World:
         elif nStars > 3: self.__nStars = 3
         else: self.__nStars = nStars
 
+    @popType.setter
+    def popType(self, popType):
+        # print("++" + str(popType))
+        self.__popType = popType
+    
     @starList.setter
     def starList(self, starList):
         self.__starList = starList
@@ -295,9 +304,7 @@ class World:
 
     @pop.setter
     def pop(self, pop):
-        if pop < 0: self.__pop = 0
-        elif pop > 10: self.__pop = 10
-        else: self.__pop = pop
+        self.__pop = pop
 
     @gov.setter
     def gov(self, gov):
@@ -323,9 +330,7 @@ class World:
 
     @pMod.setter
     def pMod(self, pMod):
-        if pMod < 1: self.__pMod = 1
-        elif pMod > 9: self.__pMod = 9
-        else: self.__pMod = pMod
+        self.__pMod = pMod
 
     @nBelts.setter
     def nBelts(self, nBelts):
@@ -353,11 +358,12 @@ class World:
 
 # Initialise the world class        
 
-    def __init__(self, wName, isMainWorld):
+    def __init__(self, wName, isMainWorld, popType):
         
         # Initialise variables
 
         self.mainWorld = isMainWorld
+        self.popType = popType
         self.nStars = 1
         self.starList = []
         self.UWPString = ""
@@ -395,28 +401,29 @@ class World:
         
         # If a mainworld, generate stellar data
 
-        if self.mainWorld: self.gen_nStars()
+        if self.mainWorld: 
+            self.gen_nStars()
 
-        # Determine the primary type
+            # Determine the primary type
+            
+            tP = gen_starType('x')
         
-        tP = gen_starType('x')
-     
-        # Determine the primary spectral classification
-        
-        sP = gen_Spectral(tP)
+            # Determine the primary spectral classification
+            
+            sP = gen_Spectral(tP)
 
-        self.starList.append(sP + tP)
+            self.starList.append(sP + tP)
 
-        # Determine the secondary type if present
+            # Determine the secondary type if present
 
-        if self.nStars >= 2: 
-                tS = gen_starType(tP)
-                sS = gen_Spectral(tS)
-                self.starList.append(sS + tS)
-        if self.nStars == 3: 
-                tT = gen_starType(tP)
-                sT = gen_Spectral(tT) 
-                self.starList.append(sT + tT)  
+            if self.nStars >= 2: 
+                    tS = gen_starType(tP)
+                    sS = gen_Spectral(tS)
+                    self.starList.append(sS + tS)
+            if self.nStars == 3: 
+                    tT = gen_starType(tP)
+                    sT = gen_Spectral(tT) 
+                    self.starList.append(sT + tT)  
         
         # print(self.starList)
 
@@ -467,13 +474,67 @@ class World:
         elif tP == 'D':
             self.pop -= 4
 
+        # CE SRD standard population modifiers
+
         if self.siz <= 2: self.pop -= 1
         if self.atm in [0, 1, 10, 11, 12]: self.pop -= 2
         if self.atm == 6: self.pop  += 3
         if self.atm in [5, 8]: self.pop += 1
         if self.hyd == 0 and self.atm < 3: self.pop -= 2
+
+
+        # Some additional population modifiers based on settlement type
+        # I may move to make these more editable via lists/tuples later
+
+
+        if self.popType == 0:
+
+            # print("-->" + str(self.popType))
+
+            # Empty, no population at all (including no indigenous sapients)
+
+            self.pop = 0
+
+        elif self.popType == 1:
+
+            # Wilds, greatly reduce population for the less hospitable worlds
+            # as well as reducing population for the better ones
+
+            if self.atm in [5, 6, 8] and self.hyd >= 4: self.pop -= 2
+            else: self.pop -= 4
+
+        elif self.popType == 2:
+
+            # Frontier worlds, reduce population for the less hospitable worlds
+            # and slightly for the better ones
+
+            if self.atm in [5, 6, 8] and self.hyd >= 4: self.pop -= 1
+            else: self.pop -= 3
+
+        # No changes for standard worlds
+
+        elif self.popType == 4:
+
+            # Highly settled worlds, bump population 
+
+            if self.atm in [5, 6, 8]:
+                if self.hyd >= 4: self.pop += 2
+                elif self.hyd >= 2: self.pop += 1
+            elif self.atm in [4, 7, 9, 13, 14]: self.pop += 1
+
+        # Very highly settled worlds, higher increases as appropriate
+
+        elif self.popType == 5:
+            if self.atm in [5, 6, 8]:
+                if self.hyd >= 4: self.pop += 3
+                elif self.hyd <= 2: self.pop += 2
+            elif self.atm in [4, 7, 9, 13, 14]: self.pop += 2
+            else: self.pop += 1
+
+        # Bounds on the population
+        
         if self.pop < 0: self.pop = 0
-        if self.pop > 12: self.pop = 12
+        if self.pop > 12: self.pop = 12   
         
         self.pMod = D2Roll() - 2
         if self.pop > 0 and self.pMod < 1: self.pMod = 1
@@ -509,7 +570,6 @@ class World:
 
         if self.tlv < 0: self.tlv = 0
         elif self.tlv > 15: self.tlv = 15
-
 
         # Add CE world condition requirements
 
@@ -667,8 +727,17 @@ class World:
     def printUWPString(self):
         print(self.UWPString)
 
-# w1 = World("Blargo")
-# print(w1.UWPString)
+
+# Test code here
+
+
+# i = 1
+# while i < 40:
+#     w1 = World("Blargo", True, 5)
+#     w1.genWorld()
+#     w1.formatUWPString_text_SEC()
+#     w1.printUWPString()
+#     i += 1
 
 
 

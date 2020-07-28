@@ -48,6 +48,7 @@ parser.add_argument('-d', '--density', type=int, choices=[1, 2, 3, 4, 5], defaul
 parser.add_argument('-e', '--engine', choices=['CE', 'CEEX', 'CT'], default='CE', help='Generation engine (CE = Cepheus Engine SRS no mods, CEEX Cepheus Engine with Extensions, CT Classic Traveller)', metavar='TYPE')
 parser.add_argument('-p', '--parent', default = '', help = 'The name of the parent sector (omit for no parent)')
 parser.add_argument('-l', '--letter', default = '', help = 'The subsector position letter (omit for no position')
+parser.add_argument('-s', '--settled', type=int, default = 3, choices=[0, 1, 2, 3, 4, 5], help='settlement value (0 = unsettled, 1 = wilds, 2 = frontier, 3 = standard, 4 = high, 5 = very high')
 
 args = parser.parse_args()
 
@@ -57,7 +58,7 @@ print()
 
 # Instantiate the subsector and generate
 
-s = TR_Subsector.Subsector(args.engine, args.name, args.parent, args.letter, args.density)
+s = TR_Subsector.Subsector(args.engine, args.name, args.parent, args.letter, args.density, args.settled)
 
 # Break out if unimplemented types are requested
 

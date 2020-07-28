@@ -61,6 +61,10 @@ class Subsector:
         return self.__engName
     
     @property
+    def pType(self):
+        return self.__pType
+    
+    @property
     def subName(self):
         return self.__subName
 
@@ -99,6 +103,11 @@ class Subsector:
         if engName in ENGINES: self.__engName = engName
         else: self.engName = 'CE'
 
+    @pType.setter
+    def pType(self, pType):
+        if pType in [*range(0, 6, 1)]: self.__pType = pType
+        else: self.__pType = 3
+    
     @subName.setter
     def subName(self, subName):
         self.__subName = subName
@@ -139,7 +148,8 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, engName, subName, secName, subLetter, subDensity):
+    def __init__(self, engName, subName, secName, subLetter, subDensity, pType):
+        self.__pType = pType
         self.engName = engName
         self.__subName = subName
         self.__secName = secName
@@ -169,7 +179,7 @@ class Subsector:
                     
                     # Generate the world using ht eengine specified
                     
-                    if self.engName == 'CEEX': w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld)
+                    if self.engName == 'CEEX': w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld, self.pType)
                     elif self.engName == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
                     w1.genWorld()
@@ -197,6 +207,8 @@ class Subsector:
 
 # Testing code here
 
-s1 = Subsector("CE", "TestSub", "TestSec", "B", 2)
-s1.genSubSec()
-s1.printSubSec()
+# s1 = Subsector("CEEX", "TestSub", "TestSec", "B", 2, 5)
+
+# print(s1.pType)
+# s1.genSubSec()
+# s1.printSubSec()
