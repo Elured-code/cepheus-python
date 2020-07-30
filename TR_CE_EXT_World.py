@@ -75,7 +75,7 @@ def gen_starType(pType):
 
     # Subdwarfs and dwarfs get dwarfs
 
-    elif pType in ['D', 'VI']: 
+    elif pType[0] in ['D', 'VI']: 
         returnval = 'D'
 
     # Type II giants
@@ -94,6 +94,11 @@ def gen_starType(pType):
         if l <= 600: returnval = 'V'
         elif l <= 995: returnval = 'D'
         elif l <= 998: returnval = 'III'
+
+    # Give dwarfs a size number, as this won't be generated in the gen_Spectral function below
+
+    if returnval == 'D':
+        returnval += str(random.randint(0, 9)) 
 
     return returnval
 
@@ -123,9 +128,9 @@ def gen_Spectral(sType):
         if m <= 30: spec = 'G'
         elif m <= 60: spec = 'K'
         else: spec = 'M'
-    if sType == "D": spec = ""
-
-    if spec != "":
+    if sType[0] == "D": 
+        spec = ""
+    else: 
         n = random.randint(0, 9)
         spec += str(n) + " "
 
@@ -394,52 +399,17 @@ class World:
         elif i <= 91: self.nStars = 2
         else: self.nStars = 3
 
-
-# Generate the stellar data using the methods defined above
-
-    def genWorld(self):
-        
-        # If a mainworld, generate stellar data
-
-        if self.mainWorld: 
-            self.gen_nStars()
-
-            # Determine the primary type
-            
-            tP = gen_starType('x')
-        
-            # Determine the primary spectral classification
-            
-            sP = gen_Spectral(tP)
-
-            self.starList.append(sP + tP)
-
-            # Determine the secondary type if present
-
-            if self.nStars >= 2: 
-                    tS = gen_starType(tP)
-                    sS = gen_Spectral(tS)
-                    self.starList.append(sS + tS)
-            if self.nStars == 3: 
-                    tT = gen_starType(tP)
-                    sT = gen_Spectral(tT) 
-                    self.starList.append(sT + tT)  
-        
-        # print(self.starList)
-
-        # Generate world data
-    
-        # Generate physical stats
-
+    def gen_siz(self):
         self.siz = D2Roll() - 2
-        
+
+    def gen_atm(self, T):
         self.atm = D2Roll() - 7 + self.siz
         if self.atm < 0: self.atm = 0
         elif self.atm > 15: self.atm = 15
 
         # Burn the atmosphere off worlds with dwarf primaries
 
-        if tP == 'D':
+        if T == 'D':
             i = D2Roll()
             if i == 12: self.atm = 14
             elif i == 11: self.atm = 3
@@ -448,30 +418,30 @@ class World:
             else: self.atm = 0 
 
         if self.siz == 0: self.atm = 0
-        
+
+    def gen_hyd(self):
         if self.siz == 0: self.hyd = 0
         else:
             self.hyd = D2Roll() - 7 + self.siz
             if self.atm in [0, 1, 10, 11, 12]: self.hyd -= 4
             if self.atm == 14: self.hyd -= 2
             if self.hyd < 0: self.hyd = 0
-        
-        # Generate social stats
 
+    def gen_pop(self, T, S):
         self.pop = D2Roll() - 2
 
         # Skew the population away from smaller (flares) and giant primaries
 
-        if tP == 'I' or tP == 'II':
+        if T == 'I' or T == 'II':
             self.pop -= 3
-        elif tP == 'III':
+        elif T == 'III':
             self.pop -= 2
-        elif tP == 'V':
-            if sP[0] == 'M': self.pop -= 2
-            elif sP[0] == 'K':  self.pop -= 1
-        elif tP == 'VI':
+        elif T == 'V':
+            if S[0] == 'M': self.pop -= 2
+            elif S[0] == 'K':  self.pop -= 1
+        elif T == 'VI':
             self.pop -= 2 
-        elif tP == 'D':
+        elif T == 'D':
             self.pop -= 4
 
         # CE SRD standard population modifiers
@@ -526,40 +496,41 @@ class World:
 
         elif self.popType == 5:
             if self.atm in [5, 6, 8]:
-                if self.hyd >= 4: self.pop += 3
-                elif self.hyd <= 2: self.pop += 2
-            elif self.atm in [4, 7, 9, 13, 14]: self.pop += 2
+                if self.hyd >= 4: 
+                    if D2Roll() > 5: self.pop += 4
+                    else: self.pop += 3
+                elif self.hyd <= 2: self.pop += 3
+            elif self.atm in [4, 7, 9, 13, 14]: self.pop += 3
             else: self.pop += 1
 
         # Bounds on the population
         
         if self.pop < 0: self.pop = 0
-        if self.pop > 12: self.pop = 12   
+        if self.pop > 10: self.pop = 10   
         
         self.pMod = D2Roll() - 2
         if self.pop > 0 and self.pMod < 1: self.pMod = 1
         if self.pop == 0: self.pMod = 0
         if self.pMod == 10: self.pMod = 9
 
+    def gen_gov(self):
         self.gov = D2Roll() - 7 + self.pop
         if self.gov < 0: self.gov = 0
         if self.gov > 15: self.gov = 15
         if self.pop  == 0: self.gov   = 0
-     
+
+    def gen_law(self):
         self.law = D2Roll() - 7 + self.gov
         if self.law < 0: self.law = 0
         elif self.law > 15: self.law = 15
-        if self.pop == 0: self.law  = 0
-        
-
-        # Generate the starport
-
+        if self.pop == 0: self.law  = 0 
+   
+    def gen_starPort(self):
         spRoll = D2Roll() - 7 + self.pop
         self.starPort = STARPORTSTABLE.get(spRoll)
-        self.UWPString = self.starPort + self.UWPString
+#        self.UWPString = self.starPort + self.UWPString
 
-        # Generate Tech Level
-
+    def gen_tlv(self):
         self.tlv = D1Roll()
         if self.starPort in STARPORTTLMOD: self.tlv += STARPORTTLMOD.get(self.starPort)
         if self.siz in SIZETLMOD: self.tlv += SIZETLMOD.get(self.siz)
@@ -582,8 +553,7 @@ class World:
 
         if self.pop == 0: self.tlv = 0
 
-        # Determine presence of bases
-
+    def gen_bases(self):
         # Naval bases
 
         nBase = False
@@ -617,8 +587,7 @@ class World:
         if pBase and not sBase: self.bCode = "P"
         if sBase and not nBase and not pBase: self.bCode = "S"
 
-        # Generate trade codes
-
+    def gen_tCodeString(self):
         tCode = []
         if self.atm >= 4 and self.atm <= 9 and self.hyd >= 4 and self.hyd <= 8 and self.pop >= 5 and self.pop <= 7: tCode.append("Ag")
         if self.siz == 0 and self.atm == 0 and self.hyd == 0: tCode.append("As")
@@ -647,27 +616,99 @@ class World:
             self.tCodeString += t + " "
         self.tCodeString.rstrip()
 
-        # Determine the presence of planetoid belts
-
+    def genBelts(self):
+        # Determine the presence of belts
+        
         if D2Roll() >= 4:
             self.nBelts = D1Roll() - 3
             if self.siz == 0 and self.nBelts < 1: self.nBelts = 1
         else: self.nBelts = 0 
 
+    def genGiants(self):
         # Determine the presence of gas giants
 
         if D2Roll() >= 5:
             self.nGiants = D1Roll() - 2
             if self.nGiants < 1: self.nGiants = 1
         else: self.nGiants = 0
-       
-        # Determine travel zones
 
+    def genZone(self):
         self.tZone = " "
         if self.atm >= 10: self.tZone = "A"
         elif self.gov in [0, 7, 10]: self.tZone = "A"
         elif self.law == 0 or self.law >= 9: self.tZone = "A"
         else: self.tZone = " "
+
+    #####
+    
+    def genWorld(self):
+        
+        # Generate the world, using the component generators defined above
+        # If a mainworld, generate stellar data
+
+        if self.mainWorld: 
+            self.gen_nStars()
+
+            # Determine the primary type
+            
+            tP = gen_starType('x')
+        
+            # Determine the primary spectral classification
+            
+            sP = gen_Spectral(tP)
+
+            self.starList.append(sP + tP)
+
+            # Determine the secondary type if present
+
+            if self.nStars >= 2: 
+                    tS = gen_starType(tP)
+                    sS = gen_Spectral(tS)
+                    self.starList.append(sS + tS)
+            if self.nStars == 3: 
+                    tT = gen_starType(tP)
+                    sT = gen_Spectral(tT) 
+                    self.starList.append(sT + tT)  
+
+        # Generate world data
+    
+        # Generate physical stats
+
+        self.gen_siz()
+        self.gen_atm(tP)
+        self.gen_hyd()
+         
+        # Generate social stats
+
+        self.gen_pop(tP, sP)
+        self.gen_gov()
+        self.gen_law()
+
+        # Generate the starport
+
+        self.gen_starPort()
+
+        # Generate Tech Level
+
+        self.gen_tlv()
+
+        # Determine presence of bases
+
+        self.gen_bases()
+
+        # Generate trade codes
+
+        self.gen_tCodeString()
+
+        # Determine the presence of planetoid belts, gas giants
+
+        self.genBelts()
+        self.genGiants()
+   
+        # Determine travel zones
+
+        self.genZone()
+
 
         
     def formatUWPString_text_SEC(self):
@@ -732,7 +773,7 @@ class World:
 
 
 # i = 1
-# while i < 40:
+# while i < 10:
 #     w1 = World("Blargo", True, 5)
 #     w1.genWorld()
 #     w1.formatUWPString_text_SEC()
