@@ -3,6 +3,8 @@ Python scripts for the Cepheus Engine and Traveller RPGs
 
 ## Contents
 
+- TR_Support.py:          Supporting functions
+- TR_Constants.py:        Supporting constants
 - TR_CE_SRD_World.py:     Mainworld class based on the CE SRD generation rules
 - TR_CE_EXT_World.py:     Mainworld class based on the CE SRD generation rules + my own extensions:
   - Stellar data
@@ -12,4 +14,4 @@ Python scripts for the Cepheus Engine and Traveller RPGs
 - subsec.py:              Generate a subsector using the TR_Subsector class
 - test.py:                Testing code
 
-Early days, lots of work to do.
+Still early days, lots of work to do.
