@@ -22,7 +22,22 @@ def D6Roll():
     random.seed()
     return random.randint(1, 6)
 
-    
+def D10Roll():
+    random.seed()
+    return random.randint(1, 10)
+
 def D100Roll():
     random.seed()
-    return random.randint(1, 6) + random.randint(1, 101)
+    return random.randint(1, 100)
+
+def D200Roll():
+    random.seed()
+    return random.randint(1, 200)
+
+def D1000Roll():
+    random.seed()
+    return random.randint(1, 1000)
+
+def D100KRoll():
+    random.seed()
+    return random.randint(1, 100000)

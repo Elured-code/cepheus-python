@@ -34,20 +34,9 @@
 
 import random
 import TR_CE_EXT_World
+from TR_Support import D100Roll
+import TR_Constants
 import sys
-
-# Define constants
-
-DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
-SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
-
-# Define common functions
-
-# Dice rollers
-
-def D100Roll():
-    random.seed()
-    return random.randint(1, 6) + random.randint(1, 101)
 
 class Subsector:
 
@@ -68,6 +57,10 @@ class Subsector:
     @property
     def subDensity(self):
         return self.__subDensity
+
+    @property
+    def popType(self):
+        return self.__popType
 
     @property
     def subContents(self):
@@ -97,13 +90,18 @@ class Subsector:
 
     @subLetter.setter
     def subLetter(self, subLetter):
-        if subLetter in SUBSECLETTERS: self.__subLetter = subLetter
+        if subLetter in TR_Constants.SUBSECLETTERS: self.__subLetter = subLetter
         else: self.__subLetter = ' '
 
     @subDensity.setter
     def subDensity(self, subDensity):
         if subDensity in [1, 2, 3, 4, 5]: self.__subDensity = subDensity
         else: self.__subDensity = 3
+
+    @popType.setter
+    def popType(self, popType):
+        if popType in [0, 1, 2, 3, 4, 5]: self.__popType = popType
+        else: self.__popType = 3
 
     @subContents.setter
     def subContents(self, subContents):
@@ -127,11 +125,12 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, subName, secName, subLetter, subDensity):
+    def __init__(self, subName, secName, subLetter, subDensity, popType):
         self.__subName = subName
         self.__secName = secName
         self.__subLetter = subLetter
         self.__subDensity = subDensity
+        self.__popType = popType
         self.contents = []
         self.hiTL = 0
         self.sumPop = 0
@@ -143,7 +142,7 @@ class Subsector:
 
     # Set the probability of system presence in any given hex
 
-        prob = DENSITY_LOOKUP.get(self.subDensity)
+        prob = TR_Constants.DENSITY_LOOKUP.get(self.subDensity)
         
         # Loop through the subsector hexes, checking for and if required generating mainworlds
         i = 1
@@ -153,7 +152,7 @@ class Subsector:
                 if D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
                     isMainWorld = True
-                    w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld)
+                    w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld, self.__popType)
                     w1.loc = loc
                     w1.genWorld()
                     
@@ -180,6 +179,6 @@ class Subsector:
 
 # Testing code here
 
-# s1 = Subsector("TestSub", "TestSec", "B", 2)
-# s1.genSubSec()
-# s1.printSubSec()
+s1 = Subsector("TestSub", "TestSec", "B", 2, 0)
+s1.genSubSec()
+s1.printSubSec()

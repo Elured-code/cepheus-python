@@ -28,137 +28,11 @@
 # Import modules here
 
 import random
+import TR_Constants
+from TR_CE_EXT_Stellar import gen_Spectral, gen_starType
+from TR_Support import D6Roll, D6Rollx2, D100Roll
 
-# Define common functions
-
-# Dice rollers
-
-def D2Roll():
-    random.seed()
-    return random.randint(1, 6) + random.randint(1, 6)
-
-def D1Roll():
-    random.seed()
-    return random.randint(1, 6)
-
-def gen_starType(pType):
-    
-    # Primary generation
-
-    random.seed()
-    i = random.randint(1, 200)
-
-    if i <= 185: returnval = 'V'
-    elif i <= 197: returnval = 'D'
-    elif i <= 199: returnval = 'III'
-    else: returnval = 'VI'
-
-    # Drill down further into giants to tease our the (very rare) super giants
-    # Hyper giants are too rare and should be added manually if required
-
-    if returnval == 'III':
-        j = random.randint(1, 100)
-        if j > 95 and j < 100: returnval = 'II'
-        elif j == 100: returnval = 'I'
-
-    # Further restrict based on the primary type
-
-    if pType == 'V':
-        if returnval in ['I', 'II', 'III', 'V']:
-
-            # Main sequence stars should not have giant companions
-
-            k = random.randint(1, 100)
-            if k < 65: returnval = 'D'
-            elif k < 99: returnval = 'V'
-            else: returnval = 'VI'
-
-    # Subdwarfs and dwarfs get dwarfs
-
-    elif pType[0] in ['D', 'VI']: 
-        returnval = 'D'
-
-    # Type II giants
-    
-    elif pType == 'II' and returnval == 'I':
-        l = random.randint(1, 1000)
-        if l <= 600: returnval = 'V'
-        elif l <= 995: returnval = 'D'
-        elif l <= 998: returnval = 'III'
-        elif l <= 999: returnval = 'II'
-
-    # Type III giants
-
-    elif pType == 'III' and returnval in ['I', 'II']:
-        l = random.randint(1, 1000)
-        if l <= 600: returnval = 'V'
-        elif l <= 995: returnval = 'D'
-        elif l <= 998: returnval = 'III'
-
-    # Give dwarfs a size number, as this won't be generated in the gen_Spectral function below
-
-    if returnval == 'D':
-        returnval += str(random.randint(0, 9)) 
-
-    return returnval
-
-def gen_Spectral(sType):
-    # Now determine the spectral class
-
-    spec = ""
-    if sType in ['I', 'II', 'III']:
-        m = random.randint(1, 100)
-        if m < 30: spec = 'B'
-        elif m < 50: spec = 'A'
-        elif m < 60: spec = 'F'
-        elif m < 75: spec = 'G'
-        elif m < 85: spec = 'K'
-        else: spec = 'M'
-    elif sType == 'V':
-        m = random.randint(1, 100000)
-        if m == 1: spec = 'O'
-        elif m < 130: spec = 'B'
-        elif m < 730: spec = 'A'
-        elif m < 3730: spec = 'F'
-        elif m < 11330: spec = 'G'
-        elif m < 23430: spec = 'K'
-        else: spec = 'M'
-    elif sType == 'VI':
-        m = random.randint(1, 100)
-        if m <= 30: spec = 'G'
-        elif m <= 60: spec = 'K'
-        else: spec = 'M'
-    if sType[0] == "D": 
-        spec = ""
-    else: 
-        n = random.randint(0, 9)
-        spec += str(n) + " "
-
-    return spec
-
-# Define constants
-
-# Decimal to Traveller Hex Code translation
-# Note that in non-Book 3 implementations this is extended out, skipping "I" and "O"
-
-STARPORTS = ["A", "B", "C", "D", "E", "X"]
-UWPCODETABLE = {0: "0", 1: "1", 2: "2",
-    3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F", 16: "G", 17: "H", 18: "J", 19: "K", 20: "L", 21: "M" }
-
-# starPort code determination
-
-STARPORTSTABLE = {-5: "X", -4: "X", -3: "X", -2: "X", -1: "X", 0: "X", 1: "X", 2: "X",
-    3: "E", 4: "E", 5: "D", 6: "D", 7: "C", 8: "C", 9: "B", 10: "B", 11: "A", 12: "A", 13: "A", 14: "A", 15: "A", 16: "A", 17: "A", 18: "A" }
-
-# Tech level modifiers
-
-STARPORTTLMOD = {"A": 6, "B": 4, "C": 2, "X": -4} 
-SIZETLMOD = {0: 2, 1: 2, 2: 1, 3: 1, 4: 1}     
-HYDTLMOD = {0: 1, 9: 1, 10: 2}
-ATMTLMOD = {0: 1, 1: 1, 2: 1, 3: 1, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
-POPTLMOD = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 9: 2, 10: 4, 11: 3, 12: 4}
-GOVTLMOD = {0: 1, 5: 1, 7: 2, 13: -2, 14: -2}
-
+# Module specific functions
 
 
 class World:
@@ -285,7 +159,7 @@ class World:
 
     @starPort.setter
     def starPort(self, starPort):
-        if starPort in STARPORTS:
+        if starPort in TR_Constants.STARPORTS:
             self.__starPort = starPort
         else: self.__starPort = "-"
 
@@ -392,25 +266,24 @@ class World:
     # Determine the number of stars in the system
 
     def gen_nStars(self):
-        random.seed()
-        i = random.randint(1, 100)
+        i = D100Roll()
 
         if i <= 56: self.nStars = 1
         elif i <= 91: self.nStars = 2
         else: self.nStars = 3
 
     def gen_siz(self):
-        self.siz = D2Roll() - 2
+        self.siz = D6Rollx2() - 2
 
     def gen_atm(self, T):
-        self.atm = D2Roll() - 7 + self.siz
+        self.atm = D6Rollx2() - 7 + self.siz
         if self.atm < 0: self.atm = 0
         elif self.atm > 15: self.atm = 15
 
         # Burn the atmosphere off worlds with dwarf primaries
 
         if T == 'D':
-            i = D2Roll()
+            i = D6Rollx2()
             if i == 12: self.atm = 14
             elif i == 11: self.atm = 3
             elif i == 10: self.atm = 2
@@ -422,26 +295,26 @@ class World:
     def gen_hyd(self):
         if self.siz == 0: self.hyd = 0
         else:
-            self.hyd = D2Roll() - 7 + self.siz
+            self.hyd = D6Rollx2() - 7 + self.siz
             if self.atm in [0, 1, 10, 11, 12]: self.hyd -= 4
             if self.atm == 14: self.hyd -= 2
             if self.hyd < 0: self.hyd = 0
 
     def gen_pop(self, T, S):
-        self.pop = D2Roll() - 2
+        self.pop = D6Rollx2() - 2
 
         # Skew the population away from smaller (flares) and giant primaries
 
-        if T == 'I' or T == 'II':
+        if T[0] == 'I' or T == 'II':
             self.pop -= 3
-        elif T == 'III':
+        elif T[0] == 'III':
             self.pop -= 2
-        elif T == 'V':
+        elif T[0] == 'V':
             if S[0] == 'M': self.pop -= 2
             elif S[0] == 'K':  self.pop -= 1
-        elif T == 'VI':
+        elif T[0] == 'VI':
             self.pop -= 2 
-        elif T == 'D':
+        elif T[0] == 'D':
             self.pop -= 4
 
         # CE SRD standard population modifiers
@@ -497,7 +370,7 @@ class World:
         elif self.popType == 5:
             if self.atm in [5, 6, 8]:
                 if self.hyd >= 4: 
-                    if D2Roll() > 5: self.pop += 4
+                    if D6Rollx2() > 5: self.pop += 4
                     else: self.pop += 3
                 elif self.hyd <= 2: self.pop += 3
             elif self.atm in [4, 7, 9, 13, 14]: self.pop += 3
@@ -508,36 +381,35 @@ class World:
         if self.pop < 0: self.pop = 0
         if self.pop > 10: self.pop = 10   
         
-        self.pMod = D2Roll() - 2
+        self.pMod = D6Rollx2() - 2
         if self.pop > 0 and self.pMod < 1: self.pMod = 1
         if self.pop == 0: self.pMod = 0
         if self.pMod == 10: self.pMod = 9
 
     def gen_gov(self):
-        self.gov = D2Roll() - 7 + self.pop
+        self.gov = D6Rollx2() - 7 + self.pop
         if self.gov < 0: self.gov = 0
         if self.gov > 15: self.gov = 15
         if self.pop  == 0: self.gov   = 0
 
     def gen_law(self):
-        self.law = D2Roll() - 7 + self.gov
+        self.law = D6Rollx2() - 7 + self.gov
         if self.law < 0: self.law = 0
         elif self.law > 15: self.law = 15
         if self.pop == 0: self.law  = 0 
    
     def gen_starPort(self):
-        spRoll = D2Roll() - 7 + self.pop
-        self.starPort = STARPORTSTABLE.get(spRoll)
-#        self.UWPString = self.starPort + self.UWPString
+        spRoll = D6Rollx2() - 7 + self.pop
+        self.starPort = TR_Constants.STARPORTSTABLE.get(spRoll)
 
     def gen_tlv(self):
-        self.tlv = D1Roll()
-        if self.starPort in STARPORTTLMOD: self.tlv += STARPORTTLMOD.get(self.starPort)
-        if self.siz in SIZETLMOD: self.tlv += SIZETLMOD.get(self.siz)
-        if self.hyd in HYDTLMOD: self.tlv += HYDTLMOD.get(self.hyd)
-        if self.atm in ATMTLMOD: self.tlv += ATMTLMOD.get(self.atm)
-        if self.pop in POPTLMOD: self.tlv += POPTLMOD.get(self.pop)
-        if self.gov in GOVTLMOD: self.tlv += GOVTLMOD.get(self.gov)
+        self.tlv = D6Roll()
+        if self.starPort in TR_Constants.STARPORTTLMOD: self.tlv += TR_Constants.STARPORTTLMOD.get(self.starPort)
+        if self.siz in TR_Constants.SIZETLMOD: self.tlv += TR_Constants.SIZETLMOD.get(self.siz)
+        if self.hyd in TR_Constants.HYDTLMOD: self.tlv += TR_Constants.HYDTLMOD.get(self.hyd)
+        if self.atm in TR_Constants.ATMTLMOD: self.tlv += TR_Constants.ATMTLMOD.get(self.atm)
+        if self.pop in TR_Constants.POPTLMOD: self.tlv += TR_Constants.POPTLMOD.get(self.pop)
+        if self.gov in TR_Constants.GOVTLMOD: self.tlv += TR_Constants.GOVTLMOD.get(self.gov)
 
         if self.tlv < 0: self.tlv = 0
         elif self.tlv > 15: self.tlv = 15
@@ -558,14 +430,14 @@ class World:
 
         nBase = False
         if self.starPort == "A" or self.starPort == "B": 
-            if D2Roll() >= 8: nBase = True
+            if D6Rollx2() >= 8: nBase = True
             else: nBase = False
 
         # Scout bases / outposts
 
         sBase = False
         if self.starPort != "E" and self.starPort != "X":
-            roll = D2Roll()
+            roll = D6Rollx2()
             if self.starPort == "A": roll -= 3
             if self.starPort == "B": roll -= 2
             if self.starPort == "C": roll -= 1
@@ -576,7 +448,7 @@ class World:
 
         pBase = False
         if self.starPort != "A" and not nBase:
-            if D2Roll() == 12: pBase = True
+            if D6Rollx2() == 12: pBase = True
 
         # Format the base code
 
@@ -619,16 +491,16 @@ class World:
     def genBelts(self):
         # Determine the presence of belts
         
-        if D2Roll() >= 4:
-            self.nBelts = D1Roll() - 3
+        if D6Rollx2() >= 4:
+            self.nBelts = D6Roll() - 3
             if self.siz == 0 and self.nBelts < 1: self.nBelts = 1
         else: self.nBelts = 0 
 
     def genGiants(self):
         # Determine the presence of gas giants
 
-        if D2Roll() >= 5:
-            self.nGiants = D1Roll() - 2
+        if D6Rollx2() >= 5:
+            self.nGiants = D6Roll() - 2
             if self.nGiants < 1: self.nGiants = 1
         else: self.nGiants = 0
 
@@ -730,13 +602,13 @@ class World:
         self.UWPString = self.worldname + pad
         self.UWPString += self.loc + " "
         self.UWPString += self.starPort
-        self.UWPString += UWPCODETABLE.get(self.siz)
-        self.UWPString += UWPCODETABLE.get(self.atm)
-        self.UWPString += UWPCODETABLE.get(self.hyd)
-        self.UWPString += UWPCODETABLE.get(self.pop)
-        self.UWPString += UWPCODETABLE.get(self.gov)
-        self.UWPString += UWPCODETABLE.get(self.law)
-        self.UWPString += "-" + UWPCODETABLE.get(self.tlv)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.siz)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.atm)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.hyd)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.pop)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.gov)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.law)
+        self.UWPString += "-" + TR_Constants.UWPCODETABLE.get(self.tlv)
         self.UWPString = self.UWPString + " " + self.bCode
         self.UWPString += " " + self.tCodeString
 
