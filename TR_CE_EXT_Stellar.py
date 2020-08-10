@@ -28,6 +28,7 @@
 # Import modules here
 
 import random
+from TR_Support import D6Roll, D6Rollx2, D10Roll, D100Roll, D200Roll, D1000Roll, D100KRoll
 
 # Define common functions
 
@@ -40,7 +41,7 @@ def gen_starType(pType):
     # Primary generation
 
     random.seed()
-    i = random.randint(1, 200)
+    i = D200Roll()
 
     if i <= 185: returnval = 'V'
     elif i <= 197: returnval = 'D'
@@ -51,7 +52,7 @@ def gen_starType(pType):
     # Hyper giants are too rare and should be added manually if required
 
     if returnval == 'III':
-        j = random.randint(1, 100)
+        j = D200Roll()
         if j > 95 and j < 100: returnval = 'II'
         elif j == 100: returnval = 'I'
 
@@ -62,20 +63,20 @@ def gen_starType(pType):
 
             # Main sequence stars should not have giant companions
 
-            k = random.randint(1, 100)
-            if k < 65: returnval = 'D'
+            k = D100Roll()
+            if k < 33: returnval = 'D'
             elif k < 99: returnval = 'V'
             else: returnval = 'VI'
 
     # Subdwarfs and dwarfs get dwarfs
 
-    elif pType in ['D', 'VI']: 
+    elif pType[0] in ['D', 'VI']: 
         returnval = 'D'
 
     # Type II giants
     
     elif pType == 'II' and returnval == 'I':
-        l = random.randint(1, 1000)
+        l = D1000Roll()
         if l <= 600: returnval = 'V'
         elif l <= 995: returnval = 'D'
         elif l <= 998: returnval = 'III'
@@ -84,10 +85,15 @@ def gen_starType(pType):
     # Type III giants
 
     elif pType == 'III' and returnval in ['I', 'II']:
-        l = random.randint(1, 1000)
+        l = D1000Roll()
         if l <= 600: returnval = 'V'
         elif l <= 995: returnval = 'D'
         elif l <= 998: returnval = 'III'
+
+    # Give dwarfs a size number, as this won't be generated in the gen_Spectral function below
+
+    if returnval == 'D':
+        returnval += str(D10Roll() - 1)
 
     return returnval
 
@@ -96,7 +102,7 @@ def gen_Spectral(sType):
 
     spec = ""
     if sType in ['I', 'II', 'III']:
-        m = random.randint(1, 100)
+        m = D100Roll()
         if m < 30: spec = 'B'
         elif m < 50: spec = 'A'
         elif m < 60: spec = 'F'
@@ -104,7 +110,7 @@ def gen_Spectral(sType):
         elif m < 85: spec = 'K'
         else: spec = 'M'
     elif sType == 'V':
-        m = random.randint(1, 100000)
+        m = D100KRoll()
         if m == 1: spec = 'O'
         elif m < 130: spec = 'B'
         elif m < 730: spec = 'A'
@@ -113,17 +119,18 @@ def gen_Spectral(sType):
         elif m < 23430: spec = 'K'
         else: spec = 'M'
     elif sType == 'VI':
-        m = random.randint(1, 100)
+        m = D100Roll()
         if m <= 30: spec = 'G'
         elif m <= 60: spec = 'K'
         else: spec = 'M'
-    if sType == "D": spec = ""
-
-    if spec != "":
-        n = random.randint(0, 9)
+    if sType[0] == "D": 
+        spec = ""
+    else: 
+        n = D10Roll() - 1
         spec += str(n) + " "
 
     return spec
+
 
 
 

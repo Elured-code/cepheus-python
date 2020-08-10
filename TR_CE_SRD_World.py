@@ -12,53 +12,17 @@
 # 
 # PrintUWPString:      output the world data as a single line of text
 #
-
-#
-# Things to do:
-#
-#  - Add stellar generation method based on Book 6 / MT
-#  - Move supporting functions to a separate module
 # 
 
 
 # Import modules here
 
 import random
+import TR_Constants
+from TR_Support import D6Roll, D6Rollx2, D100Roll
 
-# Define common functions
-
-# Dice rollers
-
-def D2Roll():
-    random.seed()
-    return random.randint(1, 6) + random.randint(1, 6)
-
-def D1Roll():
-    random.seed()
-    return random.randint(1, 6)
-
-# Define constants
-
-# Decimal to Traveller Hex Code translation
-# Note that in non-Book 3 implementations this is extended out, skipping "I" and "O"
-
-STARPORTS = ["A", "B", "C", "D", "E", "X"]
-UWPCODETABLE = {0: "0", 1: "1", 2: "2",
-    3: "3", 4: "4", 5: "5", 6: "6", 7: "7", 8: "8", 9: "9", 10: "A", 11: "B", 12: "C", 13: "D", 14: "E", 15: "F", 16: "G", 17: "H", 18: "J", 19: "K", 20: "L", 21: "M" }
-
-# starPort code determination
-
-STARPORTSTABLE = {-5: "X", -4: "X", -3: "X", -2: "X", -1: "X", 0: "X", 1: "X", 2: "X",
-    3: "E", 4: "E", 5: "D", 6: "D", 7: "C", 8: "C", 9: "B", 10: "B", 11: "A", 12: "A", 13: "A", 14: "A", 15: "A", 16: "A", 17: "A", 18: "A" }
-
-# Tech level modifiers
-
-STARPORTTLMOD = {"A": 6, "B": 4, "C": 2, "X": -4} 
-SIZETLMOD = {0: 2, 1: 2, 2: 1, 3: 1, 4: 1}     
-HYDTLMOD = {0: 1, 9: 1, 10: 2}
-ATMTLMOD = {0: 1, 1: 1, 2: 1, 3: 1, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 15: 1}
-POPTLMOD = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 9: 2, 10: 4, 11: 3, 12: 4}
-GOVTLMOD = {0: 1, 5: 1, 7: 2, 13: -2, 14: -2}
+# World class - holds the world details as defined in the CE SRD
+#
 
 class World:
 
@@ -138,7 +102,7 @@ class World:
 
     @starPort.setter
     def starPort(self, starPort):
-        if starPort in STARPORTS:
+        if starPort in TR_Constants.STARPORTS:
             self.__starPort = starPort
         else: self.__starPort = "-"
 
@@ -242,99 +206,98 @@ class World:
         self.nGiants = 0
         self.tCodeString = ""
         self.tZone = " "
-        
 
-    def genWorld(self):
-        # Generate world data
-    
-        # Generate physical stats
+# Internal methods to generate stats
 
-        self.siz = D2Roll() - 2
-        
-        self.atm = D2Roll() - 7 + self.siz
-        if self.atm < 0: self.atm = 0
-        elif self.atm > 15: self.atm = 15
-        if self.siz == 0: self.atm = 0
-        
-        if self.siz == 0: self.hyd = 0
+    def gen_siz(self):
+        x = D6Rollx2() - 2
+        self.siz = x
+
+    def gen_atm(self):
+        x = D6Rollx2() + self.siz - 7
+        if x < 0: x = 0
+        elif x > 15: x = 15
+        if self.siz == 0: x = 0
+        self.atm = x
+
+    def gen_hyd(self):
+        x = D6Rollx2() + self.siz - 7
+
+        if self.siz == 0: x = 0
         else:
-            self.hyd = D2Roll() - 7 + self.siz
-            if self.atm in [0, 1, 10, 11, 12]: self.hyd -= 4
-            if self.atm == 14: self.hyd -= 2
-            if self.hyd < 0: self.hyd = 0
-        
-        # Generate social stats
+            if self.atm in [0, 1, 10, 11, 12]: x -= 4
+            if self.atm == 14: x -= 2
+        if x < 0: x = 0
+        self.hyd = x
 
-        self.pop = D2Roll() - 2
-        if self.siz <= 2: self.pop -= 1
-        if self.atm in [0, 1, 10, 11, 12]: self.pop -= 2
-        if self.atm == 6: self.pop  += 3
-        if self.atm in [5, 8]: self.pop += 1
-        if self.hyd == 0 and self.atm < 3: self.pop -= 2
-        if self.pop < 0: self.pop = 0
-        if self.pop > 12: self.pop = 12
-        
-        self.pMod = D2Roll() - 2
-        if self.pop > 0 and self.pMod < 1: self.pMod = 1
-        if self.pop == 0: self.pMod = 0
-        if self.pMod == 10: self.pMod = 9
+    def gen_pop(self):
+        x = D6Rollx2() - 2
+        if self.siz <= 2: x -= 1
+        if self.atm in [0, 1, 10, 11, 12]: x -= 2
+        if self.atm == 6: x  += 3
+        if self.atm in [5, 8]: x += 1
+        if self.hyd == 0 and self.atm < 3: x -= 2
+        if self.pop < 0: x = 0
+        if self.pop > 12: x = 12
+        self.pop = x
 
-        self.gov = D2Roll() - 7 + self.pop
-        if self.gov < 0: self.gov = 0
-        if self.gov > 15: self.gov = 15
-        if self.pop  == 0: self.gov   = 0
-     
-        self.law = D2Roll() - 7 + self.gov
-        if self.law < 0: self.law = 0
-        elif self.law > 15: self.law = 15
-        if self.pop == 0: self.law  = 0
-        
+    def gen_pMod(self):
+        x = D6Rollx2() - 2
+        if self.pop > 0 and x < 1: x = 1
+        if self.pop == 0: x = 0
+        if x == 10: x = 9
+        self.pMod = x
 
-        # Generate the starport
+    def gen_gov(self):
+        x = D6Rollx2() - 7 + self.pop
+        if self.pop == 0: x = 0
+        self.gov = x
 
-        spRoll = D2Roll() - 7 + self.pop
-        self.starPort = STARPORTSTABLE.get(spRoll)
-        self.UWPString = self.starPort + self.UWPString
+    def gen_law(self):
+        x = D6Rollx2() - 7 + self.gov
+        if self.pop == 0: x = 0
+        self.law = x
 
-        # Generate Tech Level
+    def gen_starPort(self):
+        spRoll = D6Rollx2() - 7 + self.pop
+        self.starPort = TR_Constants.STARPORTSTABLE.get(spRoll)
 
-        self.tlv = D1Roll()
-        if self.starPort in STARPORTTLMOD: self.tlv += STARPORTTLMOD.get(self.starPort)
-        if self.siz in SIZETLMOD: self.tlv += SIZETLMOD.get(self.siz)
-        if self.hyd in HYDTLMOD: self.tlv += HYDTLMOD.get(self.hyd)
-        if self.atm in ATMTLMOD: self.tlv += ATMTLMOD.get(self.atm)
-        if self.pop in POPTLMOD: self.tlv += POPTLMOD.get(self.pop)
-        if self.gov in GOVTLMOD: self.tlv += GOVTLMOD.get(self.gov)
-
-        if self.tlv < 0: self.tlv = 0
-        elif self.tlv > 15: self.tlv = 15
-
+    def gen_tlv(self):
+        x = D6Roll()
+        if self.starPort in TR_Constants.STARPORTTLMOD: x += TR_Constants.STARPORTTLMOD.get(self.starPort)
+        if self.siz in TR_Constants.SIZETLMOD: x += TR_Constants.SIZETLMOD.get(self.siz)
+        if self.hyd in TR_Constants.HYDTLMOD: x += TR_Constants.HYDTLMOD.get(self.hyd)
+        if self.atm in TR_Constants.ATMTLMOD: x += TR_Constants.ATMTLMOD.get(self.atm)
+        if self.pop in TR_Constants.POPTLMOD: x += TR_Constants.POPTLMOD.get(self.pop)
+        if self.gov in TR_Constants.GOVTLMOD: x += TR_Constants.GOVTLMOD.get(self.gov)
 
         # Add CE world condition requirements
 
-        if self.hyd in [0, 10] and self.pop > 6 and self.tlv < 4: self.tlv = 4
-        if self.atm in [4, 7, 9] and self.tlv < 5: self.tlv = 5
-        if self.atm in [0, 1, 2, 3, 10, 11, 12] and self.tlv < 7: self.tlv = 7
-        if self.atm in [13, 14] and self.hyd == 10 and self.tlv  < 7: self.tlv = 7
+        if self.hyd in [0, 10] and self.pop > 6 and x < 4: x = 4
+        if self.atm in [4, 7, 9] and self.tlv < 5: x = 5
+        if self.atm in [0, 1, 2, 3, 10, 11, 12] and x < 7: x = 7
+        if self.atm in [13, 14] and self.hyd == 10 and x  < 7: x = 7
 
         # Finally, if population is zero, no TL
 
-        if self.pop == 0: self.tlv = 0
+        if self.pop == 0: x = 0
 
-        # Determine presence of bases
+        self.tlv = x
 
-        # Naval bases
+    def gen_bCode(self):
+                
+        # Check for Naval bases
 
         nBase = False
         if self.starPort == "A" or self.starPort == "B": 
-            if D2Roll() >= 8: nBase = True
+            if D6Rollx2() >= 8: nBase = True
             else: nBase = False
 
         # Scout bases / outposts
 
         sBase = False
         if self.starPort != "E" and self.starPort != "X":
-            roll = D2Roll()
+            roll = D6Rollx2()
             if self.starPort == "A": roll -= 3
             if self.starPort == "B": roll -= 2
             if self.starPort == "C": roll -= 1
@@ -345,20 +308,25 @@ class World:
 
         pBase = False
         if self.starPort != "A" and not nBase:
-            if D2Roll() == 12: pBase = True
+            if D6Rollx2() == 12: pBase = True
 
         # Format the base code
 
-        self.bCode = " "
-        if nBase and sBase: self.bCode = "A"
-        if nBase and not sBase: self.bCode = "N"
-        if sBase and pBase: self.bCode = "G"
-        if pBase and not sBase: self.bCode = "P"
-        if sBase and not nBase and not pBase: self.bCode = "S"
+        bCode = " "
+        if nBase and sBase: bCode = "A"
+        if nBase and not sBase: bCode = "N"
+        if sBase and pBase: bCode = "G"
+        if pBase and not sBase: bCode = "P"
+        if sBase and not nBase and not pBase: bCode = "S"
+
+        self.bCode = bCode
+
+    def gen_tCode(self):
 
         # Generate trade codes
 
         tCode = []
+        tCodeString = ''
         if self.atm >= 4 and self.atm <= 9 and self.hyd >= 4 and self.hyd <= 8 and self.pop >= 5 and self.pop <= 7: tCode.append("Ag")
         if self.siz == 0 and self.atm == 0 and self.hyd == 0: tCode.append("As")
         if self.pop == 0 and  self.gov  == 0 and self.law == 0: tCode.append("Ba") 
@@ -380,35 +348,70 @@ class World:
 
         # Format the trade code string
 
-        # print(tCode)
-
         for t in tCode:
-            self.tCodeString += t + " "
-        self.tCodeString.rstrip()
+            tCodeString += t + " "
+        tCodeString.rstrip()
 
+        self.tCodeString = tCodeString
+
+    def gen_belts(self):
+         
         # Determine the presence of planetoid belts
 
-        if D2Roll() >= 4:
-            self.nBelts = D1Roll() - 3
-            if self.siz == 0 and self.nBelts < 1: self.nBelts = 1
-        else: self.nBelts = 0 
+        if D6Rollx2() >= 4:
+            nBelts = D6Roll() - 3
+            if self.siz == 0 and nBelts < 1: nBelts = 1
+        else: nBelts = 0        
+
+        self.nBelts = nBelts
+
+    def gen_gasgiants(self):
 
         # Determine the presence of gas giants
 
-        if D2Roll() >= 5:
-            self.nGiants = D1Roll() - 2
-            if self.nGiants < 1: self.nGiants = 1
-        else: self.nGiants = 0
+        if D6Rollx2() >= 5:
+            nGiants = D6Roll() - 2
+            if nGiants < 1: nGiants = 1
+        else: nGiants = 0
+        self.nGiants = nGiants
+
+    def gen_zones(self):
        
         # Determine travel zones
 
-        self.tZone = " "
-        if self.atm >= 10: self.tZone = "A"
-        elif self.gov in [0, 7, 10]: self.tZone = "A"
-        elif self.law == 0 or self.law >= 9: self.tZone = "A"
-        else: self.tZone = " "
+        tZone = " "
+        if self.atm >= 10: tZone = "A"
+        elif self.gov in [0, 7, 10]: tZone = "A"
+        elif self.law == 0 or self.law >= 9: tZone = "A"
+        else: tZone = " "
+        self.tZone = tZone
 
-        
+    def genWorld(self):
+        # Generate world data
+    
+        # Generate physical stats
+
+        self.gen_siz()
+        self.gen_atm()
+        self.gen_hyd()
+      
+        # Generate social stats
+
+        self.gen_pop()
+        self.gen_pMod()
+        self.gen_gov()
+        self.gen_law()
+        self.gen_starPort()
+        self.gen_tlv()
+
+        self.gen_bCode()
+        self.gen_tCode()
+
+        self.gen_belts()
+        self.gen_gasgiants()
+        self.gen_zones()
+
+       
     def formatUWPString_text_SEC(self):
         # Capitalise the world name if it is a high population world
 
@@ -428,13 +431,13 @@ class World:
         self.UWPString = self.worldname + pad
         self.UWPString += self.loc + " "
         self.UWPString += self.starPort
-        self.UWPString += UWPCODETABLE.get(self.siz)
-        self.UWPString += UWPCODETABLE.get(self.atm)
-        self.UWPString += UWPCODETABLE.get(self.hyd)
-        self.UWPString += UWPCODETABLE.get(self.pop)
-        self.UWPString += UWPCODETABLE.get(self.gov)
-        self.UWPString += UWPCODETABLE.get(self.law)
-        self.UWPString += "-" + UWPCODETABLE.get(self.tlv)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.siz)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.atm)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.hyd)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.pop)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.gov)
+        self.UWPString += TR_Constants.UWPCODETABLE.get(self.law)
+        self.UWPString += "-" + TR_Constants.UWPCODETABLE.get(self.tlv)
         self.UWPString = self.UWPString + " " + self.bCode
         self.UWPString += " " + self.tCodeString
 
@@ -459,10 +462,14 @@ class World:
     def printUWPString(self):
         print(self.UWPString)
 
-# w1 = World("Blargo")
-# print(w1.UWPString)
 
+# Test code here
 
+# i = 0
+# while i < 10:
 
-
-
+#     w1 = World("Blargo")
+#     w1.genWorld()
+#     w1.formatUWPString_text_SEC()
+#     print(w1.UWPString)
+#    i += 1
