@@ -12,12 +12,6 @@
 # 
 # PrintUWPString:      output the world data as a single line of text
 #
-
-#
-# Things to do:
-#
-#  - Add stellar generation method based on Book 6 / MT
-#  - Move supporting functions to a separate module
 # 
 
 
@@ -28,8 +22,6 @@ import TR_Constants
 from TR_Support import D6Roll, D6Rollx2, D100Roll
 
 # World class - holds the world details as defined in the CE SRD
-#
-# Note:  this will be set to inherit from an abstract base class some time in the future
 #
 
 class World:
@@ -214,87 +206,87 @@ class World:
         self.nGiants = 0
         self.tCodeString = ""
         self.tZone = " "
-        
 
-    def genWorld(self):
-        # Generate world data
-    
-        # Generate physical stats
+# Internal methods to generate stats
 
-        self.siz = D6Rollx2() - 2
-        
-        self.atm = D6Rollx2() - 7 + self.siz
-        if self.atm < 0: self.atm = 0
-        elif self.atm > 15: self.atm = 15
-        if self.siz == 0: self.atm = 0
-        
-        if self.siz == 0: self.hyd = 0
+    def gen_siz(self):
+        x = D6Rollx2() - 2
+        self.siz = x
+
+    def gen_atm(self):
+        x = D6Rollx2() + self.siz - 7
+        if x < 0: x = 0
+        elif x > 15: x = 15
+        if self.siz == 0: x = 0
+        self.atm = x
+
+    def gen_hyd(self):
+        x = D6Rollx2() + self.siz - 7
+
+        if self.siz == 0: x = 0
         else:
-            self.hyd = D6Rollx2() - 7 + self.siz
-            if self.atm in [0, 1, 10, 11, 12]: self.hyd -= 4
-            if self.atm == 14: self.hyd -= 2
-            if self.hyd < 0: self.hyd = 0
-        
-        # Generate social stats
+            if self.atm in [0, 1, 10, 11, 12]: x -= 4
+            if self.atm == 14: x -= 2
+        if x < 0: x = 0
+        self.hyd = x
 
-        self.pop = D6Rollx2() - 2
-        if self.siz <= 2: self.pop -= 1
-        if self.atm in [0, 1, 10, 11, 12]: self.pop -= 2
-        if self.atm == 6: self.pop  += 3
-        if self.atm in [5, 8]: self.pop += 1
-        if self.hyd == 0 and self.atm < 3: self.pop -= 2
-        if self.pop < 0: self.pop = 0
-        if self.pop > 12: self.pop = 12
-        
-        self.pMod = D6Rollx2() - 2
-        if self.pop > 0 and self.pMod < 1: self.pMod = 1
-        if self.pop == 0: self.pMod = 0
-        if self.pMod == 10: self.pMod = 9
+    def gen_pop(self):
+        x = D6Rollx2() - 2
+        if self.siz <= 2: x -= 1
+        if self.atm in [0, 1, 10, 11, 12]: x -= 2
+        if self.atm == 6: x  += 3
+        if self.atm in [5, 8]: x += 1
+        if self.hyd == 0 and self.atm < 3: x -= 2
+        if self.pop < 0: x = 0
+        if self.pop > 12: x = 12
+        self.pop = x
 
-        self.gov = D6Rollx2() - 7 + self.pop
-        if self.gov < 0: self.gov = 0
-        if self.gov > 15: self.gov = 15
-        if self.pop  == 0: self.gov   = 0
-     
-        self.law = D6Rollx2() - 7 + self.gov
-        if self.law < 0: self.law = 0
-        elif self.law > 15: self.law = 15
-        if self.pop == 0: self.law  = 0
-        
+    def gen_pMod(self):
+        x = D6Rollx2() - 2
+        if self.pop > 0 and x < 1: x = 1
+        if self.pop == 0: x = 0
+        if x == 10: x = 9
+        self.pMod = x
 
-        # Generate the starport
+    def gen_gov(self):
+        x = D6Rollx2() - 7 + self.pop
+        if self.pop == 0: x = 0
+        self.gov = x
 
+    def gen_law(self):
+        x = D6Rollx2() - 7 + self.gov
+        if self.pop == 0: x = 0
+        self.law = x
+
+    def gen_starPort(self):
         spRoll = D6Rollx2() - 7 + self.pop
         self.starPort = TR_Constants.STARPORTSTABLE.get(spRoll)
-        
-        # Generate Tech Level
 
-        self.tlv = D6Roll()
-        if self.starPort in TR_Constants.STARPORTTLMOD: self.tlv += TR_Constants.STARPORTTLMOD.get(self.starPort)
-        if self.siz in TR_Constants.SIZETLMOD: self.tlv += TR_Constants.SIZETLMOD.get(self.siz)
-        if self.hyd in TR_Constants.HYDTLMOD: self.tlv += TR_Constants.HYDTLMOD.get(self.hyd)
-        if self.atm in TR_Constants.ATMTLMOD: self.tlv += TR_Constants.ATMTLMOD.get(self.atm)
-        if self.pop in TR_Constants.POPTLMOD: self.tlv += TR_Constants.POPTLMOD.get(self.pop)
-        if self.gov in TR_Constants.GOVTLMOD: self.tlv += TR_Constants.GOVTLMOD.get(self.gov)
-
-        if self.tlv < 0: self.tlv = 0
-        elif self.tlv > 15: self.tlv = 15
-
+    def gen_tlv(self):
+        x = D6Roll()
+        if self.starPort in TR_Constants.STARPORTTLMOD: x += TR_Constants.STARPORTTLMOD.get(self.starPort)
+        if self.siz in TR_Constants.SIZETLMOD: x += TR_Constants.SIZETLMOD.get(self.siz)
+        if self.hyd in TR_Constants.HYDTLMOD: x += TR_Constants.HYDTLMOD.get(self.hyd)
+        if self.atm in TR_Constants.ATMTLMOD: x += TR_Constants.ATMTLMOD.get(self.atm)
+        if self.pop in TR_Constants.POPTLMOD: x += TR_Constants.POPTLMOD.get(self.pop)
+        if self.gov in TR_Constants.GOVTLMOD: x += TR_Constants.GOVTLMOD.get(self.gov)
 
         # Add CE world condition requirements
 
-        if self.hyd in [0, 10] and self.pop > 6 and self.tlv < 4: self.tlv = 4
-        if self.atm in [4, 7, 9] and self.tlv < 5: self.tlv = 5
-        if self.atm in [0, 1, 2, 3, 10, 11, 12] and self.tlv < 7: self.tlv = 7
-        if self.atm in [13, 14] and self.hyd == 10 and self.tlv  < 7: self.tlv = 7
+        if self.hyd in [0, 10] and self.pop > 6 and x < 4: x = 4
+        if self.atm in [4, 7, 9] and self.tlv < 5: x = 5
+        if self.atm in [0, 1, 2, 3, 10, 11, 12] and x < 7: x = 7
+        if self.atm in [13, 14] and self.hyd == 10 and x  < 7: x = 7
 
         # Finally, if population is zero, no TL
 
-        if self.pop == 0: self.tlv = 0
+        if self.pop == 0: x = 0
 
-        # Determine presence of bases
+        self.tlv = x
 
-        # Naval bases
+    def gen_bCode(self):
+                
+        # Check for Naval bases
 
         nBase = False
         if self.starPort == "A" or self.starPort == "B": 
@@ -320,16 +312,21 @@ class World:
 
         # Format the base code
 
-        self.bCode = " "
-        if nBase and sBase: self.bCode = "A"
-        if nBase and not sBase: self.bCode = "N"
-        if sBase and pBase: self.bCode = "G"
-        if pBase and not sBase: self.bCode = "P"
-        if sBase and not nBase and not pBase: self.bCode = "S"
+        bCode = " "
+        if nBase and sBase: bCode = "A"
+        if nBase and not sBase: bCode = "N"
+        if sBase and pBase: bCode = "G"
+        if pBase and not sBase: bCode = "P"
+        if sBase and not nBase and not pBase: bCode = "S"
+
+        self.bCode = bCode
+
+    def gen_tCode(self):
 
         # Generate trade codes
 
         tCode = []
+        tCodeString = ''
         if self.atm >= 4 and self.atm <= 9 and self.hyd >= 4 and self.hyd <= 8 and self.pop >= 5 and self.pop <= 7: tCode.append("Ag")
         if self.siz == 0 and self.atm == 0 and self.hyd == 0: tCode.append("As")
         if self.pop == 0 and  self.gov  == 0 and self.law == 0: tCode.append("Ba") 
@@ -351,35 +348,70 @@ class World:
 
         # Format the trade code string
 
-        # print(tCode)
-
         for t in tCode:
-            self.tCodeString += t + " "
-        self.tCodeString.rstrip()
+            tCodeString += t + " "
+        tCodeString.rstrip()
 
+        self.tCodeString = tCodeString
+
+    def gen_belts(self):
+         
         # Determine the presence of planetoid belts
 
         if D6Rollx2() >= 4:
-            self.nBelts = D6Roll() - 3
-            if self.siz == 0 and self.nBelts < 1: self.nBelts = 1
-        else: self.nBelts = 0 
+            nBelts = D6Roll() - 3
+            if self.siz == 0 and nBelts < 1: nBelts = 1
+        else: nBelts = 0        
+
+        self.nBelts = nBelts
+
+    def gen_gasgiants(self):
 
         # Determine the presence of gas giants
 
         if D6Rollx2() >= 5:
-            self.nGiants = D6Roll() - 2
-            if self.nGiants < 1: self.nGiants = 1
-        else: self.nGiants = 0
+            nGiants = D6Roll() - 2
+            if nGiants < 1: nGiants = 1
+        else: nGiants = 0
+        self.nGiants = nGiants
+
+    def gen_zones(self):
        
         # Determine travel zones
 
-        self.tZone = " "
-        if self.atm >= 10: self.tZone = "A"
-        elif self.gov in [0, 7, 10]: self.tZone = "A"
-        elif self.law == 0 or self.law >= 9: self.tZone = "A"
-        else: self.tZone = " "
+        tZone = " "
+        if self.atm >= 10: tZone = "A"
+        elif self.gov in [0, 7, 10]: tZone = "A"
+        elif self.law == 0 or self.law >= 9: tZone = "A"
+        else: tZone = " "
+        self.tZone = tZone
 
-        
+    def genWorld(self):
+        # Generate world data
+    
+        # Generate physical stats
+
+        self.gen_siz()
+        self.gen_atm()
+        self.gen_hyd()
+      
+        # Generate social stats
+
+        self.gen_pop()
+        self.gen_pMod()
+        self.gen_gov()
+        self.gen_law()
+        self.gen_starPort()
+        self.gen_tlv()
+
+        self.gen_bCode()
+        self.gen_tCode()
+
+        self.gen_belts()
+        self.gen_gasgiants()
+        self.gen_zones()
+
+       
     def formatUWPString_text_SEC(self):
         # Capitalise the world name if it is a high population world
 
@@ -433,7 +465,11 @@ class World:
 
 # Test code here
 
-w1 = World("Blargo")
-w1.genWorld()
-w1.formatUWPString_text_SEC()
-print(w1.UWPString)
+# i = 0
+# while i < 10:
+
+#     w1 = World("Blargo")
+#     w1.genWorld()
+#     w1.formatUWPString_text_SEC()
+#     print(w1.UWPString)
+#    i += 1

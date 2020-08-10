@@ -179,6 +179,6 @@ class Subsector:
 
 # Testing code here
 
-s1 = Subsector("TestSub", "TestSec", "B", 2, 0)
+s1 = Subsector("TestSub", "TestSec", "B", 3, 3)
 s1.genSubSec()
 s1.printSubSec()

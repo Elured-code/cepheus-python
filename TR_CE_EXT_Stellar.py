@@ -64,7 +64,7 @@ def gen_starType(pType):
             # Main sequence stars should not have giant companions
 
             k = D100Roll()
-            if k < 65: returnval = 'D'
+            if k < 33: returnval = 'D'
             elif k < 99: returnval = 'V'
             else: returnval = 'VI'
 
