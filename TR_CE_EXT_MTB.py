@@ -101,7 +101,22 @@ class World(TR_CE_SRD_World.World):
         self.popType = popType
         self.nStars = 1
         self.starList = []
- 
+
+# Provide a string representation of the object
+
+    def __str__(self):
+        returnstr = super().__str__()
+
+        # Add stellar data
+
+        stellarString = ""
+        for star in self.starList:
+            stellarString += star + " "
+        stellarString.rstrip()
+
+        returnstr += " " + stellarString
+
+        return returnstr 
         
     # Determine the number of stars in the system
 
@@ -211,7 +226,8 @@ class World(TR_CE_SRD_World.World):
         
         if self.pop < 0: self.pop = 0
         if self.pop > 10: self.pop = 10   
-        
+
+    def gen_pMod(self):    
         self.pMod = D6Rollx2() - 2
         if self.pop > 0 and self.pMod < 1: self.pMod = 1
         if self.pop == 0: self.pMod = 0
@@ -259,6 +275,7 @@ class World(TR_CE_SRD_World.World):
         # Generate social stats
 
         self.gen_pop(tP, sP)
+        self.gen_pMod()
         self.gen_gov()
         self.gen_law()
 
@@ -286,22 +303,9 @@ class World(TR_CE_SRD_World.World):
         # Determine travel zones
 
         self.gen_zones()
-
-       
+     
     def formatUWPString_text_SEC(self):
-
-        # Call the parent class method
-
-        super().formatUWPString_text_SEC()
-
-        # Add stellardata
-
-        stellarString = ""
-        for star in self.starList:
-            stellarString += star + " "
-        stellarString.rstrip()
-
-        self.UWPString += " " + stellarString
+        self.UWPString = self.__str__()
 
 #####
 # Test code here

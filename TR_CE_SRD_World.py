@@ -207,6 +207,57 @@ class World:
         self.tCodeString = ""
         self.tZone = " "
 
+# Generate a string representation of the world object
+# This will possibly eventually be used instead of the formatUWPString() method, but to avoid breaking things for now
+# formatUWPString() will remain and call this method
+
+    def __str__(self):
+        
+        # Capitalise the world name if it is a high population world
+
+        if self.pop >= 9: self.worldname = self.worldname.upper()
+
+        # Build the UWP String from the values generated above
+
+        # Pad the world name with strings to column 13
+        
+        if len(self.worldname) <= 13:
+           i = 1
+           pad = " "
+           while i < 14 - len(self.worldname):
+               pad += " "
+               i += 1
+        
+        returnstr = self.worldname + pad
+        returnstr += self.loc + " "
+        returnstr += self.starPort
+        returnstr += TR_Constants.UWPCODETABLE.get(self.siz)
+        returnstr += TR_Constants.UWPCODETABLE.get(self.atm)
+        returnstr += TR_Constants.UWPCODETABLE.get(self.hyd)
+        returnstr += TR_Constants.UWPCODETABLE.get(self.pop)
+        returnstr += TR_Constants.UWPCODETABLE.get(self.gov)
+        returnstr += TR_Constants.UWPCODETABLE.get(self.law)
+        returnstr += "-" + TR_Constants.UWPCODETABLE.get(self.tlv)
+        returnstr = returnstr + " " + self.bCode
+        returnstr += " " + self.tCodeString
+
+        # Pad the UWP String with spaces to column 48
+
+        if len(returnstr) <= 48:
+            i = 1
+            pad = " "
+            while i < 49 - len(returnstr):
+                pad += " "
+                i += 1
+
+        returnstr += pad + self.tZone
+         
+        # Add the PBG data
+
+        returnstr += " " + str(self.pMod) + str(self.nBelts) + str(self.nGiants)
+
+        return returnstr
+
 # Internal methods to generate stats
 
     def gen_siz(self):
@@ -413,49 +464,7 @@ class World:
 
        
     def formatUWPString_text_SEC(self):
-        # Capitalise the world name if it is a high population world
-
-        if self.pop >= 9: self.worldname = self.worldname.upper()
-
-        # Build the UWP String from the values generated above
-
-        # Pad the world name with strings to column 13
-        
-        if len(self.worldname) <= 13:
-           i = 1
-           pad = " "
-           while i < 14 - len(self.worldname):
-               pad += " "
-               i += 1
-        
-        self.UWPString = self.worldname + pad
-        self.UWPString += self.loc + " "
-        self.UWPString += self.starPort
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.siz)
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.atm)
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.hyd)
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.pop)
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.gov)
-        self.UWPString += TR_Constants.UWPCODETABLE.get(self.law)
-        self.UWPString += "-" + TR_Constants.UWPCODETABLE.get(self.tlv)
-        self.UWPString = self.UWPString + " " + self.bCode
-        self.UWPString += " " + self.tCodeString
-
-
-        # Pad the UWP String with spaces to column 48
-
-        if len(self.UWPString) <= 48:
-            i = 1
-            pad = " "
-            while i < 49 - len(self.UWPString):
-                pad += " "
-                i += 1
-
-        self.UWPString += pad + self.tZone
-         
-        # Add the PBG data
-
-        self.UWPString += " " + str(self.pMod) + str(self.nBelts) + str(self.nGiants)
+        self.UWPString = self.__str__()
 
 # Print a formatted UWP line for the world/system
 
@@ -472,4 +481,4 @@ class World:
 #     w1.genWorld()
 #     w1.formatUWPString_text_SEC()
 #     print(w1.UWPString)
-#    i += 1
+#     i += 1
