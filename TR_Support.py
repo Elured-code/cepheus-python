@@ -22,6 +22,10 @@ def D6Roll():
     random.seed()
     return random.randint(1, 6)
 
+def D6Rollx3():
+    random.seed()
+    return random.randint(1, 6) + random.randint(1, 6) + random.randint(1, 6)
+
 def D10Roll():
     random.seed()
     return random.randint(1, 10)

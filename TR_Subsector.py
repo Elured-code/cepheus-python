@@ -34,8 +34,10 @@
 
 
 import random
-import TR_CE_EXT_World
+import TR_CE_EXT_MTB
 import TR_CE_SRD_World
+import TR_CE_Extended
+import TR_Support
 import sys
 
 # Define constants
@@ -57,11 +59,7 @@ FIXEDHEADER = ''' 1-13: Name
 
 # Define common functions
 
-# Dice rollers
 
-def D100Roll():
-    random.seed()
-    return random.randint(1, 6) + random.randint(1, 101)
 
 class Subsector:
 

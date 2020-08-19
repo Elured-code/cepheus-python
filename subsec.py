@@ -25,7 +25,7 @@
 
 import argparse
 import random
-import TR_CE_EXT_World
+import TR_CE_EXT_MTB
 import TR_CE_SRD_World
 import TR_Subsector
 import sys
