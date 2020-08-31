@@ -32,7 +32,7 @@
 #
 # - Add capability to define 'core', 'settled', 'frontier' and 'wild' worlds with definitions 
 
-
+import json
 import random
 import TR_CE_EXT_MTB
 import TR_CE_SRD_World
@@ -158,8 +158,8 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, engName, subName, secName, subLetter, subDensity, pType):
-        self.__pType = pType
+    def __init__(self, engName, subName, secName, subLetter, subDensity):
+        # self.__pType = pType
         self.engName = engName
         self.__subName = subName
         self.__secName = secName
@@ -188,21 +188,34 @@ class Subsector:
         while i <= 8:
             j = 1
             while j <= 10:   
-                if TR_Support.D100Roll() < prob:
-                    loc = format(i, '02d') + format(j, '02d')
-                    isMainWorld = True
+                loc = format(i, '02d') + format(j, '02d')
+                sys1 = TR_CE_Extended.System()
+                sys1.gen_System(loc, self.subDensity, True)
+                w1 = TR_CE_SRD_World.World('Main-' + loc)
+                if sys1.sysType == 'Star System':
                     
-                    # Generate the world using ht eengine specified
-                    
-                    if self.engName == 'CEEX': w1 = TR_CE_Extended.System("Main-" + loc, isMainWorld, self.pType)
-                    elif self.engName == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
-                    w1.loc = loc
                     w1.genWorld(loc)
+                    w1.formatUWPString_text_SEC()
+                    self.contents.append(w1)
                     
-                    # Add the world to the subsector contents
+                elif sys1.sysType != 'None':
+ 
+                    w1.loc = loc
+                    w1.worldname = sys1.sysType
+                    w1.formatUWPString_text_SEC()
 
+                    # Non star systems do not have UWP data at this stage, so truncate after location
+
+
+                    w1.UWPString = w1.UWPString[0:19]
+                    w1.UWPString = "{:<54}".format(w1.UWPString)
                     self.contents.append(w1)
 
+                # Add stellar details
+
+                w1.UWPString += ' ' 
+                for star in sys1.starList:
+                    w1.UWPString += star + ' '
 
                 j += 1
             i += 1
@@ -217,7 +230,6 @@ class Subsector:
         print(FIXEDHEADER)
 
         for World in self.contents:
-            World.formatUWPString_text_SEC()
             print(World.UWPString)
 
     # Write a subsector to a variable
@@ -234,13 +246,54 @@ class Subsector:
 
         return returnval
 
+    # Write the subsector to a JSON documment
+
+    def writeSubSecJSON(self):
+        subsecjson = {}
+        subsecjson['Name'] = self.subName
+        subsecjson['Position'] = self.subLetter
+        
+        for World in self.contents:
+            worldjson = {}
+            World.formatUWPString_text_SEC()
+            if World.worldname not in ['Brown Dwarf', 'Rogue Planet', 'Neutron Star', 'Black Hole',
+                'Stellar Nursery', 'Nebula']:
+                worldjson['System Type'] = 'Star System'
+                worldjson['Name'] = World.worldname
+                worldjson['UWP'] = World.UWPString
+                worldjson['Starport'] = World.starPort
+                worldjson['Size'] = World.siz
+                worldjson['Atmosphere'] = World.atm
+                worldjson['Hydrographics'] = World.hyd
+                worldjson['Population'] = World.pop
+                worldjson['Goverment'] = World.gov
+                worldjson['Law Level'] = World.law
+                worldjson['Tech Level'] = World.tlv
+                worldjson['Bases'] = World.bCode                
+                worldjson['Trade Codes'] = World.tCodeString.rstrip()
+                worldjson['Population Modifier'] = World.pMod
+                worldjson['Planetoid Belts'] = World.nBelts
+                worldjson['Gas Giants'] = World.nGiants
+
+            else:
+                worldjson['System Type'] = World.worldname
+            
+            
+            subsecjson[World.loc] = worldjson
+
+        outjson = json.dumps(subsecjson, indent=4)
+        return outjson
+
+
 
 # # Testing code here
 
-# s1 = Subsector("CE", "TestSub", "TestSec", "B", 3, 5)
+# s1 = Subsector("CEEX", "TestSub", "TestSec", "B", 3)
 
 # # print(s1.pType)
 # s1.genSubSec()
 # print("```")
 # s1.printSubSec()
 # print("```")
+
+# print(s1.writeSubSecJSON())

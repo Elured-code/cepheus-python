@@ -224,11 +224,11 @@ def genStellar():
 #####
 # Test code here
 
-i = 0
-while i < 50:
-    a = genStellar()
-  # print(a)
-    i += 1
+# i = 0
+# while i < 50:
+#     a = genStellar()
+#   # print(a)
+#     i += 1
 
 
 

@@ -33,7 +33,7 @@
 
 
 import random
-import TR_CE_EXT_World
+import TR_CE_EXT_MTB
 from TR_Support import D100Roll
 import TR_Constants
 import sys
@@ -152,7 +152,7 @@ class Subsector:
                 if D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
                     isMainWorld = True
-                    w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld, self.__popType)
+                    w1 = TR_CE_EXT_MTB.World("Main-" + loc, isMainWorld, self.__popType)
                     w1.loc = loc
                     w1.genWorld()
                     

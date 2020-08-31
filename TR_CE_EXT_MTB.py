@@ -311,13 +311,13 @@ class World(TR_CE_SRD_World.World):
 # Test code here
 
 
-i = 1
-while i < 10:
-    w1 = World("Blargo", True, 5)
-    w1.genWorld()
-    w1.formatUWPString_text_SEC()
-    w1.printUWPString()
-    i += 1
+# i = 1
+# while i < 10:
+#     w1 = World("Blargo", True, 5)
+#     w1.genWorld()
+#     w1.formatUWPString_text_SEC()
+#     w1.printUWPString()
+#     i += 1
 
 
 

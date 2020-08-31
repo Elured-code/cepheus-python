@@ -1,4 +1,7 @@
+import logging
+
 import TR_CE_SRD_World
+import TR_CE_EXT_StarClass
 
 import TR_Support
 
@@ -109,7 +112,7 @@ class System:
             # Look up the stellar class
 
             if x == 1: 
-                sClass = gen_brownDwarfClass()
+                sClass = self.gen_brownDwarfClass()
 
     
             elif x in [2, 3, 4, 5, 6, 7, 8, 9]: sClass = 'M'
@@ -138,7 +141,7 @@ class System:
             # Look up the stellar class
 
             if x == 1: 
-                sClass = gen_brownDwarfClass()
+                sClass = self.gen_brownDwarfClass()
 
             elif x in [2, 3, 4, 5, 6, 7]: sClass = 'M'
             elif x in [8, 9]: sClass = 'K'
@@ -163,7 +166,7 @@ class System:
             # Look up the stellar class
 
             if x == 1:
-                sClass = gen_brownDwarfClass()
+                sClass = self.gen_brownDwarfClass()
 
             elif x in [2, 3, 4, 5, 6]: sClass = 'M'
             elif x in [7, 8]: sClass = 'K'
@@ -182,7 +185,7 @@ class System:
         try:
             assert sClass != ''
         except AssertionError as AssertionError:
-            Logging.log_exception(error)
+            logging.log_exception(AssertionError)
         
         return sClass
 
@@ -212,7 +215,7 @@ class System:
         try:
             assert lum != ''
         except AssertionError as AssertionError:
-            Logging.log_exception(error)
+            logging.log_exception(AssertionError)
 
         return lum
 
@@ -282,8 +285,7 @@ class System:
 
         # Generate the primary luminosity
 
-        if sClass not in ['L', 'Y', 'T']: sLum = self.gen_sLum()
-        else: sLum = ''
+        sLum = self.gen_sLum()
 
         # Apply restrictions - once companion code is in will need to iterate through all bodies
 
@@ -308,13 +310,9 @@ class System:
         # Fix Type O giants
 
         if sClass == 'O' and sLum in ['Ia', 'Ib', 'II'] and sClassDec <= 6: sLum = 'I'
-                    
-        # Format the star string
-        
-        if sLum != 'D': starString = sClass + str(sClassDec) + ' ' + sLum
-        else: starString = sLum + str(sClassDec)
 
-        return starString, nStars
+        sClass = sClass + str(sClassDec)
+        return sClass, sLum, nStars
 
     def gen_Companion(self, primary):
         
@@ -322,18 +320,19 @@ class System:
 
         if primary == 'Star System': sClass = self.gen_stellarClass(SC_REAL, False)
         elif primary == 'Brown Dwarf': sClass = self.gen_brownDwarfClass()
-        else: 
-            starString = ''
-            return starString
+        elif primary == 'Black Hole': sClass = self.gen_stellarClass(SC_REAL, False) 
+        else:
+            sClass = ''
+            sLum = ''
+            return sClass, sLum
 
         # Generate the spectral class decimal
 
-        sClassDec = self.gen_sClassDecimal() 
+        sClassDec = self.gen_sClassDecimal()
 
         # Generate the companion luminosity
 
-        if sClass not in ['L', 'Y', 'T']: sLum = self.gen_sLum()
-        else: sLum = ''
+        sLum = self.gen_sLum()
 
         # Apply restrictions 
 
@@ -358,15 +357,12 @@ class System:
         # Fix Type O giants
 
         if sClass == 'O' and sLum in ['Ia', 'Ib', 'II'] and sClassDec <= 6: sLum = 'I'
-                    
-        # Format the star string
-        
-        if sLum != 'D': starString = sClass + str(sClassDec) + ' ' + sLum
-        else: starString = sLum + str(sClassDec)
 
-        return starString
+        sClass = sClass + str(sClassDec)
 
-    def gen_System(self, subsectortype, loc, allowexotics):
+        return sClass, sLum
+
+    def gen_System(self, subsectortype, loc, allowexotics, realismtype):
         self.starList = []
                # All worlds generated here are mainworlds
 
@@ -386,42 +382,50 @@ class System:
             # Generate spectral class, decimal and luminosity class for star systems
         
             if sysPrimary == 'Star System': 
-                temp = self.gen_Primary(SC_SEMIREAL)
-                starString = temp[0]
-                nStars = temp[1]
+                temp = self.gen_Primary(realismtype)
+                thisClass = temp[0]
+                thisLum = temp[1]
+                nStars = temp[2]
 
                 # Dwarfs don't have companions, override if needed
 
-                if starString[0] == 'D': nStars = 1
+                if thisClass == 'D': nStars = 1
 
 
             # Some primaries have been changed to brown dwarfs when generating spectral class
             # Update the primary type, format the star string if so and regenerate the number of objects
             # in the system
 
-                if starString[0] in ['L', 'T', 'Y']:
+                if thisClass in ['L', 'T', 'Y']:
                     sysPrimary = 'Brown Dwarf'
-                    nStars = gen_numStars(starString[0])
+                    nStars = thisSystem.gen_numStars(sysPrimary[0])
                     
             # Process brown dwarfs
 
-            elif sysPrimary == 'Brown Dwarf': 
-                starString = thisSystem.gen_brownDwarfClass() + str(thisSystem.gen_sClassDecimal())
-                nStars = thisSystem.gen_numStars(starString[0])    
+            elif sysPrimary == 'Brown Dwarf':
+                thisClass = thisSystem.gen_brownDwarfClass() + str(thisSystem.gen_sClassDecimal())
+                thisLum = 'BD'
+                nStars = thisSystem.gen_numStars(thisClass[0])    
 
             # Process black holes
 
             elif sysPrimary == 'Black Hole':
                 nStars = thisSystem.gen_numStars(sysPrimary[0])
-                starString = 'Black Hole'
+                thisClass = 'Black Hole'
+                thisLum = ''
+                
 
             else: 
                 nStars = 1
-                starString = sysPrimary
+                thisClass = sysPrimary
+                thisLum = ''
                             
-            # Add the star to the list of system stars
-                
-            self.starList.append(starString)
+            # Now add the star to the list of system stars
+
+            st1 = TR_CE_EXT_StarClass.Star()
+            st1.spectralClass = thisClass
+            st1.luminosityClass = thisLum
+            self.starList.append(st1)
 
             
             # Ok, now that the primary is out of the way, loop through the companions
@@ -429,8 +433,14 @@ class System:
             objectNumber = 2
             while objectNumber <= nStars:
                 # print('Companion generation ' + str(objectNumber) + ' for ' + starString)
-                companionString = thisSystem.gen_Companion(sysPrimary)
-                self.starList.append(companionString)
+                temp = thisSystem.gen_Companion(sysPrimary)
+                thisClass = temp[0]
+                thisLum = temp[1]
+                
+                stx = TR_CE_EXT_StarClass.Star()
+                stx.spectralClass = thisClass
+                stx.luminosityClass = thisLum
+                self.starList.append(stx)
 
                 objectNumber += 1
 
@@ -453,12 +463,18 @@ for i in range(1, 9):
 
         loc = format(i, '02d') + format(j, '02d')
 
-        thisSystem.gen_System(AVERAGE_DENSITY, loc, True)
+        thisSystem.gen_System(AVERAGE_DENSITY, loc, True, SC_FANTASTIC)
         
         if thisSystem.isPresent:
             print(loc + '\t', end = '')
             for aStar in thisSystem.starList:
-                print(aStar + ' ', end = '')
+                
+                # Note slightly different print order for white dwarfs vs everything else
+
+                if aStar.luminosityClass != 'D': outputString = aStar.spectralClass + ' ' + aStar.luminosityClass
+                else: outputString = aStar.luminosityClass + aStar.spectralClass
+                print(outputString.rstrip(), end = '')
+                print(' ', end = '')
             print('\r')
 
 

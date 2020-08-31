@@ -96,8 +96,8 @@ class World:
 
     @worldname.setter
     def worldname(self, worldname):
-        if len(worldname) > 13:
-            self.__worldname = worldname[0:13]
+        # if len(worldname) > 13:
+        #     self.__worldname = worldname[0:13]
         self.__worldname = worldname
 
     @starPort.setter
@@ -154,8 +154,7 @@ class World:
 
     @pMod.setter
     def pMod(self, pMod):
-        if pMod < 1: self.__pMod = 1
-        elif pMod > 9: self.__pMod = 9
+        if pMod > 9: self.__pMod = 9
         else: self.__pMod = pMod
 
     @nBelts.setter
@@ -227,8 +226,11 @@ class World:
            while i < 14 - len(self.worldname):
                pad += " "
                i += 1
+        else:
+            self.worldname = self.worldname
+            pad = ''
         
-        returnstr = self.worldname + pad
+        returnstr = self.worldname[0:13] + pad
         returnstr += self.loc + " "
         returnstr += self.starPort
         returnstr += TR_Constants.UWPCODETABLE.get(self.siz)
@@ -380,7 +382,7 @@ class World:
         tCodeString = ''
         if self.atm >= 4 and self.atm <= 9 and self.hyd >= 4 and self.hyd <= 8 and self.pop >= 5 and self.pop <= 7: tCode.append("Ag")
         if self.siz == 0 and self.atm == 0 and self.hyd == 0: tCode.append("As")
-        if self.pop == 0 and  self.gov  == 0 and self.law == 0: tCode.append("Ba") 
+        if self.pop == 0 and self.gov  == 0 and self.law == 0: tCode.append("Ba") 
         if self.atm >= 2 and self.hyd == 0: tCode.append("De")
         if self.atm >= 10 and self.hyd >= 1: tCode.append("Fl")
         if self.atm in [5, 6, 8] and self.hyd >= 4 and self.hyd <= 9 and self.pop >= 4 and self.pop <= 8: tCode.append("Ga")
@@ -437,8 +439,9 @@ class World:
         else: tZone = " "
         self.tZone = tZone
 
-    def genWorld(self):
+    def genWorld(self, loc):
         # Generate world data
+        self.loc = loc
     
         # Generate physical stats
 
