@@ -54,6 +54,22 @@ class System:
     def sysType(self):
         return self.__sysType
 
+    @property
+    def p_sMin(self):
+        return self.__p_sMin
+
+    @property
+    def p_sMax(self):
+        return self.__p_sMax
+
+    @property
+    def s_sMin(self):
+        return self.__s_sMin
+
+    @property
+    def s_sMax(self):
+        return self.__s_sMax
+
 
 
 # Setters
@@ -73,6 +89,22 @@ class System:
     @sysType.setter
     def sysType(self, sysType):
         self.__sysType = sysType
+
+    @p_sMin.setter
+    def p_sMin(self, p_sMin):
+        self.__p_sMin = p_sMin
+
+    @p_sMax.setter
+    def p_sMax(self, p_sMax):
+        self.__p_sMax = p_sMax
+
+    @s_sMin.setter
+    def s_sMin(self, s_sMin):
+        self.__s_sMin = s_sMin
+
+    @s_sMax.setter
+    def s_sMax(self, s_sMax):
+        self.__s_sMax = s_sMax
 
     # Methods
 
@@ -206,19 +238,14 @@ class System:
         
         return sClass
 
-    # # Change the primary type when needed
-
-    # def changePrimary(newprimary):
-    #     sysPrimary = newprimary
-
-    # Determine the spectral class decimal number
+        # Determine the spectral class decimal number
 
     def gen_sClassDecimal(self):
         x = TR_Support.D6Roll() - TR_Support.D6Roll() + 5
         if x == 10: x = 0
         return x
 
-    # Determine a star luminosity class
+        # Determine a star luminosity class
 
     def gen_sLum(self):
         lum = ''
@@ -413,39 +440,113 @@ class System:
         elif x in [5, 6]: 
             orbitzone = 'Close'
             orbitdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 0.5
+            if orbitdistance < 0.5: orbitdistance = 0.5
 
         elif x in [7, 8, 9]: 
             orbitzone = 'Near'
             orbitdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 5
+            if orbitdistance < 5: orbitdistance = 5
 
         elif x in [10, 11, 12, 13, 14]: 
             orbitzone = 'Far'
             orbitdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 50
+            if orbitdistance < 50: orbitdistance = 50
 
         elif x in [15, 16]: 
             orbitzone = 'Distant'
             orbitdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 500
+            if orbitdistance < 500: orbitdistance = 500
         
         else: 
             orbitzone = 'Remote'
             orbitdistance = (TR_Support.D6Roll() * 1000) + 4000
+            if orbitdistance < 5000: orbitdistance = 5000
 
         return orbitzone, orbitdistance
 
-    def get_starDetails(self, Class, Lum):
+    def get_starDetails(self, thisclass, thislum):
 
         db = TinyDB('db.json')
-        if Class[0] == 'D': starTypeStr = Class + Lum
+        starTypeStr = ''
     
-        else: starTypeStr = Class + ' ' + Lum
+        if thisclass[0] in ['L', 'T', 'Y']: starTypeStr = thisclass
+        if thislum != 'D': starTypeStr = thisclass + ' ' + str(thislum)
+        else: starTypeStr = str(thislum) + thisclass
         try:
             q = Query()
-            result = db.search(q.type == starTypeStr)
+            result = db.search(q.type == starTypeStr.rstrip())
             return result[0]
 
         except RuntimeError as e:
             print(repr(e))
             sys.exit()     
+
+    def gen_BinaryArchitecture(self):
+
+        # First, lets find the barycenter between the two objects
+
+        Mb = self.starDetails[1]['mass']
+        Ma = self.starDetails[0]['mass']
+        AU = self.starDetails[1]['orbitdistance']
+
+        # print('Ma = ' + str(Ma))
+        # print('Mb = ' + str(Mb))
+        # print('AU = ' + str(AU))
+
+        if self.starDetails[-1]['orbitzone'] in ['Contact Binary', 'Close', 'Near', 'Far']:
+            barycenter = AU * (Mb / (Ma + Mb))
+        else:
+            x =  TR_Support.D6Roll()
+            if x >= 4:
+                barycenter = AU * (Mb / (Ma + Mb))
+            else: barycenter = 999999
+        print('\tBarycenter = ' + str(barycenter))
+
+        # Calculate restrictions on S-Type orbits
+        # First, if the barycenter lies within 20% of the separation, the mainworld cannot have an S-Type orbit
+
+        if barycenter > self.starDetails[1]['orbitdistance'] * 0.8 and barycenter < self.starDetails[1]['orbitdistance'] * 1.2:
+            primaryStypes = False
+            self.p_sMin = 0
+            self.p_sMax = 0
+            secondaryStypes = True
+            self.s_sMin = self.starDetails[1]['roche limit']
+            self.s_sMax = self.starDetails[1]['orbitdistance'] * 0.2
+        else: 
+            primaryStypes = True
+            self.p_sMin = self.starDetails[0]['roche limit']
+            self.p_sMax = self.starDetails[1]['orbitdistance'] * 0.2
+            self.s_sMin = self.starDetails[1]['roche limit']
+            self.s_sMax = self.starDetails[1]['orbitdistance'] * 0.2            
+
+        if primaryStypes: print('\tPrimary S-Type Orbit limits: ' + str(self.p_sMin) + ' - ' + str(self.p_sMax))
+        print('\tSecondary S-Type Orbit limits: ' + str(self.s_sMin) + ' - ' + str(self.s_sMax))   
+        
+    def gen_TrinaryArchitecture(self):
+        
+        print('Generating tertiary at orbit ' + self.starDetails[2]['orbitdistance'])
+
+        # Barycenter calculations are going to run into the 3 body problem, so our options are:
+        # 
+        # 1:  The tertiary orbits far enough from the primary-secondary pair to treat them for working purposes
+        #     as a single body.  There is an implicit assumption here that the secondary is in a Contact, Close
+        #     or Near orbit.  Therefore the tertiary must be in a Distant or Remote orbit to avoid being ejected 
+        #     from the system
+
+
+
+        # 2:  if the secondary is in a Far, Distant or Remote orbit or is not bound, then the tertiary can either:
+        #    a - orbit the primary
+        #    b - orbit the companion
+        #    c - is not gravitationally bound to either
+        
+       
+
+        Mb = self.starDetails[2]['mass'] 
+        Ma = self.starDetails[0]['mass'] + self.starDetails[1]
+        AU = self.starDetails[1]['orbitdistance']       
+
+        AUp = self.starDetails[2]['orbitdistance']
 
     def gen_System(self, location, density, allowunusual):
         self.starList = []
@@ -503,85 +604,91 @@ class System:
             else: 
                 nStars = 1
                 starString = ''
-                                
+
             # Add the star to the list of system stars
                 
             self.starList.append(starString)            
             self.starDetails.append({'orbitzone': '', 'orbitdistance': ''})            
             if sysPrimary in ['Star System', 'Brown Dwarf']: self.starDetails[-1].update(self.get_starDetails(sClass, sLum))
- 
-            outline = '{0: <14}'.format(sysPrimary) + location
 
-            
-            # Ok, now that the primary is out of the way, loop through the companions
+            print('Primary: ' + sysPrimary, end = '')
+            if sysPrimary in ['Star System', 'Brown Dwarf']: print(' ' + self.starDetails[0]['type'], end = '')
 
-            objectNumber = 2
-            while objectNumber <= nStars:
-                # print('Companion generation ' + str(objectNumber) + ' for ' + starString)
-                companionString, sClass, sLum = self.gen_Companion(sysPrimary)
+            # Generate the first companion 
 
-                # Get the companion orbit
-
-                # Add the companion to the star list
-
-                self.starList.append(companionString)              
-                if sysPrimary in ['Star System', 'Brown Dwarf']: self.starDetails[-1].update(self.get_starDetails(sClass, sLum))
+            if nStars >= 2:
+                print('\nGenerating companion')
+                companionstring, companionclass, companionlum = self.gen_Companion(sysPrimary)
+                companionzone, companiondistance = self.gen_CompanionOrbit(sysPrimary, 2, self.starDetails[0]['diameter'], self.starDetails[0]['roche limit'])
+                self.starList.append(companionstring)
+                self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
+                self.starDetails[-1].update(self.get_starDetails(companionclass, companionlum))
                 
-                # Get the primary radius and roche limit values - these are needed for orbital calculations below
+                print('Secondary: ' + self.starDetails[-1]['type'])
+                print('\tOrbit ' + str(self.starDetails[-1]['orbitdistance']) + ' (' + self.starDetails[-1]['orbitzone'] + ')')
+                
+                self.gen_BinaryArchitecture()
 
-                rad = self.starDetails[0]['diameter']
-                roche = self.starDetails[0]['roche limit']
+            if nStars >= 3:
+                print('\nGenerating secondary companion')
+                companionstring, companionclass, companionlum = self.gen_Companion(sysPrimary)
 
-                coz, cod = self.gen_CompanionOrbit(sysPrimary, objectNumber, rad, roche)
-                self.starDetails.append({'orbitzone': coz, 'orbitdistance': cod})  
-                self.orbitList[cod] = companionString
+                # Make a choice - is the companion orbiting the primary, secondary or both
 
-                # Add companion details to the star details list
+                # If the first companion is a contact binary, close or near, orbit both
 
-                objectNumber += 1
-            
-            # Start populating the orbitlist dictionary with any companions
-            # This will go in once the orbit and zone object is ready
+                if self.starDetails[1]['orbitzone'] in ['Contact Binary', 'Close', 'Near']:               
+                    companionzone, companiondistance = self.gen_CompanionOrbit(sysPrimary, 3, self.starDetails[0]['diameter'], self.starDetails[0]['roche limit'])
+                    self.starList.append(companionstring)
+                    self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
+                    self.starDetails[-1].update(self.get_starDetails(companionclass, companionlum)) 
 
-            # Lets start temporarily by generating the mainworld
+                    print('Tertiary: ' + companionclass + ' ' + companionlum)
+                    print('\tOrbit ' + str(companiondistance) + ' (' + companionzone + ')')   
 
-            if sysPrimary == 'Star System':
-                mw = TR_CE_SRD_World.World("Main-" + location)
-                mw.loc = location
-                mw.genWorld(location)
-                mw.formatUWPString_text_SEC()
+                    self.gen_TrinaryArchitecture('both')            
 
-                # Add the mainworld to the orbit list dictionary
-                # using orbit 3 temporarily
+            print()
 
-                self.orbitList[3] = mw.UWPString
-                # self.orbitList["5"] = mw.UWPString
         else: sysPrimary = 'None'
         self.sysType = sysPrimary
+
+
 
 # Test Code
 
 for i in range(1, 11):
+    print(i)
     sys1 = System()
     sys1.gen_System('0101', 5, False)
     # print(sys1.sysType + ' ', end = '')
 
-    j = 0
-    for star in sys1.starList:
-        if sys1.sysType in ['Star System', 'Brown Dwarf']:
-            print(star + ' ', end = '')
-            if j >= 1: print(star + ' ' + str(sys1.starDetails[j]['orbitzone']) + ' ('  + str(sys1.starDetails[j]['orbitdistance']) + ' AU) ', end = '')
-        else: print(sys1.sysType, end = '')
-        j += 1
-        print()
+#     # j = 0
+#     # for star in sys1.starList:
+#     #     if sys1.sysType in ['Star System', 'Brown Dwarf']:
+#     #         print(star + ' ', end = '')
+#     #         if j >= 1: print(star + ' ' + str(sys1.starDetails[j]['orbitzone']) + ' ('  + str(sys1.starDetails[j]['orbitdistance']) + ' AU) ', end = '')
+#     #     else: print(sys1.sysType, end = '')
+#     #     j += 1
+#     #     print()
 
-    if sys1.sysType in ['Star System', 'Brown Dwarf', 'Black Hole']: 
-        for key in sorted(sys1.orbitList.keys()):
-            print(key, '->', sys1.orbitList[key])
+#     print(sys1.sysType)
+#     if sys1.sysType in ['Star System', 'Brown Dwarf', 'Black Hole']:
+#         sortedOrbitList = sorted(sys1.orbitList.items(), key=lambda x: x[0])
+#         for orbititem in sortedOrbitList: 
+#             print('\t' + str(orbititem[0]) + ' --> ', orbititem[1]['String'])
 
-    # if "Mainworld" in sys1.orbitList:
-    #     print(sys1.orbitList["Mainworld"].starPort)
-    # else: print()
+
+
+
+#         # sortedOrbitList = sorted(sys1.orbitList, key = lambda x: sys1.orbitList[x]['Orbit'])
+#         # for orbit in sortedOrbitList:
+#         #     print(str(orbit['Orbit' ]) + '\t' + orbit['Details'])
+
+
+#     # if "Mainworld" in sys1.orbitList:
+#     #     print(sys1.orbitList["Mainworld"].starPort)
+#     # else: print()
 
 
 
