@@ -70,6 +70,14 @@ class System:
     def s_sMax(self):
         return self.__s_sMax
 
+    @property
+    def barycentre(self):
+        return self.__barycentre
+
+    @property
+    def barycentre_ref(self):
+        return self.__barycentre_ref
+
 
 
 # Setters
@@ -105,6 +113,14 @@ class System:
     @s_sMax.setter
     def s_sMax(self, s_sMax):
         self.__s_sMax = s_sMax
+
+    @barycentre.setter
+    def barycentre(self, barycentre):
+        self.__barycentre = barycentre
+
+    @barycentre_ref.setter
+    def barycentre_ref(self, barycentre_ref):
+        self.__barycentre_ref = barycentre_ref
 
     # Methods
 
@@ -337,7 +353,7 @@ class System:
         # Generate the primary luminosity
 
         if sClass not in ['L', 'Y', 'T']: sLum = self.gen_sLum()
-        else: sLum = ''
+        else: sLum = 'BD'
 
         # Apply restrictions - once companion code is in will need to iterate through all bodies
 
@@ -483,7 +499,7 @@ class System:
 
     def gen_BinaryArchitecture(self):
 
-        # First, lets find the barycenter between the two objects
+        # First, lets find the barycentre between the two objects
 
         Mb = self.starDetails[1]['mass']
         Ma = self.starDetails[0]['mass']
@@ -494,18 +510,18 @@ class System:
         # print('AU = ' + str(AU))
 
         if self.starDetails[-1]['orbitzone'] in ['Contact Binary', 'Close', 'Near', 'Far']:
-            barycenter = AU * (Mb / (Ma + Mb))
+            barycentre = AU * (Mb / (Ma + Mb))
         else:
             x =  TR_Support.D6Roll()
             if x >= 4:
-                barycenter = AU * (Mb / (Ma + Mb))
-            else: barycenter = 999999
-        print('\tBarycenter = ' + str(barycenter))
+                barycentre = AU * (Mb / (Ma + Mb))
+            else: barycentre = 999999
+        print('\tbarycentre = ' + str(barycentre))
 
         # Calculate restrictions on S-Type orbits
-        # First, if the barycenter lies within 20% of the separation, the mainworld cannot have an S-Type orbit
+        # First, if the barycentre lies within 20% of the separation, the mainworld cannot have an S-Type orbit
 
-        if barycenter > self.starDetails[1]['orbitdistance'] * 0.8 and barycenter < self.starDetails[1]['orbitdistance'] * 1.2:
+        if barycentre > self.starDetails[1]['orbitdistance'] * 0.8 and barycentre < self.starDetails[1]['orbitdistance'] * 1.2:
             primaryStypes = False
             self.p_sMin = 0
             self.p_sMax = 0
@@ -519,34 +535,80 @@ class System:
             self.s_sMin = self.starDetails[1]['roche limit']
             self.s_sMax = self.starDetails[1]['orbitdistance'] * 0.2            
 
-        if primaryStypes: print('\tPrimary S-Type Orbit limits: ' + str(self.p_sMin) + ' - ' + str(self.p_sMax))
-        print('\tSecondary S-Type Orbit limits: ' + str(self.s_sMin) + ' - ' + str(self.s_sMax))   
-        
-    def gen_TrinaryArchitecture(self):
-        
-        print('Generating tertiary at orbit ' + self.starDetails[2]['orbitdistance'])
+        if primaryStypes: 
+            if self.p_sMin >= self.p_sMax: 
+                self.p_sMin = self.p_sMax = 0
+            print('\tPrimary S-Type Orbit limits: ' + str(self.p_sMin) + ' - ' + str(self.p_sMax))
+            self.starDetails[0]['sMin'] = self.p_sMin
+            self.starDetails[0]['sMax'] = self.p_sMax
+        if self.s_sMin >= self.s_sMax:
+            self.s_sMin = self.s_sMax = 0
+        print('\tSecondary S-Type Orbit limits: ' + str(self.s_sMin) + ' - ' + str(self.s_sMax))
+        self.starDetails[1]['sMin'] = self.p_sMin
+        self.starDetails[1]['sMax'] = self.p_sMax
 
-        # Barycenter calculations are going to run into the 3 body problem, so our options are:
+        # Save the barycentre in case we need it late, this can go in the system object
+        # and set the barycentre reference to the primary - this may be orverriden for trinary systems
+
+        self.barycentre = barycentre
+        self.barycentre_ref = 0
+        
+    def gen_TrinaryArchitecture(self, usecase):
+        
+        # barycentre calculations are going to run into the 3 body problem, so our options are:
         # 
         # 1:  The tertiary orbits far enough from the primary-secondary pair to treat them for working purposes
-        #     as a single body.  There is an implicit assumption here that the secondary is in a Contact, Close
-        #     or Near orbit.  Therefore the tertiary must be in a Distant or Remote orbit to avoid being ejected 
-        #     from the system
+        #     as a single body.  Tertiary must be 2 x primary - secondary distance, measured from the barycentre
+
+        if usecase == 'both':
+            print('\tTertiary orbits primary/secondary pair. Checking tertiary orbit...')
+
+            #  Determine the barycentre reference
+
+            if  self.starDetails[0]['mass'] + self.starDetails[1]['mass'] >= self.starDetails[2]['mass']:  self.barycentre_ref = 0
+            else: self.barycentre_ref = 2
+
+            # Set up a loop that will be broken out of when we come up with a good orbit
+
+            while self.starDetails[2]['orbitdistance'] < self.starDetails[2]['orbitdistance'] * 2:
+
+                # Move the orbit to distant and recalculate the orbital distance from the primary/secondary barycentre
+
+                x = TR_Support.D6Roll()
+                
+                if x < 3: 
+                    self.starDetails[2]['orbitzone'] = 'Far'
+                    newdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 50
+                    if newdistance < 50: newdistance = 50 
+                elif x < 5:
+                    self.starDetails[2]['orbitzone'] = 'Distant'
+                    newdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 500
+                    if newdistance < 500: newdistance = 500                    
+                else:
+                    self.starDetails[2]['orbitzone'] = 'Remote'
+                    newdistance = (TR_Support.D6Roll() - TR_Support.D6Roll() + 5) * 5000
+                    if newdistance < 5000: newdistance = 5000  
+
+                # Adjust the distance to be from the barycentre
 
 
+
+                print('\tMoving tertiary to ' + str(newdistance) + ' AU (Distant)')
+
+                # Set the maximum S-Type orbit to 20% of the distance to the secondary orbit
+
+                self.starDetails[2]['sMin'] = self.starDetails[2]['roche limit']
+                self.starDetails[2]['sMax'] = (self.starDetails[2]['orbitdistance'] - self.starDetails[1]['orbitdistance']) *  0.2 
+
+                print('\tTertiary S-Type Orbit limits: ' + str(self.starDetails[2]['sMin']) + ' - ' + str(self.self.starDetails[2]['sMax']))               
 
         # 2:  if the secondary is in a Far, Distant or Remote orbit or is not bound, then the tertiary can either:
         #    a - orbit the primary
         #    b - orbit the companion
         #    c - is not gravitationally bound to either
-        
-       
 
-        Mb = self.starDetails[2]['mass'] 
-        Ma = self.starDetails[0]['mass'] + self.starDetails[1]
-        AU = self.starDetails[1]['orbitdistance']       
 
-        AUp = self.starDetails[2]['orbitdistance']
+    
 
     def gen_System(self, location, density, allowunusual):
         self.starList = []
@@ -612,41 +674,61 @@ class System:
             if sysPrimary in ['Star System', 'Brown Dwarf']: self.starDetails[-1].update(self.get_starDetails(sClass, sLum))
 
             print('Primary: ' + sysPrimary, end = '')
-            if sysPrimary in ['Star System', 'Brown Dwarf']: print(' ' + self.starDetails[0]['type'], end = '')
+            if sysPrimary in ['Star System', 'Brown Dwarf']: print(' ' + self.starDetails[0]['type'])
+            
 
             # Generate the first companion 
 
             if nStars >= 2:
-                print('\nGenerating companion')
+                # print('\nGenerating companion')
                 companionstring, companionclass, companionlum = self.gen_Companion(sysPrimary)
                 companionzone, companiondistance = self.gen_CompanionOrbit(sysPrimary, 2, self.starDetails[0]['diameter'], self.starDetails[0]['roche limit'])
                 self.starList.append(companionstring)
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
-                self.starDetails[-1].update(self.get_starDetails(companionclass, companionlum))
+                self.starDetails[1].update(self.get_starDetails(companionclass, companionlum))
                 
-                print('Secondary: ' + self.starDetails[-1]['type'])
-                print('\tOrbit ' + str(self.starDetails[-1]['orbitdistance']) + ' (' + self.starDetails[-1]['orbitzone'] + ')')
+                print('Secondary: ' + self.starDetails[1]['type'])
+                print('\tOrbit Distance ' + str(self.starDetails[1]['orbitdistance']) + ' AU (' + self.starDetails[1]['orbitzone'] + ')')
                 
                 self.gen_BinaryArchitecture()
 
             if nStars >= 3:
-                print('\nGenerating secondary companion')
+                print('\nGenerating tertiary')
                 companionstring, companionclass, companionlum = self.gen_Companion(sysPrimary)
 
                 # Make a choice - is the companion orbiting the primary, secondary or both
 
-                # If the first companion is a contact binary, close or near, orbit both
+                # If the secondary is a contact binary, close or near, orbit both
 
                 if self.starDetails[1]['orbitzone'] in ['Contact Binary', 'Close', 'Near']:               
                     companionzone, companiondistance = self.gen_CompanionOrbit(sysPrimary, 3, self.starDetails[0]['diameter'], self.starDetails[0]['roche limit'])
                     self.starList.append(companionstring)
                     self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
-                    self.starDetails[-1].update(self.get_starDetails(companionclass, companionlum)) 
+                    self.starDetails[2].update(self.get_starDetails(companionclass, companionlum)) 
 
                     print('Tertiary: ' + companionclass + ' ' + companionlum)
                     print('\tOrbit ' + str(companiondistance) + ' (' + companionzone + ')')   
 
-                    self.gen_TrinaryArchitecture('both')            
+                    self.gen_TrinaryArchitecture('both')  
+
+                # Otherwise, determine which body (if any) the tertiary orbits
+                # Weight the odds in favour of the larger body
+
+                else:
+                    ma = self.starDetails[0]['mass']
+                    mb = self.starDetails[1]['mass']
+
+                    # Convert the masses to parts of a hundred and roll
+
+                    ma = round(ma/(ma + mb) * 100, 0)
+                    mb = round(mb/(ma + mb) * 100, 0)
+
+                    if TR_Support.D6Roll() >= 5: self.gen_TrinaryArchitecture('unbound')
+                    elif TR_Support.D100Roll() <= ma: self.gen_TrinaryArchitecture('primary')
+                    else: self.gen_TrinaryArchitecture('secondary')
+
+
+
 
             print()
 

@@ -2,6 +2,9 @@ from tinydb import TinyDB, Query
 
 
 db = TinyDB('db.json')
+
+print('Clearing database')
+
 db.truncate()
 
 # Bright Supergiants (Luminositu Class I / Ia)
@@ -17,6 +20,19 @@ db.insert({'type': 'O6 Ia', 'lum': 1360000, 'mass': 90, 'diameter': 0.186, 'roch
 db.insert({'type': 'O7 Ia', 'lum': 1120000, 'mass': 75, 'diameter': 0.200, 'roche limit': 0.882, 'H-': 795, 'H': 1040, 'H+': 1774, 'Frost Line': -1, 'Limit': 4125})
 db.insert({'type': 'O8 Ia', 'lum': 913000, 'mass': 65, 'diameter': 0.214, 'roche limit': 0.764, 'H-': 717, 'H': 960, 'H+': 1687, 'Frost Line': -1, 'Limit': 3575})
 db.insert({'type': 'O9 Ia', 'lum': 731000, 'mass': 55, 'diameter': 0.228, 'roche limit': 0.647, 'H-': 642, 'H': 859, 'H+': 1510, 'Frost Line': -1, 'Limit': 3025})
+
+# Giant Stars (Luminosity Class III)
+
+db.insert({'type': 'M0 III', 'lum': 470, 'mass': 6.3, 'diameter': 0.293, 'roche limit': 0, 'H-': 16.3, 'H': 21.8, 'H+': 38.3, 'Frost Line': 106, 'Limit': 315})
+db.insert({'type': 'M1 III', 'lum': 832, 'mass': 6.52, 'diameter': 0.447, 'roche limit': 0, 'H-': 21.7, 'H': 29.0, 'H+': 50.9, 'Frost Line': 140, 'Limit': 326})
+db.insert({'type': 'M2 III', 'lum': 1194, 'mass': 6.74, 'diameter': 0.6, 'roche limit': 0, 'H-': 25.9, 'H': 34.7, 'H+': 61, 'Frost Line': 168, 'Limit': 337})
+db.insert({'type': 'M3 III', 'lum': 1556, 'mass': 6.96, 'diameter': 0.754, 'roche limit': 0, 'H-': 29.6, 'H': 39.7, 'H+': 69.7, 'Frost Line': 192, 'Limit': 348})
+db.insert({'type': 'M4 III', 'lum': 1918, 'mass': 7.18, 'diameter': 0.907, 'roche limit': 0, 'H-': 32.9, 'H': 44, 'H+': 77.3, 'Frost Line': 213, 'Limit': 359})
+db.insert({'type': 'M5 III', 'lum': 2280, 'mass': 7.40, 'diameter': 1.06, 'roche limit': 0, 'H-': 35.9, 'H': 48, 'H+': 84.3, 'Frost Line': 232, 'Limit': 370})
+db.insert({'type': 'M6 III', 'lum': 2382, 'mass': 7.85, 'diameter': 1.214, 'roche limit': 0, 'H-': 36.7, 'H': 49.1, 'H+': 86.2, 'Frost Line': 237, 'Limit': 392})
+db.insert({'type': 'M7 III', 'lum': 2485, 'mass': 8.3, 'diameter': 1.368, 'roche limit': 0, 'H-': 37.4, 'H': 50.1, 'H+': 88, 'Frost Line': 242, 'Limit': 415})
+db.insert({'type': 'M8 III', 'lum': 2587, 'mass': 8.75, 'diameter': 1.521, 'roche limit': 0, 'H-': 38.2, 'H': 51.1, 'H+': 89.8, 'Frost Line': 247, 'Limit': 437})
+db.insert({'type': 'M9 III', 'lum': 2690, 'mass': 9.2, 'diameter': 1.675, 'roche limit': 0, 'H-': 39.0, 'H': 52.2, 'H+': 91.6, 'Frost Line': 252, 'Limit': 460})
 
 # Main Sequence Stars (Luminosity Class V)
 
@@ -113,7 +129,20 @@ db.insert({'type': 'L7', 'lum': 0.000065, 'mass': 0.0669, 'diameter': 0.00048, '
 db.insert({'type': 'L8', 'lum': 0.00005, 'mass': 0.0646, 'diameter': 0.00048, 'roche limit': 0.00076, 'H-': 0.005, 'H': 0.007, 'H+': 0.012, 'Frost Line': 0.035, 'Limit': 3.3})
 db.insert({'type': 'L9', 'lum': 0.000035, 'mass': 0.0623, 'diameter': 0.00047, 'roche limit': 0.00074, 'H-': 0.004, 'H': 0.006, 'H+': 0.01, 'Frost Line': 0.029, 'Limit': 3.2})
 
-User = Query()
-result = db.search(User.type == 'F7 V')
+# Brown Dwarf Stars
 
-print(result[0]['mass'])
+# T-Class Methan Dwarfs
+
+db.insert({'type': 'T0', 'lum': 0.000020, 'mass': 0.06, 'diameter': 0.00071, 'roche limit': 0.00071, 'H-': 0.003, 'H': 0.005, 'H+': 0.008, 'Frost Line': 0.122, 'Limit': 3.0})
+db.insert({'type': 'T1', 'lum': 0.000015, 'mass': 0.0057, 'diameter': 0.00067, 'roche limit': 0.00067, 'H-': 0.003, 'H': 0.004, 'H+': 0.007, 'Frost Line': 0.109, 'Limit': 2.9})
+db.insert({'type': 'T2', 'lum': 0.000009, 'mass': 0.054, 'diameter': 0.00064, 'roche limit': 0.00064, 'H-': 0.002, 'H': 0.003, 'H+': 0.005, 'Frost Line': 0.094, 'Limit':2.7})
+db.insert({'type': 'T3', 'lum': 0.000006, 'mass': 0.0524, 'diameter': 0.00062, 'roche limit': 0.00062, 'H-': 0.002, 'H': 0.003, 'H+': 0.004, 'Frost Line': 0.076, 'Limit': 2.6})
+db.insert({'type': 'T4', 'lum': 0.000004, 'mass': 0.0498, 'diameter': 0.00059, 'roche limit': 0.00059, 'H-': 0.001, 'H': 0.002, 'H+': 0.004, 'Frost Line': 0.051, 'Limit': 2.5})
+db.insert({'type': 'T5', 'lum': 0.000003, 'mass': 0.0472, 'diameter': 0.00056, 'roche limit': 0.00056, 'H-': 0.001, 'H': 0.002, 'H+': 0.003, 'Frost Line': 0.048, 'Limit': 2.4})
+db.insert({'type': 'T6', 'lum': 0.000002, 'mass': 0.0446, 'diameter': 0.00053, 'roche limit': 0.00053, 'H-': 0.001, 'H': 0.001, 'H+': 0.003, 'Frost Line': 0.044, 'Limit': 2.3})
+db.insert({'type': 'T7', 'lum': 0.000001, 'mass': 0.042, 'diameter': 0.00050, 'roche limit': 0.0004, 'H-': 0.001, 'H': 0.001, 'H+': 0.002, 'Frost Line': 0.04, 'Limit': 2.1})
+db.insert({'type': 'T8', 'lum': 0, 'mass': 0.0395, 'diameter': 0.00047, 'roche limit': 0.00047, 'H-': 0, 'H': 0.007, 'H+': 0, 'Frost Line': 0, 'Limit': 2.0})
+db.insert({'type': 'T9', 'lum': 0, 'mass': 0.0372, 'diameter': 0.00044, 'roche limit': 0.00044, 'H-': 0, 'H': 0.006, 'H+': 0, 'Frost Line': 0, 'Limit': 1.9})
+
+
+print('Loaded ' + str(len(db)) + ' items.')
