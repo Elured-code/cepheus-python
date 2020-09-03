@@ -23,6 +23,34 @@ db.insert({'type': 'O9 Ia', 'lum': 731000, 'mass': 55, 'diameter': 0.228, 'roche
 
 # Giant Stars (Luminosity Class III)
 
+# White
+
+db.insert({'type': 'F0 III', 'lum': 53, 'mass': 8, 'diameter': 0.022, 'roche limit': 0, 'H-': 5.47, 'H': 7.11, 'H+': 12.9, 'Frost Line': 35.3, 'Limit': 400})
+db.insert({'type': 'F1 III', 'lum': 51, 'mass': 7.4, 'diameter': 0.023, 'roche limit': 0.087, 'H-': 5.36, 'H': 7.2, 'H+': 12.7, 'Frost Line': 34.7, 'Limit': 370})
+db.insert({'type': 'F2 III', 'lum': 49, 'mass': 6.8, 'diameter': 0.023, 'roche limit': 0.08, 'H-': 5.26, 'H': 7.05, 'H+': 12.4, 'Frost Line': 34.0, 'Limit': 340})
+db.insert({'type': 'F3 III', 'lum': 47, 'mass': 6.2, 'diameter': 0.024, 'roche limit': 0.073, 'H-': 5.15, 'H': 6.89, 'H+': 12.1, 'Frost Line': 33.3, 'Limit': 310})
+db.insert({'type': 'F4 III', 'lum': 45, 'mass': 5.6, 'diameter': 0.024, 'roche limit': 0.066, 'H-': 5.04, 'H': 6.76, 'H+': 11.9, 'Frost Line': 32.6, 'Limit': 280})
+db.insert({'type': 'F5 III', 'lum': 43, 'mass': 5, 'diameter': 0.025, 'roche limit': 0.056, 'H-': 4.93, 'H': 6.6, 'H+': 11.6, 'Frost Line': 31.8, 'Limit': 250})
+db.insert({'type': 'F6 III', 'lum': 44, 'mass': 4.5, 'diameter': 0.026, 'roche limit': 0.053, 'H-': 4.98, 'H': 6.69, 'H+': 11.8, 'Frost Line': 32.2, 'Limit': 225})
+db.insert({'type': 'F7 III', 'lum': 46, 'mass': 4, 'diameter': 0.028, 'roche limit': 0.047, 'H-': 5.09, 'H': 6.82, 'H+': 12.0, 'Frost Line': 32.9, 'Limit': 200})
+db.insert({'type': 'F8 III', 'lum': 47, 'mass': 3.5, 'diameter': 0.03, 'roche limit': 0.042, 'H-': 5.15, 'H': 6.89, 'H+': 12.1, 'Frost Line': 33.3, 'Limit': 175})
+db.insert({'type': 'F9 III', 'lum': 49, 'mass': 3, 'diameter': 0.032, 'roche limit': 0.035, 'H-': 5.26, 'H': 7.05, 'H+': 12.4, 'Frost Line': 34, 'Limit': 150})
+
+# Orange
+
+db.insert({'type': 'K0 III', 'lum': 95, 'mass': 4, 'diameter': 0.075, 'roche limit': 0, 'H-': 7.32, 'H': 9.82, 'H+': 17.3, 'Frost Line': 47.3, 'Limit': 200})
+db.insert({'type': 'K1 III', 'lum': 140, 'mass': 4.2, 'diameter': 0.099, 'roche limit': 0, 'H-': 8.88, 'H': 11.9, 'H+': 20.9, 'Frost Line': 57.4, 'Limit': 210})
+db.insert({'type': 'K2 III', 'lum': 185, 'mass': 4.4, 'diameter': 0.123, 'roche limit': 0, 'H-': 10.3, 'H': 13.8, 'H+': 24, 'Frost Line': 66, 'Limit': 220})
+db.insert({'type': 'K3 III', 'lum': 230, 'mass': 4.6, 'diameter': 0.147, 'roche limit': 0, 'H-': 11.4, 'H': 15.3, 'H+': 26.8, 'Frost Line': 73.6, 'Limit': 230})
+db.insert({'type': 'K4 III', 'lum': 275, 'mass': 4.8, 'diameter': 0.172, 'roche limit': 0, 'H-': 12.5, 'H': 16.7, 'H+': 29.3, 'Frost Line': 80.5, 'Limit': 240})
+db.insert({'type': 'K5 III', 'lum': 320, 'mass': 5, 'diameter': 0.196, 'roche limit': 0, 'H-': 13.5, 'H': 18.1, 'H+': 31.6, 'Frost Line': 86.8, 'Limit': 250})
+db.insert({'type': 'K6 III', 'lum': 350, 'mass': 5.26, 'diameter': 0.215, 'roche limit': 0, 'H-': 14.1, 'H': 18.9, 'H+': 33.1, 'Frost Line': 90.1, 'Limit': 263})
+db.insert({'type': 'K7 III', 'lum': 380, 'mass': 5.52, 'diameter': 0.225, 'roche limit': 0, 'H-': 14.7, 'H': 19.7, 'H+': 34.5, 'Frost Line': 94.6, 'Limit': 276})
+db.insert({'type': 'K8 III', 'lum': 410, 'mass': 5.78, 'diameter': 0.254, 'roche limit': 0, 'H-': 15.2, 'H': 20.4, 'H+': 35.8, 'Frost Line': 98.2, 'Limit': 289})
+db.insert({'type': 'K9 III', 'lum': 440, 'mass': 6.04, 'diameter': 0.274, 'roche limit': 0, 'H-': 15.8, 'H': 21.2, 'H+': 37.1, 'Frost Line': 102, 'Limit': 302})
+
+# Red
+
 db.insert({'type': 'M0 III', 'lum': 470, 'mass': 6.3, 'diameter': 0.293, 'roche limit': 0, 'H-': 16.3, 'H': 21.8, 'H+': 38.3, 'Frost Line': 106, 'Limit': 315})
 db.insert({'type': 'M1 III', 'lum': 832, 'mass': 6.52, 'diameter': 0.447, 'roche limit': 0, 'H-': 21.7, 'H': 29.0, 'H+': 50.9, 'Frost Line': 140, 'Limit': 326})
 db.insert({'type': 'M2 III', 'lum': 1194, 'mass': 6.74, 'diameter': 0.6, 'roche limit': 0, 'H-': 25.9, 'H': 34.7, 'H+': 61, 'Frost Line': 168, 'Limit': 337})
@@ -129,20 +157,30 @@ db.insert({'type': 'L7', 'lum': 0.000065, 'mass': 0.0669, 'diameter': 0.00048, '
 db.insert({'type': 'L8', 'lum': 0.00005, 'mass': 0.0646, 'diameter': 0.00048, 'roche limit': 0.00076, 'H-': 0.005, 'H': 0.007, 'H+': 0.012, 'Frost Line': 0.035, 'Limit': 3.3})
 db.insert({'type': 'L9', 'lum': 0.000035, 'mass': 0.0623, 'diameter': 0.00047, 'roche limit': 0.00074, 'H-': 0.004, 'H': 0.006, 'H+': 0.01, 'Frost Line': 0.029, 'Limit': 3.2})
 
-# Brown Dwarf Stars
+# T-Class Methane Dwarfs
 
-# T-Class Methan Dwarfs
+db.insert({'type': 'T0', 'lum': 0.000020, 'mass': 0.06, 'diameter': 0.00071, 'roche limit': 0.00071, 'H-': 0.003, 'H': 0.005, 'H+': 0.008, 'Frost Line': 0.021, 'Limit': 3.0})
+db.insert({'type': 'T1', 'lum': 0.000015, 'mass': 0.0057, 'diameter': 0.00067, 'roche limit': 0.00067, 'H-': 0.003, 'H': 0.004, 'H+': 0.007, 'Frost Line': 0.018, 'Limit': 2.9})
+db.insert({'type': 'T2', 'lum': 0.000009, 'mass': 0.054, 'diameter': 0.00064, 'roche limit': 0.00064, 'H-': 0.002, 'H': 0.003, 'H+': 0.005, 'Frost Line': 0.015, 'Limit':2.7})
+db.insert({'type': 'T3', 'lum': 0.000006, 'mass': 0.0524, 'diameter': 0.00062, 'roche limit': 0.00062, 'H-': 0.002, 'H': 0.003, 'H+': 0.004, 'Frost Line': 0.012, 'Limit': 2.6})
+db.insert({'type': 'T4', 'lum': 0.000004, 'mass': 0.0498, 'diameter': 0.00059, 'roche limit': 0.00059, 'H-': 0.001, 'H': 0.002, 'H+': 0.004, 'Frost Line': 0.010, 'Limit': 2.5})
+db.insert({'type': 'T5', 'lum': 0.000003, 'mass': 0.0472, 'diameter': 0.00056, 'roche limit': 0.00056, 'H-': 0.001, 'H': 0.002, 'H+': 0.003, 'Frost Line': 0.009, 'Limit': 2.4})
+db.insert({'type': 'T6', 'lum': 0.000002, 'mass': 0.0446, 'diameter': 0.00053, 'roche limit': 0.00053, 'H-': 0.001, 'H': 0.001, 'H+': 0.003, 'Frost Line': 0.007, 'Limit': 2.3})
+db.insert({'type': 'T7', 'lum': 0.000001, 'mass': 0.042, 'diameter': 0.00050, 'roche limit': 0.0004, 'H-': 0.001, 'H': 0.001, 'H+': 0.002, 'Frost Line': 0.005, 'Limit': 2.1})
+db.insert({'type': 'T8', 'lum': 0, 'mass': 0.0395, 'diameter': 0.00047, 'roche limit': 0.00047, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.002, 'Limit': 2.0})
+db.insert({'type': 'T9', 'lum': 0, 'mass': 0.0372, 'diameter': 0.00044, 'roche limit': 0.00044, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.001, 'Limit': 1.9})
 
-db.insert({'type': 'T0', 'lum': 0.000020, 'mass': 0.06, 'diameter': 0.00071, 'roche limit': 0.00071, 'H-': 0.003, 'H': 0.005, 'H+': 0.008, 'Frost Line': 0.122, 'Limit': 3.0})
-db.insert({'type': 'T1', 'lum': 0.000015, 'mass': 0.0057, 'diameter': 0.00067, 'roche limit': 0.00067, 'H-': 0.003, 'H': 0.004, 'H+': 0.007, 'Frost Line': 0.109, 'Limit': 2.9})
-db.insert({'type': 'T2', 'lum': 0.000009, 'mass': 0.054, 'diameter': 0.00064, 'roche limit': 0.00064, 'H-': 0.002, 'H': 0.003, 'H+': 0.005, 'Frost Line': 0.094, 'Limit':2.7})
-db.insert({'type': 'T3', 'lum': 0.000006, 'mass': 0.0524, 'diameter': 0.00062, 'roche limit': 0.00062, 'H-': 0.002, 'H': 0.003, 'H+': 0.004, 'Frost Line': 0.076, 'Limit': 2.6})
-db.insert({'type': 'T4', 'lum': 0.000004, 'mass': 0.0498, 'diameter': 0.00059, 'roche limit': 0.00059, 'H-': 0.001, 'H': 0.002, 'H+': 0.004, 'Frost Line': 0.051, 'Limit': 2.5})
-db.insert({'type': 'T5', 'lum': 0.000003, 'mass': 0.0472, 'diameter': 0.00056, 'roche limit': 0.00056, 'H-': 0.001, 'H': 0.002, 'H+': 0.003, 'Frost Line': 0.048, 'Limit': 2.4})
-db.insert({'type': 'T6', 'lum': 0.000002, 'mass': 0.0446, 'diameter': 0.00053, 'roche limit': 0.00053, 'H-': 0.001, 'H': 0.001, 'H+': 0.003, 'Frost Line': 0.044, 'Limit': 2.3})
-db.insert({'type': 'T7', 'lum': 0.000001, 'mass': 0.042, 'diameter': 0.00050, 'roche limit': 0.0004, 'H-': 0.001, 'H': 0.001, 'H+': 0.002, 'Frost Line': 0.04, 'Limit': 2.1})
-db.insert({'type': 'T8', 'lum': 0, 'mass': 0.0395, 'diameter': 0.00047, 'roche limit': 0.00047, 'H-': 0, 'H': 0.007, 'H+': 0, 'Frost Line': 0, 'Limit': 2.0})
-db.insert({'type': 'T9', 'lum': 0, 'mass': 0.0372, 'diameter': 0.00044, 'roche limit': 0.00044, 'H-': 0, 'H': 0.006, 'H+': 0, 'Frost Line': 0, 'Limit': 1.9})
+# T-Class Ultra-Cool Dwarfs
 
+db.insert({'type': 'Y0', 'lum': 0, 'mass': 0.035, 'diameter': 0.00039, 'roche limit': 0.00043, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00079, 'Limit': 1.7})
+db.insert({'type': 'Y1', 'lum': 0, 'mass': 0.033, 'diameter': 0.00038, 'roche limit': 0.00042, 'H-': 0., 'H': 0, 'H+': 0, 'Frost Line': 0.00078, 'Limit': 1.6})
+db.insert({'type': 'Y2', 'lum': 0, 'mass': 0.031, 'diameter': 0.00037, 'roche limit': 0.00041, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00076, 'Limit': 1.5})
+db.insert({'type': 'Y3', 'lum': 0, 'mass': 0.029, 'diameter': 0.000637, 'roche limit': 0.00040, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00074, 'Limit': 1.4})
+db.insert({'type': 'Y4', 'lum': 0, 'mass': 0.027, 'diameter': 0.00036, 'roche limit': 0.00040, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00072, 'Limit': 1.3})
+db.insert({'type': 'Y5', 'lum': 0, 'mass': 0.025, 'diameter': 0.00035, 'roche limit': 0.00039, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00071, 'Limit': 1.2})
+db.insert({'type': 'Y6', 'lum': 0, 'mass': 0.02, 'diameter': 0.00034, 'roche limit': 0.00038,'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.0007, 'Limit': 1.0})
+db.insert({'type': 'Y7', 'lum': 0, 'mass': 0.0175, 'diameter': 0.00034, 'roche limit': 0.00038, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00068, 'Limit': 0.9})
+db.insert({'type': 'Y8', 'lum': 0, 'mass': 0.0150, 'diameter': 0.00033, 'roche limit': 0.00037, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00067, 'Limit': 0.8})
+db.insert({'type': 'Y9', 'lum': 0, 'mass': 0.0125, 'diameter': 0.00032, 'roche limit': 0.00036, 'H-': 0, 'H': 0, 'H+': 0, 'Frost Line': 0.00065, 'Limit': 0.7})
 
 print('Loaded ' + str(len(db)) + ' items.')
