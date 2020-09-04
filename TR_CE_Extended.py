@@ -1,4 +1,5 @@
 import logging
+import random
 import sys
 from tinydb import TinyDB, Query
 import TR_CE_SRD_World
@@ -537,11 +538,45 @@ class System:
         if self.starDetails[0]['sMax'] > self.starDetails[0]['Limit']: self.starDetails[0]['sMax'] = self.starDetails[0]['Limit']
         if self.starDetails[1]['sMax'] > self.starDetails[1]['Limit']: self.starDetails[1]['sMax'] = self.starDetails[1]['Limit']
 
-        print('\tPrimary S-Type Orbit limits: ' + str(self.starDetails[0]['sMin']) + ' - ' + str(self.starDetails[0]['sMax']))
-        print('\tSecondary S-Type Orbit limits: ' + str(self.starDetails[1]['sMin']) + ' - ' + str(self.starDetails[1]['sMax']))
+        # Round all values to 3 decimals
+
+        self.starDetails[0]['sMin'] = round(self.starDetails[0]['sMin'], 3)
+        self.starDetails[0]['sMax'] = round(self.starDetails[0]['sMax'], 3)
+        self.starDetails[1]['sMin'] = round(self.starDetails[1]['sMin'], 3)
+        self.starDetails[1]['sMax'] = round(self.starDetails[1]['sMax'], 3)
+
+        # print('\tPrimary S-Type Orbit limits: ' + str(self.starDetails[0]['sMin']) + ' - ' + str(self.starDetails[0]['sMax']))
+        # print('\tSecondary S-Type Orbit limits: ' + str(self.starDetails[1]['sMin']) + ' - ' + str(self.starDetails[1]['sMax']))
 
         # Save the barycentre in case we need it later, this can go in the system object
         # and set the barycentre reference to the primary - this may be orverriden for trinary systems
+
+        # Calculate the limits for P-Type orbits.  For accounting purposes these will be assigned to the primary, but they 
+        # really orbit the primary-secondary barycentre
+
+        # First, determine if the minumum possible orbit is outside the primary-secondary outer limit
+
+        pmin = (self.starDetails[1]['orbitdistance'] * 2 ) + barycentre
+        pmax = self.starDetails[0]['Limit'] + self.starDetails[1]['Limit']
+
+        if pmin > pmax: primaryPtypes = False
+        else: primaryPtypes = True
+        
+        if primaryPtypes:
+            # Minimum orbit is the twice the primary-secondary separation, measured from the barycentre
+
+            self.starDetails[0]['pMin'] = pmin
+            # Maximum orbit is the sum of the primary and secondary outer limits (for now, may change)
+
+            self.starDetails[0]['pMax'] = pmax
+
+            # Round it all to 3 decimal places
+
+            self.starDetails[0]['pMin'] = round(self.starDetails[0]['pMin'], 3)
+            self.starDetails[0]['pMax'] = round(self.starDetails[0]['pMax'], 3)
+            # print('\tPrimary - Secondary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))
+
+
 
         self.barycentre = barycentre
         self.barycentre_ref = 0
@@ -554,7 +589,7 @@ class System:
         #     Tertiary must be 2 x primary - secondary distance, measured from the primary-secondary barycentre
 
         if usecase == 'both':
-            print('\tTertiary orbits primary/secondary pair. Checking tertiary orbit...')
+            # print('\tTertiary orbits primary/secondary pair. Checking tertiary orbit...')
 
             #  Determine the barycentre reference
 
@@ -573,7 +608,36 @@ class System:
             if self.starDetails[2]['sMax'] > self.starDetails[2]['Limit']: self.starDetails[2]['sMax'] = self.starDetails[2]['Limit']
             if self.starDetails[2]['sMin'] > self.starDetails[2]['sMax']: self.starDetails[2]['sMin'] = self.starDetails[2]['sMax'] = 0
 
-            print('\tTertiary S-Type Orbit limits: ' + str(self.starDetails[2]['sMin']) + ' - ' + str(self.starDetails[2]['sMax']))               
+            # print('\tTertiary S-Type Orbit limits: ' + str(self.starDetails[2]['sMin']) + ' - ' + str(self.starDetails[2]['sMax']))   
+
+            # Calculate the limits for P-Type orbits.  For accounting purposes these will be assigned to the primary, but they 
+            # really orbit the primary-secondary-tertiary barycentre
+
+            # First, determine if the minumum possible orbit is outside the primary-secondary-tertiary outer limit
+
+            pmin = (self.starDetails[2]['orbitdistance'] * 2 ) + self.barycentre
+            pmax = self.starDetails[0]['Limit'] + self.starDetails[1]['Limit'] + self.starDetails[2]['Limit']
+
+            # Limit the max P-Type orbit to 20% of the distance to the tertiary
+
+            if pmax > (self.starDetails[2]['orbitdistance'] - self.barycentre) * 0.2: pmax = (self.starDetails[2]['orbitdistance'] - self.barycentre) * 0.2
+
+            if pmin > pmax: primaryPtypes = False
+            else: primaryPtypes = True 
+            
+            if primaryPtypes:
+                # Minimum orbit is the twice the primary-secondary separation, measured from the barycentre
+
+                self.starDetails[0]['pMin'] = pmin
+                # Maximum orbit is the sum of the primary and secondary outer limits (for now, may change)
+
+                self.starDetails[0]['pMax'] = pmax
+
+                # Round it all to 3 decimal places
+
+                self.starDetails[0]['pMin'] = round(self.starDetails[0]['pMin'], 3)
+                self.starDetails[0]['pMax'] = round(self.starDetails[0]['pMax'], 3)
+                # print('\tPrimary - Secondary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))        
 
         # 2:  if the tertiary is within the minimum distance to orbit the pair, it can:
         #    a - orbit the primary
@@ -581,7 +645,7 @@ class System:
         
         elif usecase in ['primary']:
 
-            print('\tTertiary orbits primary.  Checking orbits')
+            # print('\tTertiary orbits primary.  Checking orbits')
 
             # First make sure that the tertiary orbits in an allowed orbit around the primary
             # Recalculate if necessary (using a random distance between the primary min and max S-Type orbits)
@@ -600,11 +664,36 @@ class System:
                 elif self.starDetails[2]['orbitdistance'] < 5000: self.starDetails[2]['orbitzone'] = 'Distant'
                 else: self.starDetails[2]['orbitdistance'] = 'Remote'
 
-                print('Moved tertiary orbit to ' + str(self.starDetails[2]['orbitdistance'] + ' AU (' + self.starDetails[2]['orbitzone'] + ')'))
+                # print('Moved tertiary orbit to ' + str(self.starDetails[2]['orbitdistance']) + ' AU (' + self.starDetails[2]['orbitzone'] + ')')
+
+                # Calculate the limits for P-Type orbits.  For accounting purposes these will be assigned to the primary, but they 
+                # really orbit the primary-secondary-tertiary barycentre
+
+                # First, determine if the minumum possible orbit is outside the primary-secondary-tertiary outer limit
+
+                pmin = (self.starDetails[2]['orbitdistance'] * 2 ) + self.barycentre
+                pmax = self.starDetails[0]['Limit'] + self.starDetails[1]['Limit'] + self.starDetails[2]['Limit']
+
+                if pmin > pmax: primaryPtypes = False
+                else: primaryPtypes = True 
+                
+                if primaryPtypes:
+                    # Minimum orbit is the twice the primary-secondary separation, measured from the barycentre
+
+                    self.starDetails[0]['pMin'] = pmin
+                    # Maximum orbit is the sum of the primary and secondary outer limits (for now, may change)
+
+                    self.starDetails[0]['pMax'] = pmax
+
+                    # Round it all to 3 decimal places
+
+                    self.starDetails[0]['pMin'] = round(self.starDetails[0]['pMin'], 3)
+                    self.starDetails[0]['pMax'] = round(self.starDetails[0]['pMax'], 3)
+                    # print('\tPrimary - Secondary - Tertiary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))
 
         elif usecase in ['secondary']:
 
-            print('\tTertiary orbits secondary.  Checking orbits')
+            # print('\tTertiary orbits secondary.  Checking orbits')
 
             # First make sure that the tertiary orbits in an allowed orbit around the secondary
             # Recalculate if necessary (using a random distance between the primary min and max S-Type orbits)
@@ -623,7 +712,32 @@ class System:
                 elif self.starDetails[2]['orbitdistance'] < 5000: self.starDetails[2]['orbitzone'] = 'Distant'
                 else: self.starDetails[2]['orbitdistance'] = 'Remote'
 
-                print('Moved tertiary orbit to ' + str(self.starDetails[2]['orbitdistance'] + ' AU (' + self.starDetails[2]['orbitzone'] + ')'))
+                # print('Moved tertiary orbit to ' + str(self.starDetails[2]['orbitdistance'] + ' AU (' + self.starDetails[2]['orbitzone'] + ')'))
+
+                # Calculate the limits for P-Type orbits.  For accounting purposes these will be assigned to the primary, but they 
+                # really orbit the primary-secondary-tertiary barycentre
+
+                # First, determine if the minumum possible orbit is outside the primary-secondary-tertiary outer limit
+
+                pmin = (self.starDetails[2]['orbitdistance'] * 2 ) + self.barycentre
+                pmax = self.starDetails[0]['Limit'] + self.starDetails[1]['Limit'] + self.starDetails[2]['Limit']
+
+                if pmin > pmax: primaryPtypes = False
+                else: primaryPtypes = True 
+                
+                if primaryPtypes:
+                    # Minimum orbit is the twice the primary-secondary separation, measured from the barycentre
+
+                    self.starDetails[0]['pMin'] = pmin
+                    # Maximum orbit is the sum of the primary and secondary outer limits (for now, may change)
+
+                    self.starDetails[0]['pMax'] = pmax
+
+                    # Round it all to 3 decimal places
+
+                    self.starDetails[0]['pMin'] = round(self.starDetails[0]['pMin'], 3)
+                    self.starDetails[0]['pMax'] = round(self.starDetails[0]['pMax'], 3)
+                    # print('\tPrimary - Secondary - Tertiary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))
 
             # Now calculate the primary-tertiary barycentre and recalculate the primaries allowed S-Type orbits
 
@@ -633,20 +747,19 @@ class System:
 
             barycentre = AU * (Mb / (Ma + Mb))
 
-            print('\tPrimary - tertiary barycentre at ' + str(round(barycentre)) + ' AU')
+            # print('\tPrimary - tertiary barycentre at ' + str(round(barycentre)) + ' AU')
 
             if self.starDetails[0]['sMax'] > barycentre * 0.2:
                 self.starDetails[0]['sMax'] = barycentre * 0.2
                 if self.starDetails[0]['sMin'] > self.starDetails[0]['sMax']: self.starDetails[0]['sMin'] = self.starDetails[0]['sMax'] = 0
-                print('\tPrimary S-Type Orbit limits now ' + str(self.starDetails[0]['sMin'] + ' - ' + str(self.starDetails[0]['sMax'])))
+                # print('\tPrimary S-Type Orbit limits now ' + str(self.starDetails[0]['sMin'] + ' - ' + str(self.starDetails[0]['sMax'])))
 
             # Calculate the tertiary S-Type orbit limits
             
             self.starDetails[2]['sMin'] = self.starDetails[2]['roche limit']
             self.starDetails[2]['sMax'] = barycentre * 0.2
             if self.starDetails[2]['sMax'] > self.starDetails[2]['Limit']: self.starDetails[2]['sMax'] = self.starDetails[2]['Limit']
-            if self.starDetails[2]['sMin'] > self.starDetails[2]['sMax']: self.starDetails[2]['sMin'] = self.starDetails[2]['sMax'] = 0
-
+            if self.starDetails[2]['sMin'] > self.starDetails[2]['sMax']: self.starDetails[2]['sMin'] = self.starDetails[2]['sMax'] 
 
 
      
@@ -655,8 +768,45 @@ class System:
         # 3:  if the tertiary is outside the outer limit for both the primary and secondary then it is unbound
 
         elif usecase == 'unbound':
+
+            # Stuff needs to go in here
+
             pass
     
+
+    # Write out the system contents
+    def print_System(self):
+
+        print('System Type:\t\t' + self.sysType)
+        
+        if self.sysType in ['Star System', 'Brown Dwarf']:
+            print('System Primary:\t\t' + self.starDetails[0]['type'])
+            if 'sMin' in self.starDetails[0]: print('\tS-Orbit inner limit = ' + str(self.starDetails[0]['sMin']))
+            if 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
+            if 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
+            if 'pMax' in self.starDetails[0]: print('\tP-Orbit outer limit = ' + str(self.starDetails[0]['pMax']))
+
+            if len(self.starDetails) >= 2: 
+                print('System Secondary:\t' + self.starDetails[1]['type'])
+                print('\tDistance from Primary:\t' + str(self.starDetails[1]['orbitdistance']) + ' (' + self.starDetails[1]['orbitzone'] + ')')
+                if 'sMin' in self.starDetails[1]: print('\tS-Orbit inner limit = ' + str(self.starDetails[1]['sMin']))
+                if 'sMax' in self.starDetails[1]: print('\tS-Orbit outer limit = ' + str(self.starDetails[1]['sMax']))
+                if 'pMin' in self.starDetails[1]: print('\tP-Orbit inner limit = ' + str(self.starDetails[1]['pMin']))
+                if 'pMax' in self.starDetails[1]: print('\tP-Orbit outer limit = ' + str(self.starDetails[1]['pMax']))
+
+            if len(self.starDetails) > 2:
+                print('System Tertiary:\t\t' + self.starDetails[2]['type'])
+                if self.starDetails[2]['orbitsubject'] == 'primary': print('\tDistance from Pr:imary:\t\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
+                elif self.starDetails[2]['orbitsubject'] == 'secondary': print('\tDistance from Secondary\t\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
+                elif self.starDetails[2]['orbitsubject'] == 'both': print('\tDistance from system barycentre:\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
+
+                if 'sMin' in self.starDetails[2]: print('\tS-Orbit inner limit = ' + str(self.starDetails[2]['sMin']))
+                if 'sMax' in self.starDetails[2]: print('\tS-Orbit outer limit = ' + str(self.starDetails[2]['sMax']))
+                if 'pMin' in self.starDetails[2]: print('\tP-Orbit inner limit = ' + str(self.starDetails[2]['pMin']))
+                if 'pMax' in self.starDetails[2]: print('\tP-Orbit outer limit = ' + str(self.starDetails[2]['pMax']))
+
+        print('##########')
+        print()
 
     def gen_System(self, location, density, allowunusual):
         self.starList = []
@@ -680,7 +830,7 @@ class System:
             sClass = sLum = ''
 
             if sysPrimary == 'Star System': 
-                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_SEMIREAL)
+                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_FANTASTIC)
 
                 # Dwarfs don't have companions, override if needed
 
@@ -719,18 +869,18 @@ class System:
                 
             self.starList.append(starString)            
             self.starDetails.append({'orbitzone': '', 'orbitdistance': ''})            
-            if sysPrimary in ['Star System', 'Brown Dwarf']: self.starDetails[-1].update(self.get_starDetails(sClass, sLum))
+            if sysPrimary in ['Star System', 'Brown Dwarf']: self.starDetails[0].update(self.get_starDetails(sClass, sLum))
 
-            print('Primary: ' + sysPrimary, end = '')
+            # print('Primary: ' + sysPrimary, end = '')
             if sysPrimary in ['Star System', 'Brown Dwarf']: 
-                print(' ' + self.starDetails[0]['type'])
+                # print(' ' + self.starDetails[0]['type'])
 
             # Is solo, we can generate the primary S-Type orbit bounds here
 
                 if nStars == 1:
                     self.starDetails[0]['sMin'] = self.starDetails[0]['roche limit']
                     self.starDetails[0]['sMax'] = self.starDetails[0]['Limit']
-                    print('\tPrimary S-Type Orbit limits: ' + str(self.starDetails[0]['sMin']) + ' - ' + str(self.starDetails[0]['sMax']))
+                    # print('\tPrimary S-Type Orbit limits: ' + str(self.starDetails[0]['sMin']) + ' - ' + str(self.starDetails[0]['sMax']))
             
 
             # Generate the first companion 
@@ -743,13 +893,13 @@ class System:
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
                 self.starDetails[1].update(self.get_starDetails(companionclass, companionlum))
                 
-                print('Secondary: ' + self.starDetails[1]['type'])
-                print('\tOrbit Distance ' + str(self.starDetails[1]['orbitdistance']) + ' AU (' + self.starDetails[1]['orbitzone'] + ')')
+                # print('Secondary: ' + self.starDetails[1]['type'])
+                # print('\tOrbit Distance ' + str(self.starDetails[1]['orbitdistance']) + ' AU (' + self.starDetails[1]['orbitzone'] + ')')
                 
                 self.gen_BinaryArchitecture()
 
             if nStars >= 3:
-                print('\nGenerating tertiary')
+                # print('\nGenerating tertiary')
                 companionstring, companionclass, companionlum = self.gen_Companion(sysPrimary, 3)
 
                 # Generate the tertiary and add it to the star details
@@ -759,14 +909,15 @@ class System:
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
                 self.starDetails[2].update(self.get_starDetails(companionclass, companionlum)) 
 
-                print('Tertiary: ' + companionclass + ' ' + companionlum)
-                print('\tOrbit ' + str(companiondistance) + ' (' + companionzone + ')')   
+                # print('Tertiary: ' + companionclass + ' ' + companionlum)
+                # print('\tOrbit ' + str(companiondistance) + ' (' + companionzone + ')')   
 
                 # Make a choice - is the companion orbiting the primary, secondary or both
 
-                # If the tertiary is further than 2 x the secondary orbit distance + barycentre the it orbits both
+                # If the tertiary is further than the secondary orbit distance + barycentre x 2 then it orbits both
 
-                if companiondistance > self.starDetails[1]['orbitdistance'] + self.barycentre:
+                if companiondistance > (self.starDetails[1]['orbitdistance'] *2 ) + self.barycentre:
+                    self.starDetails[2]['orbitsubject'] = 'both'
                     self.gen_TrinaryArchitecture('both')  
 
                 # Otherwise, determine which body (if any) the tertiary orbits
@@ -781,14 +932,20 @@ class System:
                     ma = round(ma/(ma + mb) * 100, 0)
                     mb = round(mb/(ma + mb) * 100, 0)
 
-                    if TR_Support.D6Roll() >= 5: self.gen_TrinaryArchitecture('unbound')
-                    elif TR_Support.D100Roll() <= ma: self.gen_TrinaryArchitecture('primary')
-                    else: self.gen_TrinaryArchitecture('secondary')
+                    if TR_Support.D6Roll() >= 5: 
+                        self.starDetails[2]['orbitsubject'] = 'primary'
+                        self.gen_TrinaryArchitecture('unbound')
+                    elif TR_Support.D100Roll() <= ma: 
+                        self.starDetails[2]['orbitsubject'] = 'primary'
+                        self.gen_TrinaryArchitecture('primary')
+                    else: 
+                        self.starDetails[2]['orbitsubject'] = 'secondary'
+                        self.gen_TrinaryArchitecture('secondary')
 
 
 
 
-            print()
+            # print()
 
         else: 
             sysPrimary = 'Empty'
@@ -804,6 +961,7 @@ for i in range(1, 21):
     print(str(i) + ': ', end = '')
     sys1 = System()
     sys1.gen_System('0101', 5, False)
+    sys1.print_System()
 print('```')
     # print(sys1.sysType + ' ', end = '')
 
