@@ -125,6 +125,14 @@ class System:
 
     # Methods
 
+    def gen_brownDwarfClass(self):
+        x = TR_Support.D6Roll()
+        if x in [1, 2, 3]: bdclass = 'L'
+        elif x in [4, 5]: bdclass = 'T'
+        else: bdclass = 'Y'
+        return bdclass
+
+
     def gen_systemPresence(self, density):
         presence = False
         subSectorType = TR_Constants.DENSITY_LOOKUP[density]
@@ -200,8 +208,7 @@ class System:
             # Look up the stellar class
 
             if x == 1: 
-                sClass = gen_brownDwarfClass()
-
+                sClass = self.gen_brownDwarfClass()
             elif x in [2, 3, 4, 5, 6, 7]: sClass = 'M'
             elif x in [8, 9]: sClass = 'K'
             elif x == 10: sClass = 'G'
@@ -220,7 +227,7 @@ class System:
             # Look up the stellar class
 
             if x == 1:
-                sClass = gen_brownDwarfClass()
+                sClass = self.gen_brownDwarfClass()
 
             elif x in [2, 3, 4, 5, 6]: sClass = 'M'
             elif x in [7, 8]: sClass = 'K'
@@ -238,7 +245,7 @@ class System:
         try:
             assert sClass != ''
         except AssertionError as AssertionError:
-            logging.log_exception(AssertionError)
+            logging.exception(AssertionError)
         
         return sClass
 
@@ -270,16 +277,9 @@ class System:
         try:
             assert lum != ''
         except AssertionError as AssertionError:
-            logging.log_exception(AssertionError)
+            logging.exception(AssertionError)
 
         return lum
-
-    def gen_brownDwarfClass(self):
-        x = TR_Support.D6Roll()
-        if x in [1, 2, 3]: bdclass = 'L'
-        elif x in [4, 5]: bdclass = 'T'
-        else: bdclass = 'Y'
-        return bdclass
 
     def gen_numStars(self, spectralClass):
         nStars = 1
@@ -466,6 +466,8 @@ class System:
             orbitdistance = (TR_Support.D6Roll() * 1000) + 4000
             if orbitdistance < 5000: orbitdistance = 5000
 
+        orbitdistance = round(orbitdistance, 3)
+
         return orbitzone, orbitdistance
 
     def get_starDetails(self, thisclass, thislum):
@@ -513,7 +515,6 @@ class System:
             primaryStypes = False
             self.starDetails[0]['sMin'] = 0
             self.starDetails[0]['sMax'] = 0
-            secondaryStypes = True
             self.starDetails[1]['sMin'] = self.starDetails[1]['roche limit']
             self.starDetails[1]['sMax'] = self.starDetails[1]['orbitdistance'] * 0.2
             
@@ -599,6 +600,7 @@ class System:
             # Don't need to adjust orbit now - sufficient distance from the barycentre is a precondition of this block
 
             self.starDetails[2]['orbitdistance'] += self.barycentre
+            self.starDetails[2]['orbitdistance'] = round(self.starDetails[2]['orbitdistance'], 3)
 
             # Set the maximum S-Type orbit to 20% of the distance to the secondary orbit
 
@@ -652,7 +654,6 @@ class System:
 
             is_between = self.starDetails[0]['sMin'] <= self.starDetails[2]['orbitdistance'] <=self.starDetails[0]['sMax']
             if not is_between:
-                range = round(self.starDetails[0]['sMax'] - self.starDetails[0]['sMin'])
                 self.starDetails[2]['orbitdistance'] = random.randint(round(self.starDetails[0]['sMin']), round(self.starDetails[0]['sMax']))
 
                 # Recalculate the orbit zone as well
@@ -700,7 +701,7 @@ class System:
 
             is_between = self.starDetails[1]['sMin'] <= self.starDetails[2]['orbitdistance'] <=self.starDetails[1]['sMax']
             if not is_between:
-                range = round(self.starDetails[1]['sMax'] - self.starDetails[1]['sMin'])
+                
                 self.starDetails[2]['orbitdistance'] = random.randint(round(self.starDetails[1]['sMin']), round(self.starDetails[1]['sMax']))
 
                 # Recalculate the orbit zone as well
@@ -796,7 +797,7 @@ class System:
 
             if len(self.starDetails) > 2:
                 print('System Tertiary:\t\t' + self.starDetails[2]['type'])
-                if self.starDetails[2]['orbitsubject'] == 'primary': print('\tDistance from Pr:imary:\t\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
+                if self.starDetails[2]['orbitsubject'] == 'primary': print('\tDistance from Primary:\t\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
                 elif self.starDetails[2]['orbitsubject'] == 'secondary': print('\tDistance from Secondary\t\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
                 elif self.starDetails[2]['orbitsubject'] == 'both': print('\tDistance from system barycentre:\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
 
@@ -905,6 +906,7 @@ class System:
                 # Generate the tertiary and add it to the star details
              
                 companionzone, companiondistance = self.gen_CompanionOrbit(sysPrimary, 3, self.starDetails[0]['diameter'], self.starDetails[0]['roche limit'])
+                companiondistance = round(companiondistance, 3)
                 self.starList.append(companionstring)
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
                 self.starDetails[2].update(self.get_starDetails(companionclass, companionlum)) 
@@ -960,7 +962,7 @@ print('```')
 for i in range(1, 21):
     print(str(i) + ': ', end = '')
     sys1 = System()
-    sys1.gen_System('0101', 5, False)
+    sys1.gen_System('0101', 5, True)
     sys1.print_System()
 print('```')
     # print(sys1.sysType + ' ', end = '')
