@@ -577,7 +577,9 @@ class System:
             self.starDetails[0]['pMax'] = round(self.starDetails[0]['pMax'], 3)
             # print('\tPrimary - Secondary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))
 
+        # Finally, add the stable T-Type orbits at the primary-secondary L4 and L5 locations
 
+        self.starDetails[0]['tL4'] = self.starDetails[0]['tL5'] = self.starDetails[1]['orbitdistance']
 
         self.barycentre = barycentre
         self.barycentre_ref = 0
@@ -644,6 +646,10 @@ class System:
         # 2:  if the tertiary is within the minimum distance to orbit the pair, it can:
         #    a - orbit the primary
         #    b - orbit the companion
+
+            # Finally, add the T-Type orbits at the primary-tertiary L4 and L5 Lagrange points
+
+            self.starDetails[0]['tL4b'] = self.starDetails[0]['tL5b'] = self.starDetails[2]['orbitdistance']
         
         elif usecase in ['primary']:
 
@@ -701,6 +707,10 @@ class System:
 
                 is_secondary_blocked = self.starDetails[1]['sMin'] <= self.starDetails[2]['orbitdistance'] <= self.starDetails[1]['sMax']
 
+            # Finally, add the T-Type orbits at the primary-tertiary L4 and L5 Lagrange points
+
+            self.starDetails[0]['tL4c'] = self.starDetails[0]['tL5c'] = self.starDetails[2]['orbitdistance']
+
         elif usecase in ['secondary']:
 
             # print('\tTertiary orbits secondary.  Checking orbits')
@@ -753,7 +763,13 @@ class System:
 
                     if self.starDetails[1]['pMax'] > self.starDetails[1]['orbitdistance']: self.starDetails[1]['pMax'] = self.starDetails[1]['orbitdistance']
 
+            # Finally, add the T-Type orbits at the primary-tertiary L4 and L5 Lagrange points
+
+            self.starDetails[0]['tL4d'] = self.starDetails[0]['tL5d'] = self.starDetails[2]['orbitdistance']
+
         # 3:  if the tertiary is outside the outer limit for both the primary and secondary then it is unbound
+
+
 
         elif usecase == 'unbound':
 
@@ -783,8 +799,8 @@ class System:
         if self.starDetails[2]['sMax'] > self.starDetails[2]['Limit']: self.starDetails[2]['sMax'] = self.starDetails[2]['Limit']
         if self.starDetails[2]['sMin'] > self.starDetails[2]['sMax']: self.starDetails[2]['sMin'] = self.starDetails[2]['sMax'] 
     
-
     # Write out the system contents
+    
     def print_System(self):
 
         # print('System Type:\t\t' + self.sysType)
@@ -796,6 +812,10 @@ class System:
             if 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
             if 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
             if 'pMax' in self.starDetails[0]: print('\tP-Orbit outer limit = ' + str(self.starDetails[0]['pMax']))
+            if 'tL4' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4']))
+            if 'tL4b' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4b']))
+            if 'tL4c' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4c']))
+            if 'tL4d' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4d']))
 
             if len(self.starDetails) >= 2: 
                 print(f'{"System Secondary:":<22}{self.starDetails[1]["type"]}')
@@ -804,6 +824,7 @@ class System:
                 if 'sMax' in self.starDetails[1]: print('\tS-Orbit outer limit = ' + str(self.starDetails[1]['sMax']))
                 if 'pMin' in self.starDetails[1]: print('\tP-Orbit inner limit = ' + str(self.starDetails[1]['pMin']))
                 if 'pMax' in self.starDetails[1]: print('\tP-Orbit outer limit = ' + str(self.starDetails[1]['pMax']))
+                
 
             if len(self.starDetails) > 2:
                 print(f'{"System Tertiary:":<22}{self.starDetails[2]["type"]}')
@@ -819,6 +840,102 @@ class System:
 
         # print('##########')
         print()
+
+    # Generate the pool of available worlds
+
+    def gen_worldPool(self, title, location):
+
+        # Check for gas giants
+        # If the frost line for a star is recorded as -1, then the frost line is outside the stars gravitational limit
+
+        nGG = 0
+        i = 0
+        hasGG = False
+        if self.sysType in ['Star System', 'Brown Dwarf']:
+            while i < len(self.starDetails):
+                if self.starDetails[i]['Frost Line'] != -1: hasGG = True
+                i += 1
+        
+        # Systems that aren't normally capable of having a gas giant may have a captured one
+
+        if not hasGG: 
+            if TR_Support.D6Rollx2() >= 11: numGG = 1
+        else:
+
+            # Brown dwarfs rarely contain gas giants
+
+            if self.sysType == 'Brown Dwarf':
+                if self.starDetails[0]['type'][0] == 'L':
+                    if TR_Support.D6Rollx2() >= 9:
+                        nGG = TR_Support.D6Roll() - 4
+                        if nGG < 1: nGG = 1
+                elif self.starDetails[0]['type'][0] == 'T':
+                    if TR_Support.D6Rollx2() >= 11: 
+                        nGG = 1
+                else: nGG = 0
+            
+            # Now determne the number of gas giansts
+
+            else:
+                if TR_Support.D6Rollx2() >= 5: 
+                    nGG = TR_Support.D6Roll() - 2
+                    if nGG < 1: nGG = 1
+        
+        # Determine each gas giant type
+
+        gasGiants = []
+        if nGG > 0:
+            j = 1
+            while j <= nGG:
+                if TR_Support.D6Roll() < 4: gasGiants.append('LGG / Jovian')
+                else: gasGiants.append('SGG / Neptunian')
+
+                j += 1
+
+        print('*** Gas Giants:  ' + str(nGG) + ' ', end = '')
+        if nGG != 0: print(gasGiants)
+
+        # Check for planetoid belts and rocky worlds
+
+        if self.sysType in ['Star System', 'Brown Dwarf', 'Neutron Star', 'Black Hole']:
+            nPB = 0
+
+            if TR_Support.D6Rollx2() >= 4:
+                nPB = TR_Support.D6Roll() - 3
+                if nPB < 1: nPB = 1
+
+            print('*** Planetoid Belts:  ' + str(nPB))
+
+            # Populate rocky worlds
+            # Note we are selecting the mainworld after, so add 1 to the D6+1 as per the rules in Section 11
+
+            nRW = TR_Support.D6Roll() + 2
+            rockyWorlds = []
+            k = 1
+
+            # Determine each world type
+
+            while k < nRW:
+
+                x = TR_Support.D6Rollx2()
+                if x <= 3: rockyWorlds.append('Dwarf World')
+                elif x <= 8: rockyWorlds.append('Normal World')
+                else: rockyWorlds.append('Superterran World')
+          
+                k += 1
+
+            print('*** Rocky Worlds:  ' + str(nRW) + ' ', end = '')
+            if nRW != 0: print(rockyWorlds)
+
+
+
+        # # Generate the mainworld
+
+        # mw = TR_CE_SRD_World.World(title)
+        # mw.genWorld(location)
+        # mw.formatUWPString_text_SEC()
+
+        # print('Mainworld:  ' + mw.UWPString)
 
     def gen_System(self, location, density, allowunusual):
         self.starList = []
@@ -983,7 +1100,11 @@ class System:
                         self.starDetails[2]['orbitsubject'] = 'secondary'
                         self.gen_TrinaryArchitecture('secondary')
 
+            self.sysType = sysPrimary
 
+        # Generate the pool of available worlds
+
+            self.gen_worldPool('Unnamed', '0101')
 
 
             # print()
@@ -991,14 +1112,14 @@ class System:
         else: 
             sysPrimary = 'Empty'
             print(sysPrimary)
-        self.sysType = sysPrimary
+            self.sysType = sysPrimary
 
 
 
 # Test Code
 
 print('```')
-for i in range(1, 101):
+for i in range(1, 11):
     print(str(i) + ': ')
     sys1 = System()
     sys1.gen_System('0101', 5, True)
