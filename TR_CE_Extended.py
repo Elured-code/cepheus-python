@@ -894,6 +894,7 @@ class System:
 
         print('*** Gas Giants:  ' + str(nGG) + ' ', end = '')
         if nGG != 0: print(gasGiants)
+        else: print()
 
         # Check for planetoid belts and rocky worlds
 
@@ -915,7 +916,7 @@ class System:
 
             # Determine each world type
 
-            while k < nRW:
+            while k <= nRW:
 
                 x = TR_Support.D6Rollx2()
                 if x <= 3: rockyWorlds.append('Dwarf World')
@@ -1118,15 +1119,15 @@ class System:
 
 # Test Code
 
-print('```')
-for i in range(1, 11):
-    print(str(i) + ': ')
-    sys1 = System()
-    sys1.gen_System('0101', 5, True)
-    if sys1.sysType != 'Empty': sys1.print_System()
-    else: print()
-print('```')
-    # print(sys1.sysType + ' ', end = '')
+# print('```')
+# for i in range(1, 11):
+#     print(str(i) + ': ')
+#     sys1 = System()
+#     sys1.gen_System('0101', 5, True)
+#     if sys1.sysType != 'Empty': sys1.print_System()
+#     else: print()
+# print('```')
+#     # print(sys1.sysType + ' ', end = '')
 
 #     # j = 0
 #     # for star in sys1.starList:

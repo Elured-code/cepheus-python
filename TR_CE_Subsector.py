@@ -14,6 +14,7 @@
 #
 
 # Constructor:  Subsector(str sName, str SecName, char subLetter, int subDensity)
+#   engName:    Generation engine name - currently CE (CE SRD) or CEEX (CE Extended)
 #   sName:      Subsector name
 #   secName:    Host Sector name
 #   subLetter:  Subsector position designator
@@ -22,7 +23,6 @@
 # Public methods:
 # 
 #   PrintSubsector:      output the subsector data to the console
-#   SaveSubsector:       save the subsector to a text file
 #
 
 
@@ -34,16 +34,46 @@
 
 
 import random
+import TR_CE_EXT_MTB
 import TR_CE_SRD_World
 import TR_CE_Extended
-from TR_Support import D100Roll
+import TR_Support
 import TR_Constants
 import sys
+
+# Define local constants
+
+ENGINES = ['CT', 'CE', 'CEEX']
+# DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
+SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
+FIXEDHEADER = ''' 1-13: Name
+15-18: HexNbr
+20-28: UWP
+   31: Bases
+33-47: Codes & Comments
+   49: Zone
+52-54: PBG
+56-57: Allegiance
+59-74: Stellar Data
+
+....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8'''
+
+# Define common functions
+
+
 
 class Subsector:
 
     # Define properties
 
+    @property
+    def engName(self):
+        return self.__engName
+    
+    @property
+    def pType(self):
+        return self.__pType
+    
     @property
     def subName(self):
         return self.__subName
@@ -59,10 +89,6 @@ class Subsector:
     @property
     def subDensity(self):
         return self.__subDensity
-
-    @property
-    def popType(self):
-        return self.__popType
 
     @property
     def subContents(self):
@@ -82,6 +108,16 @@ class Subsector:
 
     # Define setters
 
+    @engName.setter
+    def engName(self, engName):
+        if engName in ENGINES: self.__engName = engName
+        else: self.engName = 'CE'
+
+    @pType.setter
+    def pType(self, pType):
+        if pType in [*range(0, 6, 1)]: self.__pType = pType
+        else: self.__pType = 3
+    
     @subName.setter
     def subName(self, subName):
         self.__subName = subName
@@ -92,18 +128,13 @@ class Subsector:
 
     @subLetter.setter
     def subLetter(self, subLetter):
-        if subLetter in TR_Constants.SUBSECLETTERS: self.__subLetter = subLetter
+        if subLetter in SUBSECLETTERS: self.__subLetter = subLetter
         else: self.__subLetter = ' '
 
     @subDensity.setter
     def subDensity(self, subDensity):
         if subDensity in [1, 2, 3, 4, 5]: self.__subDensity = subDensity
         else: self.__subDensity = 3
-
-    @popType.setter
-    def popType(self, popType):
-        if popType in [0, 1, 2, 3, 4, 5]: self.__popType = popType
-        else: self.__popType = 3
 
     @subContents.setter
     def subContents(self, subContents):
@@ -127,17 +158,23 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, subName, secName, subLetter, subDensity, popType):
+    def __init__(self, engName, subName, secName, subLetter, subDensity, pType):
+        self.__pType = pType
+        self.engName = engName
         self.__subName = subName
         self.__secName = secName
         self.__subLetter = subLetter
         self.__subDensity = subDensity
-        self.__popType = popType
         self.contents = []
         self.hiTL = 0
         self.sumPop = 0
         self.hiPop = 0
 
+    # Clear the subsector object
+
+    def clear(self):
+        self.contents = []
+    
     # Generate the subsector
 
     def genSubSec(self):
@@ -151,12 +188,16 @@ class Subsector:
         while i <= 8:
             j = 1
             while j <= 10:   
-                if D100Roll() < prob:
+                if TR_Support.D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
                     isMainWorld = True
-                    w1 = TR_CE_SRD_World.World("Main-" + loc)
+                    
+                    # Generate the world using ht eengine specified
+                    
+                    if self.engName == 'CEEX': w1 = TR_CE_Extended.System("Main-" + loc, isMainWorld, self.pType)
+                    elif self.engName == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
-                    w1.genWorld()
+                    w1.genWorld(loc)
                     
                     # Add the world to the subsector contents
 
@@ -166,21 +207,40 @@ class Subsector:
                 j += 1
             i += 1
 
+    # Print a subsector to stdout
 
     def printSubSec(self):
 
         # Print the header text
 
         print(self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")")
-        print("....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8")
-        print("")
+        print(FIXEDHEADER)
 
         for World in self.contents:
             World.formatUWPString_text_SEC()
             print(World.UWPString)
 
-# Testing code here
+    # Write a subsector to a variable
 
-s1 = Subsector("TestSub", "TestSec", "B", 3, 3)
-s1.genSubSec()
-s1.printSubSec()
+    def writeSubSec(self):
+        returnval = ''
+        returnval += self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")" + '\n'
+        returnval += FIXEDHEADER + '\n'
+    
+        for World in self.contents:
+            World.formatUWPString_text_SEC()
+            returnval += World.UWPString
+            returnval += '\n'
+
+        return returnval
+
+
+# # Testing code here
+
+# s1 = Subsector("CE", "TestSub", "TestSec", "B", 3, 5)
+
+# # print(s1.pType)
+# s1.genSubSec()
+# print("```")
+# s1.printSubSec()
+# print("```")
