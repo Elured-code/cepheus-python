@@ -28,7 +28,7 @@
 # Import modules here
 
 import random
-from TR_Support import D6Roll, D6Rollx2, D10Roll, D100Roll, D200Roll, D1000Roll, D100KRoll
+from .TR_Support import D6Roll, D6Rollx2, D10Roll, D100Roll, D200Roll, D1000Roll, D100KRoll
 
 # Define common functions
 

@@ -34,8 +34,9 @@
 
 
 import random
-import TR_CE_EXT_World
-import TR_CE_SRD_World
+# import TR_CE_SRD_World
+# import TR_CE_EXT_MTB
+from . import TR_CE_SRD_World, TR_CE_EXT_MTB
 import sys
 
 # Define constants
@@ -190,7 +191,7 @@ class Subsector:
                     
                     # Generate the world using ht eengine specified
                     
-                    if self.engName == 'CEEX': w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld, self.pType)
+                    if self.engName == 'CEEX': w1 = TR_CE_EXT_MTB.World("Main-" + loc, isMainWorld, self.pType)
                     elif self.engName == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
                     w1.genWorld()

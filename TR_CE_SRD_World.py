@@ -18,8 +18,12 @@
 # Import modules here
 
 import random
-import TR_Constants
-from TR_Support import D6Roll, D6Rollx2, D100Roll
+
+# import TR_Constants
+# from TR_Support import D6Roll, D6Rollx2, D100Roll
+
+from . import TR_Constants
+from .TR_Support import D6Roll, D6Rollx2, D100Roll
 
 # World class - holds the world details as defined in the CE SRD
 #
