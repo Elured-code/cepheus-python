@@ -1,0 +1,37 @@
+TestSub (TestSec/B)
+ 1-13: Name
+15-18: HexNbr
+20-28: UWP
+   31: Bases
+33-47: Codes & Comments
+   49: Zone
+52-54: PBG
+56-57: Allegiance
+59-74: Stellar Data
+
+....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
+Main-0110     0110 X987300-0   Lo Lt             A 131
+Main-0203     0203 X580336-1   De Lo Lt            430
+Main-0208     0208 E9D5325-6   Fl Lo             A 430
+MAIN-0210     0210 C557983-5   Hi Lt               503
+Main-0302     0302 D000143-7 S As Lo Va            723
+Main-0303     0303 X351545-3   Lt Ni Po            103
+Main-0307     0307 X110000-0   Ba Lt             A 030
+Main-0310     0310 X8C2267-7   Fl Lo             A 400
+Main-0403     0403 X200100-7   Lo Va             A 101
+Main-0404     0404 X210100-7   Lo                A 620
+Main-0405     0405 X679000-0   Ba Lt             A 000
+Main-0407     0407 X547634-5   Ag Lt Ni            901
+Main-0503     0503 A343767-5   Lt Po               602
+MAIN-0504     0504 B768AA9-9 N Hi                A 101
+Main-0506     0506 A784769-9 S Ag Ga Ri          A 431
+MAIN-0601     0601 C7629EF-7   Hi                A 433
+Main-0608     0608 E563497-2   Lt Ni               800
+Main-0610     0610 E748147-5   Lo Lt               431
+MAIN-0703     0703 B4539AC-D N Hi Ht Po          A 730
+Main-0705     0705 C76A898-8 S Ri Wa               931
+Main-0709     0709 C627553-7 S Ni                  503
+Main-0801     0801 XAA7000-0   Ba Fl Lt          A 024
+Main-0802     0802 E797624-5   Ag Lt Ni            922
+Main-0808     0808 D300436-7 S Ni Va               311
+Main-0809     0809 X588555-4   Ag Ga Lt Ni         604

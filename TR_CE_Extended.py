@@ -783,7 +783,7 @@ class System:
         Ma = self.starDetails[0]['mass']
         AU = self.starDetails[2]['orbitdistance']
 
-        barycentre = AU * (Mb / (Ma + Mb))
+        self.barycentre = AU * (Mb / (Ma + Mb))
 
         # print('\tPrimary - tertiary barycentre at ' + str(round(barycentre)) + ' AU')
 
@@ -838,12 +838,19 @@ class System:
                 if 'pMin' in self.starDetails[2]: print('\tP-Orbit inner limit = ' + str(self.starDetails[2]['pMin']))
                 if 'pMax' in self.starDetails[2]: print('\tP-Orbit outer limit = ' + str(self.starDetails[2]['pMax']))
 
+            # Some temporary code to dump out system contents
+
+            print('System Contents:')
+            for sd in self.starDetails:
+                print('*** ' + str(self.starDetails.index(sd)) + ' ', end='')
+                print(sd['Contents'])
+
         # print('##########')
         print()
 
     # Generate the pool of available worlds
 
-    def gen_worldPool(self, title, location):
+    def gen_worldPool(self):
 
         # Check for gas giants
         # If the frost line for a star is recorded as -1, then the frost line is outside the stars gravitational limit
@@ -859,7 +866,7 @@ class System:
         # Systems that aren't normally capable of having a gas giant may have a captured one
 
         if not hasGG: 
-            if TR_Support.D6Rollx2() >= 11: numGG = 1
+            if TR_Support.D6Rollx2() >= 11: nGG = 1
         else:
 
             # Brown dwarfs rarely contain gas giants
@@ -887,8 +894,8 @@ class System:
         if nGG > 0:
             j = 1
             while j <= nGG:
-                if TR_Support.D6Roll() < 4: gasGiants.append('LGG / Jovian')
-                else: gasGiants.append('SGG / Neptunian')
+                if TR_Support.D6Roll() < 4: gasGiants.append('LGG')
+                else: gasGiants.append('SGG')
 
                 j += 1
 
@@ -898,7 +905,7 @@ class System:
 
         # Check for planetoid belts and rocky worlds
 
-        if self.sysType in ['Star System', 'Brown Dwarf', 'Neutron Star', 'Black Hole']:
+        if self.sysType in ['Star System', 'Brown Dwarf']:
             nPB = 0
 
             if TR_Support.D6Rollx2() >= 4:
@@ -928,7 +935,96 @@ class System:
             print('*** Rocky Worlds:  ' + str(nRW) + ' ', end = '')
             if nRW != 0: print(rockyWorlds)
 
+            # Assign gas giants between stars
 
+            # Iterate through each star to determine if suitable orbits exist
+
+            # orbits = []
+            for starDetails in self.starDetails:
+                GGOrbitsPresent = False
+                starDetails['hasGG'] = False
+
+                # Check if S-Type orbits can be used
+                # First check that tehre are S-Type orbits
+
+                if 'sMin' in starDetails and 'sMax' in starDetails and 'Frost Line' in starDetails:
+
+                    if starDetails['sMin'] <= starDetails['Frost Line'] <= starDetails['sMax']:
+                        print('*** Suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                        GGOrbitsPresent = True
+                        starDetails['hasGG'] = True
+                    else: 
+                        print('*** No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                else: print('*** No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                # Now check for P-Type orbits
+
+                if 'pMin' in starDetails and 'pMax' in starDetails and 'Frost Line' in starDetails:
+
+                    if starDetails['pMin'] <= starDetails['Frost Line'] <= starDetails['pMax']:
+                        print('*** Suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                        GGOrbitsPresent = True
+                        starDetails['hasGG'] = True
+                    else:
+                        print('*** No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                else: print('*** No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+
+                # print('*** GG orbits present? ' + str(GGOrbitsPresent))
+
+                # Asume that Gas Giants do not occupy T-Type orbits for ... reasons
+
+            # We now have a determination for each body as to available Gas Giant orbits
+
+            # If no orbits are available for gas giants but they exist, do stuff here:
+
+            if not GGOrbitsPresent and nGG > 0:
+                print('*** No available GG orbits, but assigning to system stars')
+                
+                # No orbits but place anyway!
+
+                for objLabel in gasGiants:
+                    x = random.randint(0, len(self.starDetails) - 1)
+                    self.starDetails[x]['Contents'].append({'Type': objLabel})
+                
+            # Otherwise, divide up the giants:
+
+            elif nGG > 0:
+
+                # First find a GG to place in the innermost eligible orbit around the primary
+
+                if 'LGG' in gasGiants and 'SGG' in gasGiants:
+                    x = TR_Support.D6Roll()
+                    if x <= 5: objLabel = 'LGG' 
+                    else: objLabel = 'SGG'
+                elif 'LGG' in gasGiants: objLabel = 'LGG'
+                else: objLabel = 'SGG'
+
+                # First assign the GG to the primary, if orbits are available
+
+                if self.starDetails[0]['hasGG']: self.starDetails[0]['Contents'].append({'Type': objLabel})
+                elif len(self.starDetails) > 1 and self.starDetails[1]['hasGG']: self.starDetails[1]['Contents'].append({'Type': objLabel})
+                elif len(self.starDetails) > 2 and self.starDetails[2]['hasGG']: self.starDetails[1]['Contents'].append({'Type': objLabel})  
+
+                # Remove the GG from the pool
+
+                gasGiants.remove(objLabel)
+
+                # Now iterate through the remaining gas giants
+
+                for objLabel in gasGiants:
+                    ggPlaced = False
+
+                    while not ggPlaced:
+                        x = random.randint(0, len(self.starDetails) - 1)
+                        if self.starDetails[x]['hasGG']:
+                            self.starDetails[x]['Contents'].append({'Type': objLabel})
+                            ggPlaced = True
+
+        # Special code for black holes will go here
 
         # # Generate the mainworld
 
@@ -938,6 +1034,9 @@ class System:
 
         # print('Mainworld:  ' + mw.UWPString)
 
+    def place_gasGiants(self):
+        pass
+    
     def gen_System(self, location, density, allowunusual):
         self.starList = []
         self.starDetails = []
@@ -960,7 +1059,7 @@ class System:
             sClass = sLum = ''
 
             if sysPrimary == 'Star System': 
-                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_FANTASTIC)
+                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_REAL)
 
                 # Dwarfs don't have companions, override if needed
 
@@ -1103,9 +1202,18 @@ class System:
 
             self.sysType = sysPrimary
 
-        # Generate the pool of available worlds
+            # Generate the pool of available worlds
 
-            self.gen_worldPool('Unnamed', '0101')
+            # First initialise a contents list for each star
+
+            for SD in self.starDetails:
+                SD['Contents'] = []
+
+            self.gen_worldPool()
+
+            # Place gas giants
+
+            self.place_gasGiants()
 
 
             # print()
@@ -1127,6 +1235,8 @@ class System:
 #     if sys1.sysType != 'Empty': sys1.print_System()
 #     else: print()
 # print('```')
+
+
 #     # print(sys1.sysType + ' ', end = '')
 
 #     # j = 0

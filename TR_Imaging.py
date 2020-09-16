@@ -1,7 +1,7 @@
 
 
 import math
-import testTR_Subsector
+# import testTR_Subsector
 import TR_Constants
 from pathlib import Path
 
@@ -468,19 +468,19 @@ def genSubSec():
 
 
 
-def main():
+# def main():
 
-    for i in range(1, 5): 
-        thissubsec = genSubSec() 
-        filename = Path("c:/temp/image" + f'{i:03d}' + ".png")
-        # open(filename, "w").close()
-        drawHexMap(thissubsec, filename)
-        print('Writing ', end='')
-        print(filename)
+#     for i in range(1, 5): 
+#         thissubsec = genSubSec() 
+#         filename = Path("c:/temp/image" + f'{i:03d}' + ".png")
+#         # open(filename, "w").close()
+#         drawHexMap(thissubsec, filename)
+#         print('Writing ', end='')
+#         print(filename)
     
     
 
         
         
-if __name__ == "__main__":    
-    main()
+# if __name__ == "__main__":    
+#     main()

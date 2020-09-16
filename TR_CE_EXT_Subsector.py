@@ -153,10 +153,9 @@ class Subsector:
             while j <= 10:   
                 if D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
-                    isMainWorld = True
                     w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
-                    w1.genWorld()
+                    w1.genWorld(loc)
                     
                     # Add the world to the subsector contents
 
