@@ -31,6 +31,7 @@ GOVTLMOD = {0: 1, 5: 1, 7: 2, 13: -2, 14: -2}
 
 # Subsector generation constants
 
+DENSITY_VALUES = ["RIFT", "SPARSE", "SCATTERED", "STANDARD", "DENSE"]
 DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
 SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
 FIXEDHEADER = ''' 1-13: Name

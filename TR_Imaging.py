@@ -12,7 +12,7 @@ try:
 except ImportError:
     haveCairo = False
 
-def drawHexMap(subsector, filename):      
+def drawHexMap(subsector, filename, addnames):      
     ims = cairo.ImageSurface(cairo.FORMAT_ARGB32, 600, 840)
     ctx = cairo.Context(ims)
 
@@ -24,10 +24,6 @@ def drawHexMap(subsector, filename):
     ctx.set_source_rgb(1.0, 1.0, 1.0)
     ctx.paint()
     ctx.restore()
-    
-
-
-
     
     # Write out a hex map
 
@@ -105,9 +101,6 @@ def drawHexMap(subsector, filename):
             if i == 8 or j == 1: ctx.line_to(hexagon[0][0], hexagon[0][1])
             else: ctx.move_to(hexagon[0][0], hexagon[0][1])
             ctx.close_path()
-
-
-
             ctx.stroke()
 
             # Draw hex location labels
@@ -185,10 +178,7 @@ def drawHexMap(subsector, filename):
 
         if i % 2 == 0: centrey += height
 
-
-
-
-        # Display the mainworld name
+        # Display the system contents
 
         if world.worldname not in TR_Constants.NON_STARSYSTEMS:
 
@@ -230,14 +220,17 @@ def drawHexMap(subsector, filename):
 
             ctx.stroke()
 
-            xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.worldname)
-            ctx.move_to(centrex - dx/2, centrey + HEXRAD + theight)
-            ctx.set_source_rgb(0.4, 0.4, 0.4)
-            namelabel = world.worldname
-            if world.pop >= 9: namelabel = namelabel.upper()
-            
-            ctx.show_text(namelabel)
-            ctx.stroke()        
+            # Add the mainworld name if specified
+
+            if addnames:
+                xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.worldname)
+                ctx.move_to(centrex - dx/2, centrey + HEXRAD + theight)
+                ctx.set_source_rgb(0.4, 0.4, 0.4)
+                namelabel = world.worldname
+                if world.pop >= 9: namelabel = namelabel.upper()
+                
+                ctx.show_text(namelabel)
+                ctx.stroke()        
         
             # Display gas giants if present
 
