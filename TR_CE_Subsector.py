@@ -56,11 +56,7 @@ class Subsector:
     @property
     def engName(self):
         return self.__engName
-    
-    @property
-    def pType(self):
-        return self.__pType
-    
+
     @property
     def subName(self):
         return self.__subName
@@ -99,11 +95,6 @@ class Subsector:
     def engName(self, engName):
         if engName in ENGINES: self.__engName = engName
         else: self.engName = 'CE'
-
-    @pType.setter
-    def pType(self, pType):
-        if pType in [*range(0, 6, 1)]: self.__pType = pType
-        else: self.__pType = 3
     
     @subName.setter
     def subName(self, subName):
@@ -145,8 +136,7 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, subName, secName, subLetter, subDensity, pType):
-        self.__pType = pType
+    def __init__(self, subName, secName, subLetter, subDensity):
         self.__subName = subName
         self.__secName = secName
         self.__subLetter = subLetter
@@ -165,15 +155,18 @@ class Subsector:
 
     def genSubSec(self):
 
-    # Set the probability of system presence in any given hex
 
-        prob = TR_Constants.DENSITY_LOOKUP.get(self.subDensity)
         
         # Loop through the subsector hexes, checking for and if required generating mainworlds
         i = 1
         while i <= 8:
             j = 1
-            while j <= 10:   
+            while j <= 10:
+
+                # Set the probability of system presence in any given hex
+
+                prob = int(TR_Constants.DENSITY_LOOKUP.get(self.subDensity)) 
+                  
                 if TR_Support.D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
                     isMainWorld = True
