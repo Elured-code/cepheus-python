@@ -106,11 +106,11 @@ def main():
     # Write to an output SEC file - once again this will be passed by a command line argument in the future
 
     print("Writing subsector data to " + ARG_NAME + ".uwp")
-    with open("subsec.uwp", 'w', encoding='utf-8') as f: f.write(s1.writeSubSec())
+    with open(ARG_NAME + ".uwp", 'w', encoding='utf-8') as f: f.write(s1.writeSubSec())
 
     if ARG_JSON:
         print("Writing subsector data to " + ARG_NAME + ".json")
-        with open("subsec.json", 'w', encoding='utf-8') as j: j.write(s1.writeSubSecJSON())
+        with open(ARG_NAME + ".json", 'w', encoding='utf-8') as j: j.write(s1.writeSubSecJSON())
 
     if ARG_PNG:
         addnames = not ARG_NONAMES
