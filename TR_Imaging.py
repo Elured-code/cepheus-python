@@ -1,7 +1,6 @@
 
 
 import math
-# import testTR_Subsector
 import TR_Constants
 from pathlib import Path
 
