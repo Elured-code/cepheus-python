@@ -841,9 +841,14 @@ class System:
             # Some temporary code to dump out system contents
 
             print('System Contents:')
+            i = 0
             for sd in self.starDetails:
-                print('*** ' + str(self.starDetails.index(sd)) + ' ', end='')
-                print(sd['Contents'])
+                print('*** body ' + str(i+1) + ':')
+
+                for contents in sd['Contents']:
+                    print(contents)
+ 
+                i += 1
 
         # print('##########')
         print()
@@ -859,9 +864,8 @@ class System:
         i = 0
         hasGG = False
         if self.sysType in ['Star System', 'Brown Dwarf']:
-            while i < len(self.starDetails):
-                if self.starDetails[i]['Frost Line'] != -1: hasGG = True
-                i += 1
+            hasGG = True
+            i += 1
         
         # Systems that aren't normally capable of having a gas giant may have a captured one
 
@@ -1035,6 +1039,170 @@ class System:
         # print('Mainworld:  ' + mw.UWPString)
 
     def place_gasGiants(self):
+
+        # Ok lets start with any gas giants orbiting the primary system, then move to the other bodies
+        # We will do this the loop below, checking to see if:
+        #   1 - the body exists - this is implied in the loop
+        #   2 - it has gas giants
+
+        # i is the body number
+
+        i = 0
+        for stardetails in self.starDetails:
+            
+            # j is the gas giant counter for this body
+
+            j = 0
+
+            #  Reset the extreme inner migration flag
+
+            f_xim = False
+
+            for contents in stardetails['Contents']:
+
+                # If this is the first giant, place at the frost line
+                # If the star does not have a frost line then place the GG randomly between 
+                # the Roche Limit and Outer Limit
+
+                if j == 0:
+                    if stardetails['Frost Line'] != -1: orbitdistance = stardetails['Frost Line']
+                    else:
+                        rl = stardetails['roche limit']
+                        ol = stardetails['outer limit']
+                        orbitdistance = random.uniform(rl, ol)
+
+                    # Next determine gas giant migration
+
+                    DM = len(contents) - 1
+                    x = TR_Support.D6Rollx2()
+
+                    if x <= 3:
+
+                        # Extreme inward migration
+
+                        print('*** Extreme inward migration')
+                        orbitdistance = (stardetails['Frost Line'] * 0.1) + ((TR_Support.D6Roll() - 3) * (stardetails['Frost Line'] * 0.1))
+                        if orbitdistance <= 0: orbitdistance = TR_Support.D6Rollx2() * stardetails['diameter']/2
+
+                        # Set the extreme inner migration flag if this is the first gas gianst
+
+                        if j == 0: f_xim = True
+
+                    elif x in [4, 5]:
+
+                        # Limited inward migration
+
+                        print('*** Limited inward migration')
+                        orbitdistance = (stardetails['Frost Line'] * 0.4) + (TR_Support.D6Roll() * (stardetails['Frost Line'] * 0.1))
+                        if orbitdistance >= stardetails['Frost Line']: orbitdistance = stardetails['Frost Line'] * 0.95
+
+                    elif x in [6, 7, 8, 9, 10]:
+
+                        # No migration
+
+                        print('*** No migration')
+                        orbitdistance = stardetails['Frost Line'] + ((TR_Support.D6Roll() - 1) * stardetails['Frost Line'] * 0.02)
+
+                    elif x in [11, 12]:
+
+                        # Limited outward migration
+
+                        print('*** Limited outward migration')
+                        y = random.randint(1, 3)
+                        orbitdistance = stardetails['Frost Line'] * (1 + y/10)
+
+                # Now place subsequent giants
+
+                else:
+
+                # First, if this is the second giant and the first one has been subject to extreme inward migration
+                # (i.e. the f_xim flag is set) then run some special case code to determine the second giants position
+                # this code is a repeat of the migration code above, but with extreme inward migration removed
+
+                    if j == 1 and f_xim:
+
+                        x = TR_Support.D6Rollx2()
+                        if x in [4, 5]:
+
+                            # Limited inward migration
+
+                            print('*** Limited inward migration')
+                            orbitdistance = (stardetails['Frost Line'] * 0.4) + (TR_Support.D6Roll() * (stardetails['Frost Line'] * 0.1))
+                            if orbitdistance >= stardetails['Frost Line']: orbitdistance = stardetails['Frost Line'] * 0.95
+
+                        elif x in [6, 7, 8, 9, 10]:
+
+                            # No migration
+
+                            print('*** No migration')
+                            orbitdistance = stardetails['Frost Line'] + ((TR_Support.D6Roll() - 1) * stardetails['Frost Line'] * 0.02)
+
+                        elif x in [11, 12]:
+
+                            # Limited outward migration
+
+                            print('*** Limited outward migration')
+                            y = random.randomint(1, 3)
+                            orbitdistance = stardetails['Frost Line'] * (1 + y/10)
+                        
+                    else: 
+                        
+                        # Place remaining gas giants in near bodean outward orbits from the last orbit (
+                        # set at the end of the previous loop)
+
+                        z = TR_Support.D6Rollx2()
+
+                        # Unusual orbits not yet implemented.  When ready change == 1 to == 2
+                        if z == 1:
+
+                            # Unusual orbit
+
+                            contents['Status'] = 'Not yet implemented (unusual orbit) - ignore values'
+
+                        elif z == 3: orbitdistance = lastorbit * 1.5
+                        elif z in [4, 5]: orbitdistance = lastorbit * 1.75
+                        elif z in [6, 7, 8]: orbitdistance = lastorbit * 2
+                        elif z in [9, 10]: orbitdistance = lastorbit *2.25
+                        elif z == 11: orbitdistance = lastorbit * 2.5
+                        else: orbitdistance = lastorbit * 3
+
+                        # Calculate minor variance
+
+                        mv = (TR_Support.D6Roll() - TR_Support.D6Roll()) * 0.02
+                        orbitdistance *= (1 + mv)
+                
+
+                # Check that the placed gas giant is in a suitable orbit, and annotate with the orbit type
+                # If not then move to the nearest available orbit outwards
+
+                if stardetails['sMin'] <= orbitdistance <= stardetails['sMax']: contents['Orbit Type'] = 'S-Type Orbit'
+                elif 'pMin' in stardetails:
+                    if stardetails['pMin'] <= orbitdistance <= stardetails['pMax']: contents['Orbit Type'] = 'P-Type Orbit'
+                else:
+                    if orbitdistance < stardetails['sMin']: 
+                        orbitdistance = stardetails['sMin']
+                        contents['Orbit Type'] = 'S-Type Orbit'
+                    elif 'pMin' in stardetails and orbitdistance < stardetails['pMin']: 
+                        orbitdistance = stardetails['pMin']
+                        contents['Orbit Type'] = 'P-Type Orbit'
+                    else: 
+                        orbitdistance = stardetails['sMax']
+                        contents['Orbit Type'] = 'S-Type Orbit'
+
+                orbitdistance = float("{:.3f}".format(orbitdistance))
+                print('*** Placing gas giant #' + str(j+1) + ' at ' + str(orbitdistance) + ' AU from body ' + str(i+1))
+
+                # Format the orbit distance to 3 decimals and add to the contents record
+
+
+                contents['Orbital Distance'] = lastorbit = orbitdistance
+
+              
+                j += 1
+
+            i += 1
+
+
         pass
     
     def gen_System(self, location, density, allowunusual):
@@ -1059,7 +1227,7 @@ class System:
             sClass = sLum = ''
 
             if sysPrimary == 'Star System': 
-                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_REAL)
+                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_FANTASTIC)
 
                 # Dwarfs don't have companions, override if needed
 
@@ -1227,14 +1395,14 @@ class System:
 
 # Test Code
 
-# print('```')
-# for i in range(1, 11):
-#     print(str(i) + ': ')
-#     sys1 = System()
-#     sys1.gen_System('0101', 5, True)
-#     if sys1.sysType != 'Empty': sys1.print_System()
-#     else: print()
-# print('```')
+print('```')
+for i in range(1, 11):
+    print(str(i) + ': ')
+    sys1 = System()
+    sys1.gen_System('0101', 5, True)
+    if sys1.sysType != 'Empty': sys1.print_System()
+    else: print()
+print('```')
 
 
 #     # print(sys1.sysType + ' ', end = '')

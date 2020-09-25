@@ -39,7 +39,7 @@
 
 import argparse
 import sys
-from gooey import Gooey
+# from gooey import Gooey
 
 # App modules
 
@@ -48,7 +48,7 @@ import TR_Support
 import TR_CE_Subsector
 import TR_Imaging
 
-@Gooey(monospace_display=True)
+# @Gooey(monospace_display=True)
 def main():
     # Parse command line arguments
 
