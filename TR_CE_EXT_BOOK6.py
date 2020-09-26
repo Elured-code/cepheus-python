@@ -30,7 +30,7 @@
 import random
 import TR_Constants
 import TR_CE_SRD_World
-from TR_CE_EXT_Stellar import gen_Spectral, gen_starType
+import TR_CE_Book6_Stellar
 from TR_Support import D6Roll, D6Rollx2, D100Roll
 
 # Module specific functions
@@ -79,28 +79,23 @@ class World(TR_CE_SRD_World.World):
 # Provide a string representation of the object
 
     def __str__(self):
-        returnstr = super().__str__()
+        returnstr = super().__str__() + ' '
 
-        # Add stellar data
+        # There's a lot of fun going on here with nested lists.  To break it down:
+        #   starList[0][0] = primary string
+        #   starList[0][1] = primary orbit (N/A)
+        #   starList[1][0] = secondary string
+        #   starList[1][1] = secondary orbit
+        #   and so on
+         
+        i = 1
+        while i <= len(self.starList):
+            returnstr += self.starList[i - 1][0] + ' '
+            i += 1
 
-        stellarString = ""
-        for star in self.starList:
-            stellarString += star + " "
-        stellarString.rstrip()
-
-        returnstr += " " + stellarString
-
+        returnstr.rstrip()
         return returnstr
 
-
-    # Determine the number of stars in the system
-
-    def gen_nStars(self):
-        i = D100Roll()
-
-        if i <= 56: self.nStars = 1
-        elif i <= 91: self.nStars = 2
-        else: self.nStars = 3
 
     def genBelts(self):
         # Determine the presence of belts
@@ -134,28 +129,14 @@ class World(TR_CE_SRD_World.World):
         # If a mainworld, generate stellar data
 
         if self.mainWorld: 
-            self.gen_nStars()
 
-            # Determine the primary type
-            
-            tP = gen_starType('x')
-        
-            # Determine the primary spectral classification
-            
-            sP = gen_Spectral(tP)
+        # Determine the system type (single, binary or trinary)
 
-            self.starList.append(sP + tP)
+            self.nStars = TR_CE_Book6_Stellar.genSystemNature()
 
-            # Determine the secondary type if present
+        # Generate the star(s)
 
-            if self.nStars >= 2: 
-                    tS = gen_starType(tP)
-                    sS = gen_Spectral(tS)
-                    self.starList.append(sS + tS)
-            if self.nStars == 3: 
-                    tT = gen_starType(tP)
-                    sT = gen_Spectral(tT) 
-                    self.starList.append(sT + tT)  
+            self.starList = TR_CE_Book6_Stellar.genStellar()
 
         # Generate world data
     
@@ -204,13 +185,13 @@ class World(TR_CE_SRD_World.World):
 # Test code here
 
 
-i = 1
-while i < 10:
-    w1 = World("Blargo", True)
-    w1.genWorld()
-    w1.formatUWPString_text_SEC()
-    w1.printUWPString()
-    i += 1
+# i = 1
+# while i < 10:
+#     w1 = World("Blargo", True)
+#     w1.genWorld()
+#     w1.formatUWPString_text_SEC()
+#     w1.printUWPString()
+#     i += 1
 
 
 

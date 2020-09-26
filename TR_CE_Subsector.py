@@ -25,44 +25,29 @@
 #   PrintSubsector:      output the subsector data to the console
 #
 
+# Python imports
 
-
-#
-# Things to do:
-#
-# - Add capability to define 'core', 'settled', 'frontier' and 'wild' worlds with definitions 
-
-
+import json
 import random
-# import TR_CE_SRD_World
-# import TR_CE_EXT_MTB
-from . import TR_CE_SRD_World, TR_CE_EXT_MTB
 import sys
 
-# Define constants
+# Local imports
+
+import TR_CE_SRD_World
+import TR_Support
+import TR_Constants
+
+
+# Define local constants
 
 ENGINES = ['CT', 'CE', 'CEEX']
-DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
+# DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
 SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
-FIXEDHEADER = ''' 1-13: Name
-15-18: HexNbr
-20-28: UWP
-   31: Bases
-33-47: Codes & Comments
-   49: Zone
-52-54: PBG
-56-57: Allegiance
-59-74: Stellar Data
 
-....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8'''
 
 # Define common functions
 
-# Dice rollers
 
-def D100Roll():
-    random.seed()
-    return random.randint(1, 6) + random.randint(1, 101)
 
 class Subsector:
 
@@ -71,11 +56,7 @@ class Subsector:
     @property
     def engName(self):
         return self.__engName
-    
-    @property
-    def pType(self):
-        return self.__pType
-    
+
     @property
     def subName(self):
         return self.__subName
@@ -114,11 +95,6 @@ class Subsector:
     def engName(self, engName):
         if engName in ENGINES: self.__engName = engName
         else: self.engName = 'CE'
-
-    @pType.setter
-    def pType(self, pType):
-        if pType in [*range(0, 6, 1)]: self.__pType = pType
-        else: self.__pType = 3
     
     @subName.setter
     def subName(self, subName):
@@ -160,9 +136,7 @@ class Subsector:
 
     # Initialise the Subsector object
 
-    def __init__(self, engName, subName, secName, subLetter, subDensity, pType):
-        self.__pType = pType
-        self.engName = engName
+    def __init__(self, subName, secName, subLetter, subDensity):
         self.__subName = subName
         self.__secName = secName
         self.__subLetter = subLetter
@@ -172,29 +146,36 @@ class Subsector:
         self.sumPop = 0
         self.hiPop = 0
 
+    # Clear the subsector object
+
+    def clear(self):
+        self.contents = []
+    
     # Generate the subsector
 
     def genSubSec(self):
 
-    # Set the probability of system presence in any given hex
 
-        prob = DENSITY_LOOKUP.get(self.subDensity)
         
         # Loop through the subsector hexes, checking for and if required generating mainworlds
         i = 1
         while i <= 8:
             j = 1
-            while j <= 10:   
-                if D100Roll() < prob:
+            while j <= 10:
+
+                # Set the probability of system presence in any given hex
+
+                prob = int(TR_Constants.DENSITY_LOOKUP.get(self.subDensity)) 
+                  
+                if TR_Support.D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
                     isMainWorld = True
                     
-                    # Generate the world using ht eengine specified
-                    
-                    if self.engName == 'CEEX': w1 = TR_CE_EXT_MTB.World("Main-" + loc, isMainWorld, self.pType)
-                    elif self.engName == 'CE': w1 = TR_CE_SRD_World.World("Main-" + loc)
+                    # Generate the world using the CE SRD engine                   
+
+                    w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
-                    w1.genWorld()
+                    w1.genWorld(loc)
                     
                     # Add the world to the subsector contents
 
@@ -204,22 +185,78 @@ class Subsector:
                 j += 1
             i += 1
 
+    # Print a subsector to stdout
 
     def printSubSec(self):
 
         # Print the header text
 
         print(self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")")
-        print(FIXEDHEADER)
+        print(TR_Constants.FIXEDHEADER)
 
         for World in self.contents:
             World.formatUWPString_text_SEC()
             print(World.UWPString)
 
-# Testing code here
+    # Write a subsector to a variable
 
-# s1 = Subsector("CEEX", "TestSub", "TestSec", "B", 2, 5)
+    def writeSubSec(self):
+        returnval = ''
+        returnval += self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")" + '\n'
+        returnval += TR_Constants.FIXEDHEADER + '\n'
+    
+        for World in self.contents:
+            World.formatUWPString_text_SEC()
+            returnval += World.UWPString
+            returnval += '\n'
 
-# print(s1.pType)
+        return returnval
+
+        # Write the subsector to a JSON documment
+
+    def writeSubSecJSON(self):
+        subsecjson = {}
+        subsecjson['Name'] = self.subName
+        subsecjson['Position'] = self.subLetter
+        
+        for World in self.contents:
+            worldjson = {}
+            World.formatUWPString_text_SEC()
+            if World.worldname not in ['Brown Dwarf', 'Rogue Planet', 'Neutron Star', 'Black Hole',
+                'Stellar Nursery', 'Nebula']:
+                worldjson['System Type'] = 'Star System'
+                worldjson['Name'] = World.worldname
+                worldjson['UWP'] = World.UWPString
+                worldjson['Starport'] = World.starPort
+                worldjson['Size'] = World.siz
+                worldjson['Atmosphere'] = World.atm
+                worldjson['Hydrographics'] = World.hyd
+                worldjson['Population'] = World.pop
+                worldjson['Goverment'] = World.gov
+                worldjson['Law Level'] = World.law
+                worldjson['Tech Level'] = World.tlv
+                worldjson['Bases'] = World.bCode                
+                worldjson['Trade Codes'] = World.tCodeString.rstrip()
+                worldjson['Population Modifier'] = World.pMod
+                worldjson['Planetoid Belts'] = World.nBelts
+                worldjson['Gas Giants'] = World.nGiants
+
+            else:
+                worldjson['System Type'] = World.worldname
+            
+            
+            subsecjson[World.loc] = worldjson
+
+        outjson = json.dumps(subsecjson, indent=4)
+        return outjson
+
+
+# # Testing code here
+
+# s1 = Subsector("TestSub", "TestSec", "B", 3, 5)
+
+# # print(s1.pType)
 # s1.genSubSec()
+# print("```")
 # s1.printSubSec()
+# print("```")

@@ -1,0 +1,28 @@
+subsec (Example/B)
+ 1-13: Name
+15-18: HexNbr
+20-28: UWP
+   31: Bases
+33-47: Codes & Comments
+   49: Zone
+52-54: PBG
+56-57: Allegiance
+59-74: Stellar Data
+
+....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
+Main-0109     0109 E310200-B   Lo                A 810
+Main-0206     0206 D8C458A-7 S Fl Ni             A 323
+Main-0305     0305 XAB7404-7   Fl Ni             A 311
+Main-0310     0310 X97A000-0   Ba Lt Wa          A 001
+Main-0405     0405 X310000-0   Ba Lt             A 000
+Main-0408     0408 E544554-5   Ag Lt Ni            601
+Main-0501     0501 X154250-6   Lo                A 801
+Main-0510     0510 X220200-7   De Lo Po          A 312
+Main-0602     0602 X221336-7   Lo Po               921
+Main-0604     0604 E74A588-5   Lt Ni Wa            600
+Main-0608     0608 D3327CC-7   Na Po             A 410
+Main-0702     0702 E623330-7   Lo Po             A 510
+Main-0706     0706 D553123-6 S Lo Po               332
+MAIN-0804     0804 A362A98-C N Hi Ht               200
+Main-0806     0806 X000000-0   As Ba Lt Va       A 022
+MAIN-0809     0809 B434998-C   Hi Ht               403

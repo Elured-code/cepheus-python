@@ -31,8 +31,20 @@ GOVTLMOD = {0: 1, 5: 1, 7: 2, 13: -2, 14: -2}
 
 # Subsector generation constants
 
+DENSITY_VALUES = ["RIFT", "SPARSE", "SCATTERED", "STANDARD", "DENSE"]
 DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
 SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
+FIXEDHEADER = ''' 1-13: Name
+15-18: HexNbr
+20-28: UWP
+   31: Bases
+33-47: Codes & Comments
+   49: Zone
+52-54: PBG
+56-57: Allegiance
+59-74: Stellar Data
+
+....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8'''
 
 # non-star system types
 

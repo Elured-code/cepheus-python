@@ -22,6 +22,7 @@
 # Public methods:
 # 
 #   PrintSubsector:      output the subsector data to the console
+#   SaveSubsector:       save the subsector to a text file
 #
 
 
@@ -33,7 +34,8 @@
 
 
 import random
-import TR_CE_EXT_World
+import TR_CE_SRD_World
+import TR_CE_Extended
 from TR_Support import D100Roll
 import TR_Constants
 import sys
@@ -151,10 +153,9 @@ class Subsector:
             while j <= 10:   
                 if D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
-                    isMainWorld = True
-                    w1 = TR_CE_EXT_World.World("Main-" + loc, isMainWorld, self.__popType)
+                    w1 = TR_CE_SRD_World.World("Main-" + loc)
                     w1.loc = loc
-                    w1.genWorld()
+                    w1.genWorld(loc)
                     
                     # Add the world to the subsector contents
 
