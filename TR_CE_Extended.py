@@ -1125,6 +1125,9 @@ class System:
                             y = random.randint(1, 3)
                             orbitdistance = stardetails['Frost Line'] * (1 + y/10)
 
+                        # Note orbit as the last placed orbit
+
+                        lastorbit = orbitdistance
                         
 
                     # Now place subsequent giants
@@ -1256,8 +1259,6 @@ class System:
                     elif x <= 8:
 
                         # Place in first inward bodean from GG #1 (if it exists) otherwise hold it over until rocky worlds have been placed
-
-
 
                         if 'firstGG' in stardetails:
                             fGG = stardetails['firstGG']
@@ -1545,8 +1546,6 @@ class System:
             sysPrimary = 'Empty'
             print(sysPrimary)
             self.sysType = sysPrimary
-
-
 
 # Test Code
 
