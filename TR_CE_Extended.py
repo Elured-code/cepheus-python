@@ -35,6 +35,10 @@ import TR_Support
 
 # ....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8'''
 
+# Flags
+
+f_debug = False
+
 class System:
 
 # Getters
@@ -815,29 +819,18 @@ class System:
         if self.starDetails[2]['sMax'] > self.starDetails[2]['Limit']: self.starDetails[2]['sMax'] = self.starDetails[2]['Limit']
         if self.starDetails[2]['sMin'] > self.starDetails[2]['sMax']: self.starDetails[2]['sMin'] = self.starDetails[2]['sMax'] 
     
+       
     # Write out the system contents
     
     def print_System(self):
 
         # print('System Type:\t\t' + self.sysType)
-        print(f'{"System Type:":<22}{self.sysType}')
+        if f_debug: print(f'{"DEBUG: System Type:":<22}{self.sysType}')
         if self.sysType in ['Star System']: 
-            
-            # Format a UWP text string for the mainworld            
-            
-            self.mainWorld.formatUWPString_text_SEC()
-
-            # Now add the star details to the mainworld UWP string
-
-            self.mainWorld.UWPString += " Na"
-            
-            for star in self.starList:
-                self.mainWorld.UWPString += " " + star
-
-            print('Mainworld (orbit TBA): ' + self.mainWorld.UWPString)
+            if f_debug: print('DEBUG: Mainworld (orbit TBA): ' + self.mainWorld.UWPString)
         
         if self.sysType in ['Star System', 'Brown Dwarf']:
-            print(f'{"System Primary:":<22}{self.starDetails[0]["type"]}')
+            print(f'{"DEBUG: System Primary:":<22}{self.starDetails[0]["type"]}')
             if 'sMin' in self.starDetails[0]: print('\tS-Orbit inner limit = ' + str(self.starDetails[0]['sMin']))
             if 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
             if 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
@@ -873,7 +866,7 @@ class System:
             print('System Contents:')
             i = 0
             for sd in self.starDetails:
-                print('*** body ' + str(i+1) + ':')
+                if f_debug: print('DEBUG: body ' + str(i+1) + ':')
 
                 for contents in sd['Contents']:
                     print(contents)
@@ -886,7 +879,18 @@ class System:
     # Format the system extended UWP string
 
     def formatUWPString_text_SEC(self):
-        pass
+
+        # Format a UWP text string for the mainworld            
+        
+        self.mainWorld.formatUWPString_text_SEC()
+
+        # Now add the star details to the mainworld UWP string
+
+        self.mainWorld.UWPString += " Na"
+        
+        for star in self.starList:
+            self.mainWorld.UWPString += " " + star
+    pass
 
     # Generate the pool of available worlds
 
@@ -939,9 +943,11 @@ class System:
 
                 j += 1
 
-        print('*** Gas Giants:  ' + str(nGG) + ' ', end = '')
-        if nGG != 0: print(gasGiants)
-        else: print()
+        if f_debug: print('DEBUG: Gas Giants:  ' + str(nGG) + ' ', end = '')
+        if nGG != 0: 
+            if f_debug: print(gasGiants, end='')
+        else: 
+            if f_debug: print()
 
         # Check for planetoid belts and rocky worlds
 
@@ -952,7 +958,7 @@ class System:
                 nPB = TR_Support.D6Roll() - 3
                 if nPB < 1: nPB = 1
 
-            print('*** Planetoid Belts:  ' + str(nPB))
+            if f_debug: print('DEBUG: Planetoid Belts:  ' + str(nPB))
 
             # Populate rocky worlds
             # Note we are selecting the mainworld after, so add 1 to the D6+1 as per the rules in Section 11
@@ -972,8 +978,9 @@ class System:
           
                 k += 1
 
-            print('*** Rocky Worlds:  ' + str(nRW) + ' ', end = '')
-            if nRW != 0: print(rockyWorlds)
+            if f_debug: 
+                print('DEBUG: Rocky Worlds:  ' + str(nRW) + ' ', end = '')
+                if nRW != 0: print(rockyWorlds)
 
             # Assign gas giants between stars
 
@@ -990,30 +997,32 @@ class System:
                 if 'sMin' in starDetails and 'sMax' in starDetails and 'Frost Line' in starDetails:
 
                     if starDetails['sMin'] <= starDetails['Frost Line'] <= starDetails['sMax']:
-                        print('*** Suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                        if f_debug: print('DEBUG: Suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
                         GGOrbitsPresent = True
                         starDetails['hasGG'] = True
                     else: 
-                        print('*** No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                        if f_debug: print('DEBUG: No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
-                else: print('*** No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                else: 
+                    if f_debug: print('DEBUG: No suitable S-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
                 # Now check for P-Type orbits
 
                 if 'pMin' in starDetails and 'pMax' in starDetails and 'Frost Line' in starDetails:
 
                     if starDetails['pMin'] <= starDetails['Frost Line'] <= starDetails['pMax']:
-                        print('*** Suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                        if f_debug: print('DEBUG: Suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
                         GGOrbitsPresent = True
                         starDetails['hasGG'] = True
                     else:
-                        print('*** No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                        if f_debug: print('DEBUG: No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
-                else: print('*** No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
+                else: 
+                    if f_debug: print('DEBUG: No suitable P-Type Gas Giant orbits found for object ' + str(self.starDetails.index(starDetails)))
 
-                # print('*** GG orbits present? ' + str(GGOrbitsPresent))
+                # print('DEBUG: GG orbits present? ' + str(GGOrbitsPresent))
 
                 # Asume that Gas Giants do not occupy T-Type orbits for ... reasons
 
@@ -1022,7 +1031,7 @@ class System:
             # If no orbits are available for gas giants but they exist, do stuff here:
 
             if not GGOrbitsPresent and nGG > 0:
-                print('*** No available GG orbits, but assigning to system stars')
+                if f_debug: print('DEBUG: No available GG orbits, but assigning to system stars')
                 
                 # No orbits but place anyway!
 
@@ -1132,7 +1141,7 @@ class System:
 
                             # Extreme inward migration
 
-                            print('*** Extreme inward migration')
+                            if f_debug: print('DEBUG: Extreme inward migration')
                             orbitdistance = (stardetails['Frost Line'] * 0.1) + ((TR_Support.D6Roll() - 3) * (stardetails['Frost Line'] * 0.1))
                             if orbitdistance <= 0: orbitdistance = TR_Support.D6Rollx2() * stardetails['diameter']/2
 
@@ -1144,7 +1153,7 @@ class System:
 
                             # Limited inward migration
 
-                            print('*** Limited inward migration')
+                            if f_debug: print('DEBUG: Limited inward migration')
                             orbitdistance = (stardetails['Frost Line'] * 0.4) + (TR_Support.D6Roll() * (stardetails['Frost Line'] * 0.1))
                             if orbitdistance >= stardetails['Frost Line']: orbitdistance = stardetails['Frost Line'] * 0.95
 
@@ -1152,14 +1161,14 @@ class System:
 
                             # No migration
 
-                            print('*** No migration')
+                            if f_debug: print('DEBUG: No migration')
                             orbitdistance = stardetails['Frost Line'] + ((TR_Support.D6Roll() - 1) * stardetails['Frost Line'] * 0.02)
 
                         elif x in [11, 12]:
 
                             # Limited outward migration
 
-                            print('*** Limited outward migration')
+                            if f_debug: print('DEBUG: Limited outward migration')
                             y = random.randint(1, 3)
                             orbitdistance = stardetails['Frost Line'] * (1 + y/10)
 
@@ -1183,7 +1192,7 @@ class System:
 
                                 # Limited inward migration
 
-                                print('*** Limited inward migration')
+                                if f_debug: print('DEBUG: Limited inward migration')
                                 orbitdistance = (stardetails['Frost Line'] * 0.4) + (TR_Support.D6Roll() * (stardetails['Frost Line'] * 0.1))
                                 if orbitdistance >= stardetails['Frost Line']: orbitdistance = stardetails['Frost Line'] * 0.95
 
@@ -1191,14 +1200,14 @@ class System:
 
                                 # No migration
 
-                                print('*** No migration')
+                                if f_debug: print('DEBUG: No migration')
                                 orbitdistance = stardetails['Frost Line'] + ((TR_Support.D6Roll() - 1) * stardetails['Frost Line'] * 0.02)
 
                             elif x in [11, 12]:
 
                                 # Limited outward migration
 
-                                print('*** Limited outward migration')
+                                if f_debug: print('DEBUG: Limited outward migration')
                                 y = random.randint(1, 3)
                             
                                 orbitdistance = stardetails['Frost Line'] * (1 + y/10)
@@ -1248,7 +1257,7 @@ class System:
                             contents['Orbit Type'] = 'S-Type Orbit'
 
                     orbitdistance = float("{:.3f}".format(orbitdistance))
-                    print('*** Placing gas giant #' + str(j+1) + ' at ' + str(orbitdistance) + ' AU from body ' + str(i+1))
+                    if f_debug: print('DEBUG: Placing gas giant #' + str(j+1) + ' at ' + str(orbitdistance) + ' AU from body ' + str(i+1))
 
                     # Format the orbit distance to 3 decimals and add to the contents record
 
@@ -1574,7 +1583,7 @@ class System:
                 c += len(sd['Contents'])
 
             if c > 0: 
-                print('*** ' + str(c) + ' contents found, assigning to zones')
+                if f_debug: print('DEBUG: ' + str(c) + ' contents found, assigning to zones')
                 self.assign_Zones()
 
             # Generate the mainworld if appropriate, this will be assigned to an orbit later
@@ -1588,55 +1597,34 @@ class System:
                 self.mainWorld.nBelts = nBelts
                 self.mainWorld.nGiants = nGiants
 
+                # Get the mainworld UWP text string, including stellar data
+
+                self.formatUWPString_text_SEC()
+                self.sysUWPString = self.mainWorld.UWPString
             
+            # Otherwise generate a UWP string line for the non-stellaer object
+
+            else:
+                self.sysUWPString = '              ' + location + ' ' + sysPrimary          
 
             # print()
 
         else: 
             sysPrimary = 'Empty'
-            print(sysPrimary)
+            if f_debug: print(sysPrimary)
             self.sysType = sysPrimary
 
 # Test Code
 
-print('```')
-for i in range(1, 11):
-    print(str(i) + ': ')
-    sys1 = System()
-    sys1.gen_System('0101', 5, True, 'Testworld')
-#    if sys1.sysType != 'Empty': sys1.print_System()
-#   else: print()
-print('```')
+# print('```')
+# for i in range(1, 11):
+#     if f_debug: print('DEBUG: System #' + str(i) + ': ')
+#     sys1 = System()
+#     sys1.gen_System('0101', 5, True, 'Testworld')
+# #    if sys1.sysType != 'Empty': sys1.print_System()
+# #   else: print()
+# print('```')
 
-
-#     # print(sys1.sysType + ' ', end = '')
-
-#     # j = 0
-#     # for star in sys1.starList:
-#     #     if sys1.sysType in ['Star System', 'Brown Dwarf']:
-#     #         print(star + ' ', end = '')
-#     #         if j >= 1: print(star + ' ' + str(sys1.starDetails[j]['orbitzone']) + ' ('  + str(sys1.starDetails[j]['orbitdistance']) + ' AU) ', end = '')
-#     #     else: print(sys1.sysType, end = '')
-#     #     j += 1
-#     #     print()
-
-#     print(sys1.sysType)
-#     if sys1.sysType in ['Star System', 'Brown Dwarf', 'Black Hole']:
-#         sortedOrbitList = sorted(sys1.orbitList.items(), key=lambda x: x[0])
-#         for orbititem in sortedOrbitList: 
-#             print('\t' + str(orbititem[0]) + ' --> ', orbititem[1]['String'])
-
-
-
-
-#         # sortedOrbitList = sorted(sys1.orbitList, key = lambda x: sys1.orbitList[x]['Orbit'])
-#         # for orbit in sortedOrbitList:
-#         #     print(str(orbit['Orbit' ]) + '\t' + orbit['Details'])
-
-
-#     # if "Mainworld" in sys1.orbitList:
-#     #     print(sys1.orbitList["Mainworld"].starPort)
-#     # else: print()
 
 
 
