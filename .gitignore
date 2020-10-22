@@ -5,3 +5,6 @@ build/
 dist/
 test**
 .vscode/launch.json
+.vscode/settings.json
+
+
