@@ -29,10 +29,10 @@
 # Import modules here
 
 import random
-import TR_Constants
-import TR_CE_SRD_World
-from TR_CE_EXT_Stellar import gen_Spectral, gen_starType
-from TR_Support import D6Roll, D6Rollx2, D100Roll
+from . import TR_Constants, TR_CE_SRD_World
+
+from .TR_CE_EXT_Stellar import gen_Spectral, gen_starType
+from .TR_Support import D6Roll, D6Rollx2, D100Roll
 
 # Module specific functions
 
