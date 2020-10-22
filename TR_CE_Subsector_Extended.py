@@ -214,7 +214,7 @@ class Subsector:
         returnval += TR_Constants.FIXEDHEADER + '\n'
     
         for s in self.contents:
-            returnval += s.mainWorld.UWPString
+            if s.sysType != 'Empty': returnval += s.sysUWPString
             returnval += '\n'
 
         return returnval
@@ -229,7 +229,7 @@ class Subsector:
         for World in self.contents:
             worldjson = {}
             World.formatUWPString_text_SEC()
-            if World.worldname not in ['Brown Dwarf', 'Rogue Planet', 'Neutron Star', 'Black Hole',
+            if World.sysType not in ['Brown Dwarf', 'Rogue Planet', 'Neutron Star', 'Black Hole',
                 'Stellar Nursery', 'Nebula']:
                 worldjson['System Type'] = 'Star System'
                 worldjson['Name'] = World.worldname
@@ -249,7 +249,7 @@ class Subsector:
                 worldjson['Gas Giants'] = World.nGiants
 
             else:
-                worldjson['System Type'] = World.worldname
+                worldjson['System Type'] = World.sysType
             
             
             subsecjson[World.loc] = worldjson
