@@ -79,6 +79,14 @@ class System:
     def barycentre_ref(self):
         return self.__barycentre_ref
 
+    @property
+    def mainWorld(self):
+        return self.__mainWorld
+
+    @property
+    def sysUWPString(self):
+        return self.__sysUWPString
+
 
 
 # Setters
@@ -122,6 +130,14 @@ class System:
     @barycentre_ref.setter
     def barycentre_ref(self, barycentre_ref):
         self.__barycentre_ref = barycentre_ref
+
+    @mainWorld.setter
+    def mainWorld(self, mainWorld):
+        self.__mainWorld = mainWorld
+
+    @sysUWPString.setter
+    def sysUWPString(self, sysUWPString):
+        self.__sysUWPString = sysUWPString
 
     # Methods
 
@@ -805,6 +821,20 @@ class System:
 
         # print('System Type:\t\t' + self.sysType)
         print(f'{"System Type:":<22}{self.sysType}')
+        if self.sysType in ['Star System']: 
+            
+            # Format a UWP text string for the mainworld            
+            
+            self.mainWorld.formatUWPString_text_SEC()
+
+            # Now add the star details to the mainworld UWP string
+
+            self.mainWorld.UWPString += " Na"
+            
+            for star in self.starList:
+                self.mainWorld.UWPString += " " + star
+
+            print('Mainworld (orbit TBA): ' + self.mainWorld.UWPString)
         
         if self.sysType in ['Star System', 'Brown Dwarf']:
             print(f'{"System Primary:":<22}{self.starDetails[0]["type"]}')
@@ -853,6 +883,11 @@ class System:
         # print('##########')
         print()
 
+    # Format the system extended UWP string
+
+    def formatUWPString_text_SEC(self):
+        pass
+
     # Generate the pool of available worlds
 
     def gen_worldPool(self):
@@ -860,6 +895,7 @@ class System:
         # Check for gas giants
         # If the frost line for a star is recorded as -1, then the frost line is outside the stars gravitational limit
 
+        nPB = 0
         nGG = 0
         i = 0
         hasGG = False
@@ -1038,6 +1074,8 @@ class System:
                     x = random.randint(0, len(self.starDetails) - 1)
                     self.starDetails[x]['Contents'].append({'Type': 'Planetoid Belt'})
                     i += 1
+    
+        return nPB, nGG
 
         
         # Special code for black holes will go here
@@ -1345,8 +1383,8 @@ class System:
                     elif hzeroa <= d < hzerob: contents['Zone'] = 'H Zone'
                     elif hzerob <= d < hplus: contents['Zone'] = 'H+ Zone'
                     else: contents['Zone'] = 'Outer Zone'
-    
-    def gen_System(self, location, density, allowunusual):
+        
+    def gen_System(self, location, density, allowunusual, wName):
         self.starList = []
         self.starDetails = []
         self.orbitList = {}
@@ -1518,7 +1556,7 @@ class System:
             for SD in self.starDetails:
                 SD['Contents'] = []
 
-            self.gen_worldPool()
+            nBelts, nGiants = self.gen_worldPool()
 
             # Place gas giants
 
@@ -1539,6 +1577,18 @@ class System:
                 print('*** ' + str(c) + ' contents found, assigning to zones')
                 self.assign_Zones()
 
+            # Generate the mainworld if appropriate, this will be assigned to an orbit later
+
+            if sysPrimary in ['Star System']:
+                self.mainWorld = TR_CE_SRD_World.World(wName)
+                self.mainWorld.genWorld(location)   
+
+                # Substitute the generated nunber of belts and giants
+
+                self.mainWorld.nBelts = nBelts
+                self.mainWorld.nGiants = nGiants
+
+            
 
             # print()
 
@@ -1553,9 +1603,9 @@ print('```')
 for i in range(1, 11):
     print(str(i) + ': ')
     sys1 = System()
-    sys1.gen_System('0101', 5, True)
-    if sys1.sysType != 'Empty': sys1.print_System()
-    else: print()
+    sys1.gen_System('0101', 5, True, 'Testworld')
+#    if sys1.sysType != 'Empty': sys1.print_System()
+#   else: print()
 print('```')
 
 
