@@ -22,8 +22,8 @@ import random
 # import TR_Constants
 # from TR_Support import D6Roll, D6Rollx2, D100Roll
 
-from . import TR_Constants
-from .TR_Support import D6Roll, D6Rollx2, D100Roll
+import TR_Constants
+from TR_Support import D6Roll, D6Rollx2, D100Roll, D6Rollx3
 
 # World class - holds the world details as defined in the CE SRD
 #
@@ -224,17 +224,10 @@ class World:
 
         # Pad the world name with strings to column 13
         
-        if len(self.worldname) <= 13:
-           i = 1
-           pad = " "
-           while i < 14 - len(self.worldname):
-               pad += " "
-               i += 1
-        else:
-            self.worldname = self.worldname
-            pad = ''
+        self.worldname = "{:<14}".format(self.worldname)
+
         
-        returnstr = self.worldname[0:13] + pad
+        returnstr = self.worldname[0:13]
         returnstr += self.loc + " "
         returnstr += self.starPort
         returnstr += TR_Constants.UWPCODETABLE.get(self.siz)
@@ -249,18 +242,13 @@ class World:
 
         # Pad the UWP String with spaces to column 48
 
-        if len(returnstr) <= 48:
-            i = 1
-            pad = " "
-            while i < 49 - len(returnstr):
-                pad += " "
-                i += 1
+        returnstr = "{:<48}".format(returnstr)
 
-        returnstr += pad + self.tZone
+        returnstr += self.tZone
          
         # Add the PBG data
 
-        returnstr += " " + str(self.pMod) + str(self.nBelts) + str(self.nGiants)
+        returnstr += "  " + str(self.pMod) + str(self.nBelts) + str(self.nGiants)
 
         return returnstr
 
@@ -436,11 +424,21 @@ class World:
        
         # Determine travel zones
 
+        aZoneProbTargetA = 11
+        aZoneProbTargetB = 12
+        rZoneProbtarget = 17
+
+        # First look at worlds wih characteristics indicative of Amber zones
+
         tZone = " "
-        if self.atm >= 10: tZone = "A"
-        elif self.gov in [0, 7, 10]: tZone = "A"
-        elif self.law == 0 or self.law >= 9: tZone = "A"
-        else: tZone = " "
+        if self.atm >= 10 and D6Rollx2() >= aZoneProbTargetA: tZone = "A"
+        elif self.gov in [0, 7, 10] and D6Rollx2() >= aZoneProbTargetA: tZone = "A"
+        elif self.law == 0 or self.law >= 9 and D6Rollx2() >= aZoneProbTargetA: tZone = "A"
+
+        # Now apply some random Amber and Red zones
+
+        if D6Rollx2() >= aZoneProbTargetB: tZone = "A"
+        if D6Rollx3() >= rZoneProbtarget: tZone = "R"
         self.tZone = tZone
 
     def genWorld(self, loc):

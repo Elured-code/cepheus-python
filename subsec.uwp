@@ -1,4 +1,4 @@
-subsec (Example/B)
+subsec (Placeholder/A)
  1-13: Name
 15-18: HexNbr
 20-28: UWP
@@ -10,19 +10,29 @@ subsec (Example/B)
 59-74: Stellar Data
 
 ....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
-Main-0109     0109 E310200-B   Lo                A 810
-Main-0206     0206 D8C458A-7 S Fl Ni             A 323
-Main-0305     0305 XAB7404-7   Fl Ni             A 311
-Main-0310     0310 X97A000-0   Ba Lt Wa          A 001
-Main-0405     0405 X310000-0   Ba Lt             A 000
-Main-0408     0408 E544554-5   Ag Lt Ni            601
-Main-0501     0501 X154250-6   Lo                A 801
-Main-0510     0510 X220200-7   De Lo Po          A 312
-Main-0602     0602 X221336-7   Lo Po               921
-Main-0604     0604 E74A588-5   Lt Ni Wa            600
-Main-0608     0608 D3327CC-7   Na Po             A 410
-Main-0702     0702 E623330-7   Lo Po             A 510
-Main-0706     0706 D553123-6 S Lo Po               332
-MAIN-0804     0804 A362A98-C N Hi Ht               200
-Main-0806     0806 X000000-0   As Ba Lt Va       A 022
-MAIN-0809     0809 B434998-C   Hi Ht               403
+Main-0105     0105 E559356-5   Lo Lt               504
+Main-0204     0204 C532543-7   Ni Po               703
+Main-0205     0205 X434231-7   Lo                  711
+Main-0206     0206 EAA8414-7   Fl Ni             A 920
+Main-0209     0209 D342661-5 S Lt Ni Po            701
+Main-0306     0306 E442456-5   Lt Ni Po            600
+MAIN-0401     0401 A65498A-C A Hi Ht             A 531
+Main-0402     0402 C687512-6   Ag Ga Ni            401
+Main-0404     0404 E875541-5   Ag Lt Ni            903
+Main-0501     0501 X633233-7   Lo Po               602
+Main-0502     0502 D98A464-7 S Ni Wa               602
+Main-0503     0503 D452441-3 S Lt Ni Po            303
+Main-0509     0509 E995889-5   Lt                A 404
+Main-0603     0603 E224663-7   Ni                  511
+Main-0604     0604 D597659-5   Ag Lt Ni          A 234
+Main-0605     0605 X56937B-2   Lo Lt             A 600
+Main-0610     0610 B765658-6 N Ag Ga Ni Ri         604
+Main-0701     0701 X473567-5 P Lt Ni               301
+Main-0702     0702 E655625-5   Ag Ga Lt Ni         920
+Main-0703     0703 D300253-8   Lo Va               204
+MAIN-0705     0705 A427AFF-G   Hi Ht In          A 732
+Main-0707     0707 X344220-5   Lo Lt             A 932
+Main-0801     0801 BADA8A8-A S Fl Wa             A 221
+Main-0802     0802 X100000-0   Ba Lt Va          A 000
+MAIN-0805     0805 B36297B-C N Hi Ht             A 404
+Main-0807     0807 D535886-7 S                     304

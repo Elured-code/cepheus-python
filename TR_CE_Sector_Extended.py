@@ -1,24 +1,19 @@
 #
-# Cepheus Engine SRD with Extensions Subsector Generation
+# Cepheus Engine SRD with Extensions Sector Generation
 #
-# Version:  0.2
 # Author:   Michael Bailey
-# Date:     23 July 2020
+# Date:     23 October 2020
 #
 
 #
-# This code generates an 8 x 10 subsector according to:
+# This code generates an 32 x 40 sector according to:
 # 1. CE SRD system generation rules; and
-# 2. Stellar data generation kludged together by myself with some quickly researched type/spectra
-#    distribution
+# 2. Stellar data generation using data provided by Ade Stewart
 #
 
-# Constructor:  Subsector(str sName, str SecName, char subLetter, int subDensity)
-#   engName:    Generation engine name - currently CE (CE SRD) or CEEX (CE Extended)
+# Constructor:  Sector(str sName, str SecName, string subDensity)
 #   sName:      Subsector name
-#   secName:    Host Sector name
-#   subLetter:  Subsector position designator
-#   subDensity: Subsector stellar density value
+#   subDensity: Subsector stellar density value string (16 x number 0 - 6)
 #
 # Public methods:
 # 
@@ -40,10 +35,8 @@ import TR_Constants
 
 # Define local constants
 
-ENGINES = ['CT', 'CE', 'CEEX']
-# DENSITY_LOOKUP = {1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
-SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
-
+ISTART = [1, 9, 17, 25, 1, 9, 17, 25, 1, 9, 17, 25, 1, 9, 17, 25]
+JSTART = [1, 1, 1, 1, 11, 11, 11, 11, 21, 21, 21, 21, 31, 31, 31, 31]
 
 # Define common functions
 
@@ -58,16 +51,8 @@ class Subsector:
         return self.__engName
 
     @property
-    def subName(self):
-        return self.__subName
-
-    @property
     def secName(self):
         return self.__secName
-
-    @property
-    def subLetter(self):
-        return self.__subLetter
 
     @property
     def subDensity(self):
@@ -94,29 +79,15 @@ class Subsector:
         return self.__hiPop
 
     # Define setters
-
-    @engName.setter
-    def engName(self, engName):
-        if engName in ENGINES: self.__engName = engName
-        else: self.engName = 'CE'
     
-    @subName.setter
-    def subName(self, subName):
-        self.__subName = subName
-
     @secName.setter
     def secName(self, secName):
         self.__secName = secName
 
-    @subLetter.setter
-    def subLetter(self, subLetter):
-        if subLetter in SUBSECLETTERS: self.__subLetter = subLetter
-        else: self.__subLetter = ' '
 
     @subDensity.setter
     def subDensity(self, subDensity):
-        if subDensity in [1, 2, 3, 4, 5]: self.__subDensity = subDensity
-        else: self.__subDensity = 3
+        self.__subDensity = subDensity
 
     @allowUnusual.setter
     def allowUnusual(self, allowUnusual):
@@ -141,14 +112,10 @@ class Subsector:
         if hiPop < 0: self.__hiPop = 0
         else: self.__hiPop = hiPop
 
-
-
-    # Initialise the Subsector object
+    # Initialise the Sector object
 
     def __init__(self, subName, secName, subLetter, subDensity, allowUnusual):
-        self.__subName = subName
         self.__secName = secName
-        self.__subLetter = subLetter
         self.__subDensity = subDensity
         self.__allowUnusual = allowUnusual
         self.contents = []
@@ -166,32 +133,51 @@ class Subsector:
     def genSubSecExtended(self):
 
 
-        
-        # Loop through the subsector hexes, checking for and if required generating mainworlds
-        i = 1
-        while i <= 8:
-            j = 1
-            while j <= 10:
+        subsec = 1
+        while subsec <= 16:
+            a = 1
+            
+            # Loop through the subsector hexes, checking for and if required generating mainworlds
 
-                # Probability of system presence is now handled in TR_CE_Extended in order to allow for non-stellar system objects
+            while a <= 8:
+                b = 1
+                while b <= 10:
 
-                loc = format(i, '02d') + format(j, '02d')
-                 
-                # Generate the world using the CE SRD engine                   
+                    # Get the subsector letter
 
-                w1 = TR_CE_Extended.System()
-                w1.loc = loc
-                wnameplaceholder = self.subName + ' ' + loc
-                w1.gen_System(loc, self.subDensity, self.allowUnusual, wnameplaceholder)  
-              
-                # Add any contents generated to the subsector contents list
+                    try:
+                        subsecletter = TR_Constants.SUBSECLETTERS[subsec - 1]
+                    except IndexError:
+                        print("Invalid subsector number - cannot assign letter designation")
+                        sys.exit()
 
-                if w1.sysType != 'Empty':
-                    self.contents.append(w1)
+                    # Calculate the location string
 
+                    iloc = ISTART[subsec - 1] + a - 1
+                    jloc = JSTART[subsec - 1] + b - 1
+                    loc = format(iloc, '02d') + format(jloc, '02d')
+                    
+                    # Generate the world using the CE SRD engine 
+                    # Probability of system presence is now handled in TR_CE_Extended in order to allow for non-stellar system objects                  
 
-                j += 1
-            i += 1
+                    w1 = TR_CE_Extended.System()
+                    w1.loc = loc
+                    # wnameplaceholder = self.secName + ':' + loc
+                    wnameplaceholder = ""
+                    w1.gen_System(loc, self.subDensity, self.allowUnusual, wnameplaceholder)  
+
+                    # Get the specific subsector density from the string
+                
+                    # Add any contents generated to the subsector contents list
+
+                    if w1.sysType != 'Empty':
+                        self.contents.append(w1)
+
+                    # print(str(i) + ' ' + str(j) + ' ' + loc + '(subsector ' + subsecletter + ')')
+
+                    b += 1
+                a += 1
+            subsec += 1
 
     # Print a subsector to stdout
 
@@ -199,11 +185,23 @@ class Subsector:
 
         # Print the header text
 
-        print(self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")")
+        print(self.secName)
         print(TR_Constants.FIXEDHEADER)
 
         for s in self.contents:
             if s.sysType != 'Empty': print(s.sysUWPString)
+
+    def printTRMapSec(self):
+
+        # Print the header text
+
+        print(self.secName)
+        print(TR_Constants.FIXEDHEADER)
+
+        for s in self.contents:
+            if s.sysType in ['Star System']: 
+                print(s.sysUWPString)
+
 
 
     # Write a subsector to a variable
@@ -265,5 +263,5 @@ s1 = Subsector("TestSub", "TestSec", "B", 3, False)
 # print(s1.pType)
 s1.genSubSecExtended()
 print("```")
-s1.printSubSec()
+s1.printTRMapSec()
 print("```")
