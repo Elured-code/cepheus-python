@@ -41,8 +41,11 @@ JSTART = [1, 1, 1, 1, 11, 11, 11, 11, 21, 21, 21, 21, 31, 31, 31, 31]
 # Define common functions
 
 
+# Some placeholder constants I'll variableize soon
 
-class Subsector:
+DENSITY_MAP = '3322322121113222'
+
+class Sector:
 
     # Define properties
 
@@ -114,7 +117,7 @@ class Subsector:
 
     # Initialise the Sector object
 
-    def __init__(self, subName, secName, subLetter, subDensity, allowUnusual):
+    def __init__(self, secName, subDensity, allowUnusual):
         self.__secName = secName
         self.__subDensity = subDensity
         self.__allowUnusual = allowUnusual
@@ -157,6 +160,10 @@ class Subsector:
                     jloc = JSTART[subsec - 1] + b - 1
                     loc = format(iloc, '02d') + format(jloc, '02d')
                     
+                    # Get the subsector density from the density map
+
+                    density = int(DENSITY_MAP[subsec - 1])
+
                     # Generate the world using the CE SRD engine 
                     # Probability of system presence is now handled in TR_CE_Extended in order to allow for non-stellar system objects                  
 
@@ -164,7 +171,7 @@ class Subsector:
                     w1.loc = loc
                     # wnameplaceholder = self.secName + ':' + loc
                     wnameplaceholder = ""
-                    w1.gen_System(loc, self.subDensity, self.allowUnusual, wnameplaceholder)  
+                    w1.gen_System(loc, density, self.allowUnusual, wnameplaceholder)  
 
                     # Get the specific subsector density from the string
                 
@@ -258,7 +265,7 @@ class Subsector:
 
 # # Testing code here
 
-s1 = Subsector("TestSub", "TestSec", "B", 3, False)
+s1 = Sector("Long March", DENSITY_MAP, False)
 
 # print(s1.pType)
 s1.genSubSecExtended()
