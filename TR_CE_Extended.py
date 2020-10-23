@@ -1,7 +1,26 @@
+#
+# Cepheus Engine Extended System Generation
+#
+# About:
+#
+# This script generates a CE extended system using Ade Stewart's extended system generation rules
+#
+
+#
+# Author:   Michael Bailey
+# Date:     23 October 2020
+#
+
+# Usage
+#
+# No command line usage - this code is intended to be called by other Python scripts with user interfaces
+#
+
 import logging
 import random
 import sys
 from tinydb import TinyDB, Query
+
 import TR_CE_SRD_World
 import TR_Constants
 import TR_Support
@@ -284,13 +303,14 @@ class System:
         if x in [2, 3]: lum = 'D'
         elif x in [4, 5, 6, 7, 8, 9, 10]: lum = 'V'
         elif x == 11: lum = 'III'
-        else:
+        elif x == 12:
             y = TR_Support.D6Rollx2()
             if y == 2: lum = 'Ia'
             elif y in [3, 4, 5]: lum = 'II'
             elif y in [6, 7, 8]: lum = 'VI'
             elif y in [9, 10, 11]: lum = 'IV'
             else: lum = 'Ib'
+        else: lum = 'V'
 
         # Assert block to catch any errors
 
@@ -775,8 +795,8 @@ class System:
 
                     # Round it all to 3 decimal places
 
-                    self.starDetails[1]['pMin'] = round(self.starDetails[0]['pMin'], 3)
-                    self.starDetails[1]['pMax'] = round(self.starDetails[0]['pMax'], 3)
+                    self.starDetails[1]['pMin'] = round(self.starDetails[1]['pMin'], 3)
+                    self.starDetails[1]['pMax'] = round(self.starDetails[1]['pMax'], 3)
                     # print('\tPrimary - Secondary - Tertiary P-Type limits: ' + str(self.starDetails[0]['pMin']) + ' - ' + str(self.starDetails[0]['pMax']))
 
                     # Check that the maximum P-Type is inside 20% of the primary-secondary distance and correct if needed
@@ -899,10 +919,14 @@ class System:
         # Check for gas giants
         # If the frost line for a star is recorded as -1, then the frost line is outside the stars gravitational limit
 
+        # Initialise some local variables to ensure that they are bound
+
         nPB = 0
         nGG = 0
         i = 0
         hasGG = False
+        GGOrbitsPresent = False
+
         if self.sysType in ['Star System', 'Brown Dwarf']:
             hasGG = True
             i += 1
@@ -1107,8 +1131,15 @@ class System:
         # i is the body number
 
         i = 0
+
         for stardetails in self.starDetails:
-            
+
+            # lastorbit is the orbit of the previously placed object
+            # Default this to 0 to avoid unbound variable warnings
+            # Also assing an initial value to lastorbit for the same reason
+
+            lastorbit = orbitdistance = 0
+        
             # j is the gas giant counter for this body
 
             j = 0
@@ -1283,6 +1314,11 @@ class System:
         # Iterate through the star bodies, then through each body contents looking for planetoid belts
 
         for stardetails in self.starDetails:
+
+            # Initialise some variables to avoid potential unbound conditions
+
+            orbitdistance = 0
+
             for contents in stardetails['Contents']:
 
                 if contents['Type'] == 'Planetoid Belt':
@@ -1406,6 +1442,7 @@ class System:
 
         if isPresent:
             sysPrimary = self.gen_systemObject(allowunusual)
+            if f_debug: print('DEBUG: ' + sysPrimary)
 
             # First, always process the system primary, this processing will also determine the number of
             # companions to be generated
@@ -1415,7 +1452,7 @@ class System:
             sClass = sLum = ''
 
             if sysPrimary == 'Star System': 
-                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_FANTASTIC)
+                starString, nStars, sClass, sLum = self.gen_Primary(TR_Constants.SC_REAL)
 
                 # Dwarfs don't have companions, override if needed
 
@@ -1611,7 +1648,7 @@ class System:
 
         else: 
             sysPrimary = 'Empty'
-            if f_debug: print(sysPrimary)
+            if f_debug: print('DEBUG: ' + sysPrimary)
             self.sysType = sysPrimary
 
 # Test Code
@@ -1621,7 +1658,7 @@ class System:
 #     if f_debug: print('DEBUG: System #' + str(i) + ': ')
 #     sys1 = System()
 #     sys1.gen_System('0101', 5, True, 'Testworld')
-# #    if sys1.sysType != 'Empty': sys1.print_System()
+#     if sys1.sysType != 'Empty': sys1.print_System()
 # #   else: print()
 # print('```')
 
