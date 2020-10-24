@@ -904,7 +904,8 @@ class System:
         
         self.mainWorld.formatUWPString_text_SEC()
 
-        # Now add the star details to the mainworld UWP string
+        # Now add a Non-Aligned (default) allegiance code
+        # and the star details to the mainworld UWP string
 
         self.mainWorld.UWPString += " Na"
         
@@ -1642,7 +1643,7 @@ class System:
             # Otherwise generate a UWP string line for the non-stellaer object
 
             else:
-                self.sysUWPString = '              ' + location + ' ' + sysPrimary          
+                self.sysUWPString = '             ' + location + ' ' + sysPrimary          
 
             # print()
 

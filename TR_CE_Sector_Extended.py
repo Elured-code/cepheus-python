@@ -43,7 +43,7 @@ JSTART = [1, 1, 1, 1, 11, 11, 11, 11, 21, 21, 21, 21, 31, 31, 31, 31]
 
 # Some placeholder constants I'll variableize soon
 
-DENSITY_MAP = '3322322121113222'
+DENSITY_MAP = '3322343223213321'
 
 class Sector:
 
@@ -133,7 +133,7 @@ class Sector:
     
     # Generate the subsector
 
-    def genSubSecExtended(self):
+    def genSectorExtended(self):
 
 
         subsec = 1
@@ -188,7 +188,7 @@ class Sector:
 
     # Print a subsector to stdout
 
-    def printSubSec(self):
+    def printSector(self):
 
         # Print the header text
 
@@ -198,22 +198,9 @@ class Sector:
         for s in self.contents:
             if s.sysType != 'Empty': print(s.sysUWPString)
 
-    def printTRMapSec(self):
-
-        # Print the header text
-
-        print(self.secName)
-        print(TR_Constants.FIXEDHEADER)
-
-        for s in self.contents:
-            if s.sysType in ['Star System']: 
-                print(s.sysUWPString)
-
-
-
     # Write a subsector to a variable
 
-    def writeSubSec(self):
+    def writeSector(self):
         returnval = ''
         returnval += self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")" + '\n'
         returnval += TR_Constants.FIXEDHEADER + '\n'
@@ -226,7 +213,7 @@ class Sector:
 
         # Write the subsector to a JSON documment
 
-    def writeSubSecJSON(self):
+    def writeSectorJSON(self):
         subsecjson = {}
         subsecjson['Name'] = self.subName
         subsecjson['Position'] = self.subLetter
@@ -268,7 +255,7 @@ class Sector:
 s1 = Sector("Long March", DENSITY_MAP, False)
 
 # print(s1.pType)
-s1.genSubSecExtended()
+s1.genSectorExtended()
 print("```")
-s1.printTRMapSec()
+s1.printSector()
 print("```")
