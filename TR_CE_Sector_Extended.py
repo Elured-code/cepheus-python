@@ -50,10 +50,6 @@ class Sector:
     # Define properties
 
     @property
-    def engName(self):
-        return self.__engName
-
-    @property
     def secName(self):
         return self.__secName
 
@@ -202,7 +198,7 @@ class Sector:
 
     def writeSector(self):
         returnval = ''
-        returnval += self.subName + " " + "(" + self.secName + "/" + self.subLetter + ")" + '\n'
+        returnval += self.secName + " Sector" + '\n'
         returnval += TR_Constants.FIXEDHEADER + '\n'
     
         for s in self.contents:
@@ -215,8 +211,7 @@ class Sector:
 
     def writeSectorJSON(self):
         subsecjson = {}
-        subsecjson['Name'] = self.subName
-        subsecjson['Position'] = self.subLetter
+        subsecjson['Name'] = self.secName
         
         for World in self.contents:
             worldjson = {}
