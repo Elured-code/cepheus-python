@@ -17,6 +17,7 @@
 #
 
 import logging
+from ppretty import ppretty
 import random
 import sys
 from tinydb import TinyDB, Query
@@ -850,7 +851,7 @@ class System:
             if f_debug: print('DEBUG: Mainworld (orbit TBA): ' + self.mainWorld.UWPString)
         
         if self.sysType in ['Star System', 'Brown Dwarf']:
-            print(f'{"DEBUG: System Primary:":<22}{self.starDetails[0]["type"]}')
+            if f_debug: print(f'{"DEBUG: System Primary:":<22}{self.starDetails[0]["type"]}')
             if 'sMin' in self.starDetails[0]: print('\tS-Orbit inner limit = ' + str(self.starDetails[0]['sMin']))
             if 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
             if 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
@@ -1161,7 +1162,7 @@ class System:
                         if stardetails['Frost Line'] != -1: orbitdistance = stardetails['Frost Line']
                         else:
                             rl = stardetails['roche limit']
-                            ol = stardetails['outer limit']
+                            ol = stardetails['Limit']
                             orbitdistance = random.uniform(rl, ol)
 
                         # Next determine gas giant migration
@@ -1655,11 +1656,14 @@ class System:
 # Test Code
 
 # print('```')
-# for i in range(1, 11):
+# for i in range(1, 5):
 #     if f_debug: print('DEBUG: System #' + str(i) + ': ')
 #     sys1 = System()
 #     sys1.gen_System('0101', 5, True, 'Testworld')
-#     if sys1.sysType != 'Empty': sys1.print_System()
+#     if sys1.sysType != 'Empty': 
+#         sys1.print_System()
+
+
 # #   else: print()
 # print('```')
 

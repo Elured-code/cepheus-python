@@ -21,6 +21,28 @@ db.insert({'type': 'O7 Ia', 'lum': 1120000, 'mass': 75, 'diameter': 0.200, 'roch
 db.insert({'type': 'O8 Ia', 'lum': 913000, 'mass': 65, 'diameter': 0.214, 'roche limit': 0.764, 'H-': 717, 'H': 960, 'H+': 1687, 'Frost Line': -1, 'Limit': 3575})
 db.insert({'type': 'O9 Ia', 'lum': 731000, 'mass': 55, 'diameter': 0.228, 'roche limit': 0.647, 'H-': 642, 'H': 859, 'H+': 1510, 'Frost Line': -1, 'Limit': 3025})
 
+db.insert({'type': 'B0 Ia', 'lum': 560000, 'mass': 45, 'diameter': 0.242, 'roche limit': 0.529, 'H-': 562, 'H': 752, 'H+': 1321, 'Frost Line': -1, 'Limit': 2475})
+db.insert({'type': 'B1 Ia', 'lum': 488800, 'mass': 42, 'diameter': 0.264, 'roche limit': 0.494, 'H-': 525, 'H': 703, 'H+': 1234, 'Frost Line': -1, 'Limit': 2310})
+db.insert({'type': 'B2 Ia', 'lum': 417600, 'mass': 39, 'diameter': 0.285, 'roche limit': 0.459, 'H-': 485, 'H': 649, 'H+': 1141, 'Frost Line': -1, 'Limit': 2145})
+db.insert({'type': 'B3 Ia', 'lum': 346400, 'mass': 36, 'diameter': 0.306, 'roche limit': 0.428, 'H-': 442, 'H': 592, 'H+': 1039, 'Frost Line': -1, 'Limit': 1980})
+db.insert({'type': 'B4 Ia', 'lum': 275000, 'mass': 33, 'diameter': 0.328, 'roche limit': 0.388, 'H-': 394, 'H': 527, 'H+': 926, 'Frost Line': -1, 'Limit': 1815})
+db.insert({'type': 'B5 Ia', 'lum': 204000, 'mass': 30, 'diameter': 0.349, 'roche limit': 0.353, 'H-': 339, 'H': 454, 'H+': 798, 'Frost Line': -1, 'Limit': 1650})
+db.insert({'type': 'B6 Ia', 'lum': 184600, 'mass': 27.6, 'diameter': 0.405, 'roche limit': 0.405, 'H-': 322, 'H': 431, 'H+': 758, 'Frost Line': -1, 'Limit': 1518})
+db.insert({'type': 'B7 Ia', 'lum': 165200, 'mass': 25.2, 'diameter': 0.464, 'roche limit': 0.464, 'H-': 305, 'H': 409, 'H+': 718, 'Frost Line': -1, 'Limit': 1386})
+db.insert({'type': 'B8 Ia', 'lum': 145800, 'mass': 22.8, 'diameter': 0.517, 'roche limit': 0.517, 'H-': 286, 'H': 383, 'H+': 673, 'Frost Line': -1, 'Limit': 1254})
+db.insert({'type': 'B9 Ia', 'lum': 126000, 'mass': 20.4, 'diameter': 0.572, 'roche limit': 0.572, 'H-': 266, 'H': 357, 'H+': 627, 'Frost Line': -1, 'Limit': 1122})
+
+db.insert({'type': 'A0 Ia', 'lum': 107000, 'mass': 18, 'diameter': 0.628, 'roche limit': 0.628, 'H-': 246, 'H': 329, 'H+': 578, 'Frost Line': -1, 'Limit': 990})
+db.insert({'type': 'A1 Ia', 'lum': 101800, 'mass': 17.4, 'diameter': 0.641, 'roche limit': 0.641, 'H-': 240, 'H': 321, 'H+': 564, 'Frost Line': -1, 'Limit': 957})
+db.insert({'type': 'A2 Ia', 'lum': 96600, 'mass': 16.8, 'diameter': 0.654, 'roche limit': 0.654, 'H-': 234, 'H': 313, 'H+': 549, 'Frost Line': -1, 'Limit': 924})
+db.insert({'type': 'A3 Ia', 'lum': 91400, 'mass': 16.2, 'diameter': 0.667, 'roche limit': 0.667, 'H-': 227, 'H': 304, 'H+': 534, 'Frost Line': -1, 'Limit': 891})
+db.insert({'type': 'A4 Ia', 'lum': 86200, 'mass': 15.6, 'diameter': 0.680, 'roche limit': 0.680, 'H-': 221, 'H': 296, 'H+': 519, 'Frost Line': -1, 'Limit': 858})
+db.insert({'type': 'A5 Ia', 'lum': 81000, 'mass': 15, 'diameter': 0.693, 'roche limit': 0.693, 'H-': 214, 'H': 287, 'H+': 503, 'Frost Line': -1, 'Limit': 825})
+db.insert({'type': 'A6 Ia', 'lum': 77000, 'mass': 14.6, 'diameter': 0.717, 'roche limit': 0.771, 'H-': 209, 'H': 281, 'H+': 490, 'Frost Line': -1, 'Limit': 803})
+db.insert({'type': 'A7 Ia', 'lum': 73000, 'mass': 14.2, 'diameter': 0.740, 'roche limit': 0.740, 'H-': 203, 'H': 272, 'H+': 477, 'Frost Line': -1, 'Limit': 781})
+db.insert({'type': 'A8 Ia', 'lum': 69000, 'mass': 13.8, 'diameter': 0.763, 'roche limit': 0.763, 'H-': 198, 'H': 265, 'H+': 464, 'Frost Line': -1, 'Limit': 759})
+db.insert({'type': 'A9 Ia', 'lum': 65000, 'mass': 13.4, 'diameter': 0.846, 'roche limit': 0.846, 'H-': 192, 'H': 257, 'H+': 450, 'Frost Line': -1, 'Limit': 737})
+
 # Supergiants (Luminosity Class Ib)
 
 # Red-Tinted White

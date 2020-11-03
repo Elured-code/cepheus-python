@@ -43,7 +43,7 @@ JSTART = [1, 1, 1, 1, 11, 11, 11, 11, 21, 21, 21, 21, 31, 31, 31, 31]
 
 # Some placeholder constants I'll variableize soon
 
-DENSITY_MAP = '3322343223213321'
+DENSITY_MAP = '0110012112320121'
 
 class Sector:
 
@@ -62,8 +62,8 @@ class Sector:
         return self.__allowUnusual
 
     @property
-    def subContents(self):
-        return self.__subContents
+    def contents(self):
+        return self.__contents
 
     @property
     def sumPop(self):
@@ -93,9 +93,9 @@ class Sector:
         if allowUnusual in [True, False]: self.__allowUnusual - allowUnusual
         else: allowUnusual = False
 
-    @subContents.setter
-    def subContents(self, subContents):
-        self.__subContents = subContents
+    @contents.setter
+    def contents(self, contents):
+        self.__contents = contents
 
     @sumPop.setter
     def sumPop(self, sumPop):
@@ -168,9 +168,7 @@ class Sector:
                     # wnameplaceholder = self.secName + ':' + loc
                     wnameplaceholder = ""
                     w1.gen_System(loc, density, self.allowUnusual, wnameplaceholder)  
-
-                    # Get the specific subsector density from the string
-                
+               
                     # Add any contents generated to the subsector contents list
 
                     if w1.sysType != 'Empty':
@@ -210,8 +208,8 @@ class Sector:
         # Write the subsector to a JSON documment
 
     def writeSectorJSON(self):
-        subsecjson = {}
-        subsecjson['Name'] = self.secName
+        secjson = {}
+        secjson['Name'] = self.secName
         
         for World in self.contents:
             worldjson = {}
@@ -239,18 +237,18 @@ class Sector:
                 worldjson['System Type'] = World.sysType
             
             
-            subsecjson[World.loc] = worldjson
+            secjson[World.loc] = worldjson
 
-        outjson = json.dumps(subsecjson, indent=4)
+        outjson = json.dumps(secjson, indent=4)
         return outjson
-
-
+     
 # # Testing code here
 
-s1 = Sector("Long March", DENSITY_MAP, False)
+# s1 = Sector("Long March", DENSITY_MAP, False)
 
-# print(s1.pType)
-s1.genSectorExtended()
-print("```")
-s1.printSector()
-print("```")
+# # print(s1.pType)
+# s1.genSectorExtended()
+# print("```")
+# # s1.TravMapConvert()
+# s1.printSector()
+# print("```")

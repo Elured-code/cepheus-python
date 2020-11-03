@@ -2,7 +2,7 @@
 
 import math
 import TR_Constants
-import TR_CE_Subsector
+import TR_CE_Sector_Extended
 from pathlib import Path
 
 
@@ -10,7 +10,7 @@ import wx.lib.wxcairo as wxcairo
 from wx.lib.wxcairo import cairo
 
 def drawHexMap(subsector, filename, addnames):      
-    ims = cairo.ImageSurface(cairo.FORMAT_ARGB32, 600, 840)
+    ims = cairo.ImageSurface(cairo.FORMAT_ARGB32, 2180, 3120)
     ctx = cairo.Context(ims)
 
     c1x = c1y = c2x = c2y = c3x = c3y = c4x = c4y = 0
@@ -37,8 +37,8 @@ def drawHexMap(subsector, filename, addnames):
     width = HEXRAD * 2
     height = width * math.sqrt(3) * 0.5
 
-    for i in range(1, 9):
-        for j in range(1, 11):
+    for i in range(1, 33):
+        for j in range(1, 41):
 
             # Find the horizontal centre
 
@@ -97,7 +97,7 @@ def drawHexMap(subsector, filename, addnames):
             else: ctx.move_to(hexagon[4][0], hexagon[4][1])
             if j == 1 or j == 1: ctx.line_to(hexagon[5][0], hexagon[5][1])
             else: ctx.move_to(hexagon[5][0], hexagon[5][1])
-            if i == 8 or j == 1: ctx.line_to(hexagon[0][0], hexagon[0][1])
+            if i == 32 or j == 1: ctx.line_to(hexagon[0][0], hexagon[0][1])
             else: ctx.move_to(hexagon[0][0], hexagon[0][1])
             ctx.close_path()
             ctx.stroke()
@@ -122,7 +122,7 @@ def drawHexMap(subsector, filename, addnames):
 
             # Bottom left
 
-            if i == 1 and j == 10:
+            if i == 1 and j == 40:
                 c1x = hexagon[2][0]
                 c1y = hexagon[2][1]
                 c2x = int(round(hexagon[2][0] - width/2, 0))
@@ -130,7 +130,7 @@ def drawHexMap(subsector, filename, addnames):
 
             # Top right
 
-            if i == 8 and j == 1:
+            if i == 32 and j == 1:
                 c3x = hexagon[5][0]
                 c3y = hexagon[5][1]
                 c4x = int(round(hexagon[5][0] + width/2, 0))
@@ -150,6 +150,42 @@ def drawHexMap(subsector, filename, addnames):
     ctx.set_line_width(4) 
     ctx.rectangle(c2x, c4y, c4x-c2x, c2y-c4y) 
     ctx.stroke()
+
+    # Draw subsector boundaries
+
+    hinc = HEXRAD * 24
+    vinc = HEXRAD * 34.65
+
+    ctx.set_line_width(2)
+    ctx.set_dash([1.0]) 
+
+    for k in range(1, 4):
+
+        # Vertical lines
+
+        ctx.move_to(c2x + (hinc * k), c2y)
+        ctx.line_to(c2x + (hinc * k), c4y)
+        ctx.stroke()
+
+        # Horizontal lines
+
+        ox = c2x
+        oy = c4y + (vinc * k)
+
+        dx = c4x
+        dy = c4y + (vinc * k)
+    
+        print(ox, oy, dx, dy)
+
+        ctx.move_to(ox, oy)
+        ctx.line_to(dx, dy)
+        ctx.stroke()
+
+
+
+    #
+    # Now map the systems in the sector
+    #
 
     for world in subsector.contents:
         # print(world.starList)
@@ -179,27 +215,27 @@ def drawHexMap(subsector, filename, addnames):
 
         # Display the system contents
 
-        if world.worldname not in TR_Constants.NON_STARSYSTEMS:
+        if world.sysType not in TR_Constants.NON_STARSYSTEMS:
 
             
             # Set the text font for the Starport data
 
             ctx.select_font_face("Sans", cairo.FONT_SLANT_NORMAL,
                 cairo.FONT_WEIGHT_BOLD)
-            ctx.set_source_rgb(1, 0, 0)
+            ctx.set_source_rgb(0, 0, 0)
             ctx.set_font_size(12)
 
             # Get the starting point for the starport and show the world value
 
-            xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.starPort)
+            xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.mainWorld.starPort)
             ctx.move_to(centrex - dx/2, centrey - HEXRAD + theight)
-            ctx.show_text(world.starPort)
+            ctx.show_text(world.mainWorld.starPort)
             ctx.stroke()
 
             # Draw the world circle.  Will be extended to display the appropriate icon
             
             # If the mainworld siz = 0 then use a dashed line
-            if world.siz == 0: 
+            if world.mainWorld.siz == 0: 
                 ctx.set_dash([2, 3])
                 ctx.set_source_rgb(0, 0, 0)
                 ctx.set_line_width(4)
@@ -211,7 +247,7 @@ def drawHexMap(subsector, filename, addnames):
 
             # If the world has free water fill the circle
 
-            if world.hyd >= 1 and world.atm not in ['A', 'B', 'C']:
+            if world.mainWorld.hyd >= 1 and world.mainWorld.atm not in ['A', 'B', 'C']:
                 ctx.set_source_rgb(0, 0, 0.5)
                 ctx.fill()
 
@@ -222,18 +258,18 @@ def drawHexMap(subsector, filename, addnames):
             # Add the mainworld name if specified
 
             if addnames:
-                xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.worldname)
+                xbearing, ybearing, twidth, theight, dx, dy = ctx.text_extents(world.mainWorld.worldname)
                 ctx.move_to(centrex - dx/2, centrey + HEXRAD + theight)
                 ctx.set_source_rgb(0.4, 0.4, 0.4)
-                namelabel = world.worldname
-                if world.pop >= 9: namelabel = namelabel.upper()
+                namelabel = world.mainWorld.worldname
+                if world.mainWorld.pop >= 9: namelabel = namelabel.upper()
                 
                 ctx.show_text(namelabel)
                 ctx.stroke()        
         
             # Display gas giants if present
 
-            if world.nGiants > 0 :
+            if world.mainWorld.nGiants > 0 :
 
                 ctx.select_font_face("Sans", cairo.FONT_SLANT_NORMAL,
                     cairo.FONT_WEIGHT_NORMAL)
@@ -244,18 +280,18 @@ def drawHexMap(subsector, filename, addnames):
 
             # Display bases if present
 
-            if world.bCode != " ":
+            if world.mainWorld.bCode != " ":
 
                 ctx.select_font_face("Sans", cairo.FONT_SLANT_NORMAL,
                     cairo.FONT_WEIGHT_NORMAL)
                 ctx.set_font_size(10)
                 ctx.move_to(centrex + HEXRAD*0.8, centrey + HEXRAD*0.8)
-                ctx.show_text(world.bCode)
+                ctx.show_text(world.mainWorld.bCode)
                 ctx.stroke()  
 
         # Draw Brown Dwarf iconography
 
-        elif world.worldname == 'Brown Dwarf':
+        elif world.sysType == 'Brown Dwarf':
 
             # Add the Brown Dwarf symbol
 
@@ -278,7 +314,7 @@ def drawHexMap(subsector, filename, addnames):
             ctx.show_text(bdlabel)        
             ctx.stroke()  
 
-        elif world.worldname == 'Rogue Planet':
+        elif world.sysType == 'Rogue Planet':
 
             # Add the Rogue symbol
 
@@ -301,7 +337,7 @@ def drawHexMap(subsector, filename, addnames):
             ctx.show_text(bdlabel)        
             ctx.stroke()  
 
-        elif world.worldname == 'Neutron Star':
+        elif world.sysType == 'Neutron Star':
 
             # Add neutron star symbol
 
@@ -325,7 +361,7 @@ def drawHexMap(subsector, filename, addnames):
             ctx.show_text(bdlabel)        
             ctx.stroke()   
         
-        elif world.worldname == 'Black Hole':
+        elif world.sysType == 'Black Hole':
 
             # Add black hole symbol
 
@@ -354,7 +390,7 @@ def drawHexMap(subsector, filename, addnames):
             ctx.show_text(bdlabel)        
             ctx.stroke()  
 
-        elif world.worldname == 'Anomaly':
+        elif world.sysType == 'Anomaly':
 
            # Add anomaly symbol
 
@@ -380,10 +416,10 @@ def drawHexMap(subsector, filename, addnames):
             ctx.show_text(bdlabel)        
             ctx.stroke()    
 
-        elif world.worldname in ['Nebula', 'Stellar Nursery']:
+        elif world.sysType in ['Nebula', 'Stellar Nursery']:
 
             # Now add the label
-            if world.worldname == 'Stellar Nursery': bdlabel = 'STL NURSERY' 
+            if world.sysType == 'Stellar Nursery': bdlabel = 'STL NURSERY' 
             else: bdlabel = 'NEBULA'
             ctx.select_font_face("Sans", cairo.FONT_SLANT_ITALIC,
                 cairo.FONT_WEIGHT_NORMAL)
@@ -448,26 +484,28 @@ def drawHexMap(subsector, filename, addnames):
 
     ims.write_to_png(str(filename))
 
-def genSubSec():
+def genSector():
 
-    subsector = TR_CE_Subsector.Subsector("TestSub", "TestSec", "B", 4)
-    subsector.genSubSec()
-    for world in subsector.contents:
-        if world.worldname in TR_Constants.NON_STARSYSTEMS : 
-            print(world.worldname + ' ', end = '')
-            print(world.loc)
-    return subsector
+
+
+    sector = TR_CE_Sector_Extended.Sector("Long March", TR_CE_Sector_Extended.DENSITY_MAP, False)
+    sector.genSectorExtended()
+    # for world in sector.contents:
+    #     if world.sysType in TR_Constants.NON_STARSYSTEMS : 
+    #         print(world.sysType + ' ', end = '')
+    #         print(world.loc)
+    return sector
 
 
 
 def main():
 
     for i in range(1, 2): 
-        thissubsec = genSubSec() 
+        thissector = genSector()
         filename = Path("c:/temp/image" + f'{i:03d}' + ".png")
-        # open(filename, "w").close()
-        drawHexMap(thissubsec, filename, True)
-        thissubsec.printSubSec()
+        open(filename, "w").close()
+        drawHexMap(thissector, filename, True)
+        # thissector.printSector()
         print('Writing ', end='')
         print(filename)
     
