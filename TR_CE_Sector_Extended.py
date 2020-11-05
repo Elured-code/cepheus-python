@@ -43,7 +43,7 @@ JSTART = [1, 1, 1, 1, 11, 11, 11, 11, 21, 21, 21, 21, 31, 31, 31, 31]
 
 # Some placeholder constants I'll variableize soon
 
-DENSITY_MAP = '0110012112320121'
+DENSITY_MAP = '3344344345434555'
 
 class Sector:
 

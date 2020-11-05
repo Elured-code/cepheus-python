@@ -154,8 +154,6 @@ class Subsector:
     # Generate the subsector
 
     def genSubSec(self):
-
-
         
         # Loop through the subsector hexes, checking for and if required generating mainworlds
         i = 1
@@ -185,7 +183,30 @@ class Subsector:
                 j += 1
             i += 1
 
-    # Print a subsector to stdout
+    #  Read a subsector from a file
+
+    def readSubSec(self, filename):
+
+        # Open the file name passed
+
+        try:
+            with open(filename, 'r') as f:
+
+                # Get first line and parse the subsector name, letter and parent sector name
+
+                line = f.readsline(1)
+
+                nameend = line.find('(')
+
+                
+
+
+
+        except Exception as error: 
+            print('Exception message here')
+            sys.exit(8)
+    
+    #  Print a subsector to stdout
 
     def printSubSec(self):
 
@@ -197,7 +218,7 @@ class Subsector:
         for World in self.contents:
             World.formatUWPString_text_SEC()
             print(World.UWPString)
-
+    
     # Write a subsector to a variable
 
     def writeSubSec(self):

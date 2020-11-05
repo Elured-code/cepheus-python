@@ -1,4 +1,4 @@
-subsec (Placeholder/A)
+Test Subsector (Sample Sector/A)
  1-13: Name
 15-18: HexNbr
 20-28: UWP
@@ -10,29 +10,41 @@ subsec (Placeholder/A)
 59-74: Stellar Data
 
 ....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8
-Main-0105     0105 E559356-5   Lo Lt               504
-Main-0204     0204 C532543-7   Ni Po               703
-Main-0205     0205 X434231-7   Lo                  711
-Main-0206     0206 EAA8414-7   Fl Ni             A 920
-Main-0209     0209 D342661-5 S Lt Ni Po            701
-Main-0306     0306 E442456-5   Lt Ni Po            600
-MAIN-0401     0401 A65498A-C A Hi Ht             A 531
-Main-0402     0402 C687512-6   Ag Ga Ni            401
-Main-0404     0404 E875541-5   Ag Lt Ni            903
-Main-0501     0501 X633233-7   Lo Po               602
-Main-0502     0502 D98A464-7 S Ni Wa               602
-Main-0503     0503 D452441-3 S Lt Ni Po            303
-Main-0509     0509 E995889-5   Lt                A 404
-Main-0603     0603 E224663-7   Ni                  511
-Main-0604     0604 D597659-5   Ag Lt Ni          A 234
-Main-0605     0605 X56937B-2   Lo Lt             A 600
-Main-0610     0610 B765658-6 N Ag Ga Ni Ri         604
-Main-0701     0701 X473567-5 P Lt Ni               301
-Main-0702     0702 E655625-5   Ag Ga Lt Ni         920
-Main-0703     0703 D300253-8   Lo Va               204
-MAIN-0705     0705 A427AFF-G   Hi Ht In          A 732
-Main-0707     0707 X344220-5   Lo Lt             A 932
-Main-0801     0801 BADA8A8-A S Fl Wa             A 221
-Main-0802     0802 X100000-0   Ba Lt Va          A 000
-MAIN-0805     0805 B36297B-C N Hi Ht             A 404
-Main-0807     0807 D535886-7 S                     304
+Main-0101    0101 C526357-9   Lo                   522
+Main-0103    0103 C230555-9   De Ni Po             101
+Main-0106    0106 C5236A7-7   Na Ni Po             701
+Main-0110    0110 C524524-7   Ni                   501
+Main-0201    0201 E344303-5   Lo Lt                104
+Main-0204    0204 X100000-0   Ba Lt Va          A  012
+Main-0206    0206 X967420-0   Ga Lt Ni          A  834
+Main-0301    0301 C452444-8 S Ni Po                421
+Main-0305    0305 C9E96B9-5 S Fl Lt Ni             702
+Main-0308    0308 X97A665-5   Lt Ni Wa             704
+MAIN-0310    0310 A666AAA-E   Hi Ht                800
+Main-0401    0401 X423244-7   Lo Po                432
+Main-0406    0406 D310100-7   Lo                A  331
+Main-0407    0407 X555324-3   Lo Lt                622
+MAIN-0408    0408 B76AA63-F S Hi Ht Wa             401
+Main-0409    0409 XAE7000-0   Ba Fl Lt          A  011
+Main-0502    0502 C100488-A   Ni Va                203
+Main-0503    0503 XAB4220-7   Fl Lo             A  632
+Main-0505    0505 X000000-0   As Ba Lt Va       A  013
+Main-0506    0506 X302320-7   Ic Lo Va          A  730
+Main-0507    0507 E100240-7   Lo Va             A  700
+Main-0508    0508 E432332-7 P Lo Po                501
+Main-0509    0509 E333400-A   Ni Po             A  600
+Main-0601    0601 X000100-7   As Lo Va          A  703
+Main-0606    0606 X100000-0   Ba Lt Va          A  004
+Main-0607    0607 X351447-0   Lt Ni Po             502
+Main-0701    0701 D575576-5   Ag Lt Ni             402
+Main-0702    0702 C545522-5   Ag Lt Ni             611
+Main-0704    0704 D7B3666-7   Fl Ni                934
+Main-0707    0707 E998566-5   Ag Lt Ni             701
+Main-0709    0709 C342875-5 S Lt Po                904
+Main-0710    0710 E422469-9   Ni Po                500
+Main-0801    0801 X221320-7   Lo Po             A  920
+Main-0802    0802 E44489D-5   Lt                   231
+MAIN-0804    0804 AA79A98-5   Hi In Lt             500
+Main-0807    0807 X9C4000-0   Ba Fl Lt          A  001
+Main-0809    0809 X576465-5   Lt Ni                801
+Main-0810    0810 X79A557-5   Lt Ni Wa             332
