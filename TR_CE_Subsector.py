@@ -168,8 +168,7 @@ class Subsector:
                   
                 if TR_Support.D100Roll() < prob:
                     loc = format(i, '02d') + format(j, '02d')
-                    isMainWorld = True
-                    
+                                        
                     # Generate the world using the CE SRD engine                   
 
                     w1 = TR_CE_SRD_World.World("Main-" + loc)
@@ -198,16 +197,24 @@ class Subsector:
 
                 # Set some defaults
 
-                subsecname = 'Placeholder'
-                subsecletter = 'A'
-                sectorname = 'Placeholder'
+                xsubsecname = 'Placeholder'
+                xsubsecletter = 'A'
+                xsectorname = 'Placeholder'
 
-                m0 = re.match("(.*)\(", line)
-                m1 = re.match(".*\((.*)\/", line)
-                m2 = re.match(".*\/(.*)\)", line)
-                if m0: subsecname = m0.group(1)
-                if m1: sectorname = m1.group(1)
-                if m2: sectorname = m2.group(1)
+                m0 = re.match(r"(.*)\(", line)
+                m1 = re.match(r".*\((.*)\/", line)
+                m2 = re.match(r".*\/(.*)\)", line)
+                if m0: xsubsecname = m0.group(1)
+                if m1: xsectorname = m1.group(1)
+                if m2: xsubsecletter = m2.group(1)
+
+                # print('### ' + xsectorname)
+
+                # Add the subsector details to the subsector object
+
+                self.subName = xsubsecname
+                self.subLetter = xsubsecletter
+                self.secName = xsectorname
 
                 # Read and ignore the header
 
@@ -223,12 +230,63 @@ class Subsector:
                     # print(line, end='')
 
                     # World name is in columns 1 - 12, strip any trailing spaces
+                    # I haven't assigned directly to world object fields to enable future error checking
+
+                    # Note, wrap some import checking and substitution of invalid values at some point
 
                     worldname = line[0:12].rstrip()
+                    loc       = line[13:17]
+                    starPort  = line[18:19].upper()
+                    siz       = line[19:20]
+                    atm       = line[20:21]
+                    hyd       = line[21:22]
+                    pop       = line[22:23]
+                    gov       = line[23:24]
+                    law       = line[24:25]
+                    tlv       = line[26:27]
+                    bCode     = line[28:29]
+                    tCodeString     = line[30:47]
+                    tZone     = line[48:49]
+                    pMod      = int(line[51:52])
+                    nBelts    = int(line[52:53])
+                    nGiants   = int(line[53:54])
+
+                    # Create an inverted dictionary to enable reverse lookups on the UWP int --> char dictionary
+                    # This dictionary (TR_Constants.UWPCODETABLE) is a 1:1 so we can do this
+
+                    ivd = {v: k for k, v in TR_Constants.UWPCODETABLE.items()}
+
+                    # Now create a world object to hold the data and assign the values read above
+
+                    w1 = TR_CE_SRD_World.World(worldname)
+                    w1.loc = loc
+                    w1.starPort = starPort
+                    w1.siz = ivd[siz]
+                    w1.atm = ivd[atm]
+                    w1.hyd = ivd[hyd]
+                    w1.pop = ivd[pop]
+                    w1.gov = ivd[gov]
+                    w1.law = ivd[law]
+                    w1.tlv = ivd[tlv]
+                    w1.bCode = bCode
+                    w1.tCodeString = tCodeString
+                    w1.tZone = tZone
+                    w1.pMod = int(pMod)
+                    w1.nBelts = int(nBelts)
+                    w1.nGiants = int(nGiants)
+
+                # Now that we have all the fields, add the world object to the subsector
+
+                    self.contents.append(w1)
+
+                    # print(xworldname + ' ' + xlocation + ' ' + xstarport + '#')
                
         except IOError as error: 
-            print('oops')
+            print('Unable to open input UWP file')
+            print(error)
             sys.exit(8)
+    
+    # TO DO:  Read a subsector from JSON
     
     #  Print a subsector to stdout
 
@@ -298,10 +356,11 @@ class Subsector:
 
 # # Testing code here
 
-# s1 = Subsector("TestSub", "TestSec", "B", 3, 5)
+s1 = Subsector("TestSub", "TestSec", "B", 3)
+s1.readSubSec('subsec.uwp')
 
 # # print(s1.pType)
 # s1.genSubSec()
 # print("```")
-# s1.printSubSec()
+s1.printSubSec()
 # print("```")

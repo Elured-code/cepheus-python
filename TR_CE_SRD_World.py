@@ -205,7 +205,7 @@ class World:
         self.tlv = 0
         self.bCode = " "
         self.pMod = 0
-        self.nBelts = 1
+        self.nBelts = 0
         self.nGiants = 0
         self.tCodeString = ""
         self.tZone = " "
