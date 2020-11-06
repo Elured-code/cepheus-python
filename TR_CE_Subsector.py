@@ -29,6 +29,7 @@
 
 import json
 import random
+import re
 import sys
 
 # Local imports
@@ -187,23 +188,46 @@ class Subsector:
 
     def readSubSec(self, filename):
 
-        # Open the file name passed
-
         try:
-            with open(filename, 'r') as f:
+            with open('subsec.uwp', 'r') as f:
 
                 # Get first line and parse the subsector name, letter and parent sector name
 
-                line = f.readsline(1)
+                line = f.readline()
+                # print(line)
 
-                nameend = line.find('(')
+                # Set some defaults
 
-                
+                subsecname = 'Placeholder'
+                subsecletter = 'A'
+                sectorname = 'Placeholder'
 
+                m0 = re.match("(.*)\(", line)
+                m1 = re.match(".*\((.*)\/", line)
+                m2 = re.match(".*\/(.*)\)", line)
+                if m0: subsecname = m0.group(1)
+                if m1: sectorname = m1.group(1)
+                if m2: sectorname = m2.group(1)
 
+                # Read and ignore the header
 
-        except Exception as error: 
-            print('Exception message here')
+                while not line.startswith("....+....1"):
+                    line = f.readline()
+                    # print(line, end='')
+
+                # Ok, now read in the remaining lines and parse to populate the subsector object
+
+                lines = f.readlines()
+
+                for line in lines:
+                    # print(line, end='')
+
+                    # World name is in columns 1 - 12, strip any trailing spaces
+
+                    worldname = line[0:12].rstrip()
+               
+        except IOError as error: 
+            print('oops')
             sys.exit(8)
     
     #  Print a subsector to stdout
