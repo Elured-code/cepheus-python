@@ -136,7 +136,7 @@ class Sector:
         while subsec <= 16:
             a = 1
             
-            # Loop through the subsector hexes, checking for and if required generating mainworlds
+            # Loop through the sector hexes, checking for and if required generating mainworlds
 
             while a <= 8:
                 b = 1
