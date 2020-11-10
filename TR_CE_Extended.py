@@ -55,6 +55,21 @@ import TR_Support
 
 # ....+....1....+....2....+....3....+....4....+....5....+....6....+....7....+....8'''
 
+
+# Close Orbit Resonance Sequences
+
+RES_SEQ = []
+RES_SEQ.append([[1, 2], [1, 3], [2, 3], [2, 5], [3, 5], [4, 7], [5, 8], [6, 9], [7, 18], [8, 13]])
+RES_SEQ.append([[1, 2, 5], [2, 3, 5], [3, 4, 6], [4, 7, 11], [6, 8, 14], [8, 15, 23], [9, 17, 26]])
+RES_SEQ.append([[1, 2, 5, 7], [3, 4, 7, 11], [3, 5, 8, 13], [4, 6, 9, 14], [6, 9, 18, 24]])
+RES_SEQ.append([[2, 3, 4, 7, 11], [3, 5, 9, 14, 23], [4, 6, 9,  12, 18]])
+RES_SEQ.append([[2, 3, 5, 8, 12, 18], [3, 4, 7, 11, 18, 29], [4, 5, 9, 14, 25, 39]])
+RES_SEQ.append([[2, 3, 4, 6, 9, 15, 24], [2, 4, 6, 10, 16, 26, 42]])
+RES_SEQ.append([[2, 3, 5, 8, 13, 21, 34, 55]])
+
+SEQ_LISTCOUNT = [10, 7, 5, 3, 3, 2, 1]
+
+
 # Flags
 
 f_debug = False
@@ -852,45 +867,56 @@ class System:
         
         if self.sysType in ['Star System', 'Brown Dwarf']:
             if f_debug: print(f'{"DEBUG: System Primary:":<22}{self.starDetails[0]["type"]}')
-            if 'sMin' in self.starDetails[0]: print('\tS-Orbit inner limit = ' + str(self.starDetails[0]['sMin']))
-            if 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
-            if 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
-            if 'pMax' in self.starDetails[0]: print('\tP-Orbit outer limit = ' + str(self.starDetails[0]['pMax']))
-            if 'tL4' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4']))
-            if 'tL4b' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4b']))
-            if 'tL4c' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4c']))
-            if 'tL4d' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4d']))
+
+            if f_debug and 'sMin' in self.starDetails[0]: print('\tS-Orbit inner limit = ' + str(self.starDetails[0]['sMin']))
+            if f_debug and 'sMax' in self.starDetails[0]: print('\tS-Orbit outer limit = ' + str(self.starDetails[0]['sMax']))
+            if f_debug and 'pMin' in self.starDetails[0]: print('\tP-Orbit inner limit = ' + str(self.starDetails[0]['pMin']))
+            if f_debug and 'pMax' in self.starDetails[0]: print('\tP-Orbit outer limit = ' + str(self.starDetails[0]['pMax']))
+            if f_debug and 'tL4' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4']))
+            if f_debug and 'tL4b' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4b']))
+            if f_debug and 'tL4c' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4c']))
+            if f_debug and 'tL4d' in self.starDetails[0]: print('\tT-Orbits at L4/L5 points = ' + str(self.starDetails[0]['tL4d']))
 
             if len(self.starDetails) >= 2: 
-                print(f'{"System Secondary:":<22}{self.starDetails[1]["type"]}')
-                print('\tDistance from Primary:\t' + str(self.starDetails[1]['orbitdistance']) + ' (' + self.starDetails[1]['orbitzone'] + ')')
-                if 'sMin' in self.starDetails[1]: print('\tS-Orbit inner limit = ' + str(self.starDetails[1]['sMin']))
-                if 'sMax' in self.starDetails[1]: print('\tS-Orbit outer limit = ' + str(self.starDetails[1]['sMax']))
-                if 'pMin' in self.starDetails[1]: print('\tP-Orbit inner limit = ' + str(self.starDetails[1]['pMin']))
-                if 'pMax' in self.starDetails[1]: print('\tP-Orbit outer limit = ' + str(self.starDetails[1]['pMax']))
+
+                if f_debug and 'sMin' in self.starDetails[1]: print('\tS-Orbit inner limit = ' + str(self.starDetails[1]['sMin']))
+                if f_debug and 'sMax' in self.starDetails[1]: print('\tS-Orbit outer limit = ' + str(self.starDetails[1]['sMax']))
+                if f_debug and 'pMin' in self.starDetails[1]: print('\tP-Orbit inner limit = ' + str(self.starDetails[1]['pMin']))
+                if f_debug and 'pMax' in self.starDetails[1]: print('\tP-Orbit outer limit = ' + str(self.starDetails[1]['pMax']))
                 
 
             if len(self.starDetails) > 2:
-                print(f'{"System Tertiary:":<22}{self.starDetails[2]["type"]}')
-                if self.starDetails[2]['orbitsubject'] == 'primary': print('\tDistance from primary:\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
-                elif self.starDetails[2]['orbitsubject'] == 'secondary': print('\tDistance from secondary\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
-                elif self.starDetails[2]['orbitsubject'] == 'both': print('\tDistance from barycentre:\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
-                elif self.starDetails[2]['orbitsubject'] == 'unbound': print('\tDistance from primary (unbound):\t' + str(self.starDetails[2]['orbitdistance']) + ' (' + self.starDetails[2]['orbitzone'] + ')')
-
-                if 'sMin' in self.starDetails[2]: print('\tS-Orbit inner limit = ' + str(self.starDetails[2]['sMin']))
-                if 'sMax' in self.starDetails[2]: print('\tS-Orbit outer limit = ' + str(self.starDetails[2]['sMax']))
-                if 'pMin' in self.starDetails[2]: print('\tP-Orbit inner limit = ' + str(self.starDetails[2]['pMin']))
-                if 'pMax' in self.starDetails[2]: print('\tP-Orbit outer limit = ' + str(self.starDetails[2]['pMax']))
+ 
+                if f_debug and 'sMin' in self.starDetails[2]: print('\tS-Orbit inner limit = ' + str(self.starDetails[2]['sMin']))
+                if f_debug and 'sMax' in self.starDetails[2]: print('\tS-Orbit outer limit = ' + str(self.starDetails[2]['sMax']))
+                if f_debug and 'pMin' in self.starDetails[2]: print('\tP-Orbit inner limit = ' + str(self.starDetails[2]['pMin']))
+                if f_debug and 'pMax' in self.starDetails[2]: print('\tP-Orbit outer limit = ' + str(self.starDetails[2]['pMax']))
 
             # Some temporary code to dump out system contents
 
             print('System Contents:')
             i = 0
             for sd in self.starDetails:
+                if i == 0: print(f'{"System Primary:":<22}{self.starDetails[i]["type"]}')
+                elif i == 1:
+                    print(f'{"System Companion:":<22}{self.starDetails[i]["type"]}')
+                    print('\tDistance from Primary:\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
+
+                elif i == 2:
+                    print('Tertiary: ' + sd['type'])
+                    print(f'{"System Companion:":<22}{self.starDetails[i]["type"]}')
+                    if self.starDetails[i]['orbitsubject'] == 'primary': print('\tDistance from primary:\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
+                    elif self.starDetails[i]['orbitsubject'] == 'secondary': print('\tDistance from secondary\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
+                    elif self.starDetails[i]['orbitsubject'] == 'both': print('\tDistance from barycentre:\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
+                    elif self.starDetails[i]['orbitsubject'] == 'unbound': print('\tDistance from primary (unbound):\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
+
                 if f_debug: print('DEBUG: body ' + str(i+1) + ':')
 
                 for contents in sd['Contents']:
-                    print(contents)
+                    print('\t' + contents['Type'], end = '')
+
+                    if 'Orbital Distance' in contents: print('\t' + contents['Zone'] + ' (' + str(contents['Orbital Distance']) + ' AU)')
+                    else: print()
  
                 i += 1
 
@@ -925,6 +951,7 @@ class System:
 
         nPB = 0
         nGG = 0
+        nRW = 0
         i = 0
         hasGG = False
         GGOrbitsPresent = False
@@ -1109,8 +1136,19 @@ class System:
                     x = random.randint(0, len(self.starDetails) - 1)
                     self.starDetails[x]['Contents'].append({'Type': 'Planetoid Belt'})
                     i += 1
+
+            # Finally divide up the rocky planets
+
+            if nRW > 0:
+                
+                i = 1
+                while i <= nRW:
+
+                    x = random.randint(0, len(self.starDetails) - 1)
+                    self.starDetails[x]['Contents'].append({'Type': 'Rocky World', 'Subtype': rockyWorlds[i-1]}) 
+                    i += 1          
     
-        return nPB, nGG
+        return nPB, nGG, nRW
 
         
         # Special code for black holes will go here
@@ -1410,6 +1448,125 @@ class System:
                         orbitdistance = float("{:.3f}".format(orbitdistance))
                         contents['Orbital Distance'] = orbitdistance
 
+    
+    # Perform Gas Giant to Rocky World substitutions here
+    
+    def subGasToRocky(self):
+        pass
+    
+    # Place rocky worlds
+
+    def place_rockyWorlds(self, nGG, nRW):
+
+        # Ok lets start with anyrocky worlds orbiting the primary system, then move to the other bodies
+
+        for stardetails in self.starDetails:
+
+                # Iterate through all of the contents picking out only the rocky worlds for placement
+
+                # Calculate the base orbital distance
+
+                print('DEBUG STAR ' + str(self.starDetails.index(stardetails)))
+
+                baseOrbitDistance = round(TR_Support.D6Rollx2() * 0.5 * (stardetails['diameter']/2), 5)
+                print('DEBUG: Rocky World base orbit distance = ' + str(baseOrbitDistance))
+                print('DEBUG: Placing rocky worlds')
+
+                # Determine rocky world orbital structure
+                # Default to near boead if something weird occurs and a value isn't assigned
+
+                rwOrbitType = 'NB'
+
+                x = TR_Support.D6Rollx2()
+
+                # Natural 12 automatically indicates near-Bodean orbits
+
+                if x == 12: rwOrbitType = 'NB'
+
+                # If only one rocky world, it cannot be close in - place in a 'bodean' orbit
+
+                elif nRW == 1: rwOrbitType = 'NB'
+
+                else:
+
+                    # Modify the roll for the star's mass
+
+                    if stardetails['mass'] <= 0.5: x -= 2
+                    else: x += round(stardetails['mass'])
+
+                    # Apply modifier for gas giants
+
+                    x += (nGG - 1)
+
+                    print('DEBUG: Roll total = ' + str(x))
+
+                    # TODO:  Check if hot gas giants are present and if so default to near-Bodean
+
+                    if x <= 6: rwOrbitType = 'CO'
+                    elif x in [7, 8, 9, 10, 11]: rwOrbitType = 'MX'
+                    else: rwOrbitType = 'NB'
+
+                # Generate world orbits for case Close Orbits (only)
+
+                    if rwOrbitType == 'CO':
+                    
+                        print('DEBUG: Placing Close Orbits for ' + str(nRW) + ' rocky worlds')
+
+                        # Find the correct resonance sequence
+
+                        # First, find the list of resonance sequences corresponding to the number of rocky worlds
+                        
+                        worldseqs = RES_SEQ[nRW - 2]
+
+                        # Now randomly select a sequence from the list of sequences
+                   
+                        thisseq = random.choice(worldseqs)
+
+                        print(thisseq)
+
+                        i = 0
+
+                        for contents in stardetails['Contents']:
+
+                            if contents['Type'] == 'Rocky World':
+                                contents['Status'] = 'Unplaced'
+
+                                # Place the world in the correct orbit
+
+                                thisOrbitRes = thisseq[i]
+                                thisOrbit = round(thisOrbitRes * baseOrbitDistance, 3)
+
+                                print('DEBUG: Placing rocky world ' + str(i) + ' at ' + str(thisOrbit) + ' AU')
+                                contents['Orbital Distance'] = thisOrbit
+                                contents['Status'] = 'Placed'
+
+                                i += 1
+
+                    # Place orbits for Near Bodean type orbits
+                    
+                    elif rwOrbitType == 'NB':
+                        pass
+
+
+
+                                    
+
+
+
+
+                             
+
+                            
+
+
+
+
+                    # Sweep up any unplaced panetoid belts and put them inside the innermost planet if possible
+                    # If not place them in an available spot
+
+
+
+    
     def assign_Zones(self):
         
         for sd in self.starDetails:
@@ -1498,7 +1655,7 @@ class System:
 
             # print('Primary: ' + sysPrimary, end = '')
             if sysPrimary in ['Star System', 'Brown Dwarf']: 
-                # print(' ' + self.starDetails[0]['type'])
+                if f_debug: print('DEBUG: Primary ' + self.starDetails[0]['type'])
 
             # Is solo, we can generate the primary S-Type orbit bounds here
 
@@ -1525,7 +1682,7 @@ class System:
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
                 self.starDetails[1].update(self.get_starDetails(companionclass, companionlum))
                 
-                # print('Secondary: ' + self.starDetails[1]['type'])
+                if f_debug: print('DEBUG: Secondary ' + self.starDetails[1]['type'])
                 # print('\tOrbit Distance ' + str(self.starDetails[1]['orbitdistance']) + ' AU (' + self.starDetails[1]['orbitzone'] + ')')
 
                 # If the companion is larger than the primary, swap them
@@ -1552,6 +1709,8 @@ class System:
                 self.starList.append(companionstring)
                 self.starDetails.append({'orbitzone': companionzone, 'orbitdistance': companiondistance})
                 self.starDetails[2].update(self.get_starDetails(companionclass, companionlum)) 
+
+                if f_debug: print('DEBUG: Tertiary ' + self.starDetails[2]['type'])
 
                 # If the companion is larger than the primary, swap them and regenerate the primary-secondary architcture
 
@@ -1604,26 +1763,35 @@ class System:
             for SD in self.starDetails:
                 SD['Contents'] = []
 
-            nBelts, nGiants = self.gen_worldPool()
 
+
+            nBelts, nGiants, nRocky = self.gen_worldPool()
+
+            if sysPrimary in ['Star System', 'Brown Dwarf']:
+
+                
             # Place gas giants
 
-            self.place_gasGiants()
+                self.place_gasGiants()
 
-            # Place belts
+                # Place belts
 
-            self.place_Belts()
+                self.place_Belts()
+
+                # Plase rocky worlds
+
+                self.place_rockyWorlds(nGiants, nRocky)
 
 
-            # Assign each object to an orbital zone around its primary
+                # Assign each object to an orbital zone around its primary
 
-            c = 0
-            for sd in self.starDetails:
-                c += len(sd['Contents'])
+                c = 0
+                for sd in self.starDetails:
+                    c += len(sd['Contents'])
 
-            if c > 0: 
-                if f_debug: print('DEBUG: ' + str(c) + ' contents found, assigning to zones')
-                self.assign_Zones()
+                if c > 0: 
+                    if f_debug: print('DEBUG: ' + str(c) + ' contents found, assigning to zones')
+                    self.assign_Zones()
 
             # Generate the mainworld if appropriate, this will be assigned to an orbit later
 
@@ -1656,15 +1824,16 @@ class System:
 # Test Code
 
 # print('```')
-# for i in range(1, 5):
-#     if f_debug: print('DEBUG: System #' + str(i) + ': ')
-#     sys1 = System()
-#     sys1.gen_System('0101', 5, True, 'Testworld')
-#     if sys1.sysType != 'Empty': 
-#         sys1.print_System()
+for i in range(1, 5):
+    print(i)
+    if f_debug: print('DEBUG: System #' + str(i) + ': ')
+    sys1 = System()
+    sys1.gen_System('0101', 5, True, 'Testworld')
+    if sys1.sysType != 'Empty': 
+        sys1.print_System()
+    print()
 
-
-# #   else: print()
+#   else: print()
 # print('```')
 
 
