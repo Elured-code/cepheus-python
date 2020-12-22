@@ -72,7 +72,7 @@ SEQ_LISTCOUNT = [10, 7, 5, 3, 3, 2, 1]
 
 # Flags
 
-f_debug = False
+f_debug = True
 
 class System:
 
@@ -893,6 +893,7 @@ class System:
                 if f_debug and 'pMax' in self.starDetails[2]: print('\tP-Orbit outer limit = ' + str(self.starDetails[2]['pMax']))
 
             # Some temporary code to dump out system contents
+            # Note - sort the contents by distance soon
 
             print('System Contents:')
             i = 0
@@ -1503,7 +1504,7 @@ class System:
                     # TODO:  Check if hot gas giants are present and if so default to near-Bodean
 
                     if x <= 6: rwOrbitType = 'CO'
-                    elif x in [7, 8, 9, 10, 11]: rwOrbitType = 'MX'
+                    # elif x in [7, 8, 9, 10, 11]: rwOrbitType = 'MX'
                     else: rwOrbitType = 'NB'
 
                 # Generate world orbits for case Close Orbits (only)
@@ -1545,21 +1546,78 @@ class System:
                     # Place orbits for Near Bodean type orbits
                     
                     elif rwOrbitType == 'NB':
-                        pass
+                        print('DEBUG: Placing Near Bodean Orbits for ' + str(nRW) + ' rocky worlds')
 
+                        # Select the base orbit
+                        # 1 - for systems with gas giants, the base orbit is the orbit of the innermost gas giant
 
+                        if 'firstGG' in stardetails:
+                            fGG = stardetails['firstGG']
 
+                            # Initialise a counter to track the number of worlds placed
+
+                            rwc = 1
+                            takenorbits_i = []
+                            takenorbits_o = []
+
+                            for contents in stardetails['Contents']:
+                                if contents['Type'] == 'Rocky World':
+                                    contents['Status'] = 'Unplaced'
+
+                                    # Place the odd numbered rocky worlds inward of the base orbit
+                                    # Make sure worlds do not share the same orbit
+
+                                    if rwc % 2 == 1:
+
+                                        orbittaken = True
+                                        while orbittaken:
+                                            orbroll = TR_Support.D6Rollx2()
+                                            if orbroll in takenorbits_i: orbittaken = True
+                                            else: orbittaken = False
+                                        
+                                        takenorbits_i.append(orbroll)
+                                        if orbroll == 3: orbresult = fGG * 0.3
+                                        elif orbroll in [4, 5]: orbresult = fGG * 0.4
+                                        elif orbroll in [6, 7, 8]: orbresult = fGG * 0.5
+                                        elif orbroll in [9, 10]: orbresult = fGG * 0.6
+                                        elif orbroll == 11: orbresult = fGG * 0.7
+                                        elif orbroll == 12: orbresult = fGG * 0.85
+                                        else:
+
+                                            # Unusual orbit placement here
+
+                                            pass
+
+                                    else:
+
+                                        orbittaken = True
+                                        while orbittaken:
+                                            orbroll = TR_Support.D6Rollx2()
+                                            if orbroll in takenorbits_o: orbittaken = True
+                                            else: orbittaken = False
+
+                                        takenorbits_o.append(orbroll)
+                                        if orbroll == 3: orbresult = fGG * 1.5
+                                        elif orbroll in [4, 5]: orbresult = fGG * 1.75
+                                        elif orbroll in [6, 7, 8]: orbresult = fGG * 2
+                                        elif orbroll in [9, 10]: orbresult = fGG * 2.25
+                                        elif orbroll == 11: orbresult = fGG * 2.5
+                                        elif orbroll == 12: orbresult = fGG * 3
+                                        else:
+
+                                            # Unusual orbit placement here
+
+                                            pass
                                     
+                                    # Round off the orbit distances to avoid additional digits associated with float division
+                                    orbresult = round(orbresult, 3)
 
+                                    print('DEBUG: Placing rocky world ' + str(rwc) + ' at ' + str(orbresult) + ' AU')
+                                    contents['Orbital Distance'] = orbresult
+                                    contents['Status'] = 'Placed'
+                                    rwc += 1
 
-
-
-                             
-
-                            
-
-
-
+                        # 2 - otherwise 
 
                     # Sweep up any unplaced panetoid belts and put them inside the innermost planet if possible
                     # If not place them in an available spot
