@@ -911,7 +911,7 @@ class System:
                     elif self.starDetails[i]['orbitsubject'] == 'both': print('\tDistance from barycentre:\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
                     elif self.starDetails[i]['orbitsubject'] == 'unbound': print('\tDistance from primary (unbound):\t' + str(self.starDetails[i]['orbitdistance']) + ' (' + self.starDetails[i]['orbitzone'] + ')')
 
-                if f_debug: print('DEBUG: body ' + str(i+1) + ':')
+                # if f_debug: print('DEBUG: body ' + str(i+1) + ':')
 
                 for contents in sd['Contents']:
                     print('\t' + contents['Type'], end = '')
@@ -1044,6 +1044,8 @@ class System:
             for starDetails in self.starDetails:
                 GGOrbitsPresent = False
                 starDetails['hasGG'] = False
+                starDetails['nGG'] = 0
+                starDetails['nRW'] = 0
 
                 # Check if S-Type orbits can be used
                 # First check that tehre are S-Type orbits
@@ -1092,6 +1094,7 @@ class System:
                 for objLabel in gasGiants:
                     x = random.randint(0, len(self.starDetails) - 1)
                     self.starDetails[x]['Contents'].append({'Type': objLabel})
+                    self.starDetails[x]['nGG'] += 1
                 
             # Otherwise, divide up the giants:
 
@@ -1106,11 +1109,17 @@ class System:
                 elif 'LGG' in gasGiants: objLabel = 'LGG'
                 else: objLabel = 'SGG'
 
-                # First assign the GG to the primary, if orbits are available
+                # Assign the GG to the primary, if orbits are available
 
-                if self.starDetails[0]['hasGG']: self.starDetails[0]['Contents'].append({'Type': objLabel})
-                elif len(self.starDetails) > 1 and self.starDetails[1]['hasGG']: self.starDetails[1]['Contents'].append({'Type': objLabel})
-                elif len(self.starDetails) > 2 and self.starDetails[2]['hasGG']: self.starDetails[1]['Contents'].append({'Type': objLabel})  
+                if self.starDetails[0]['hasGG']: 
+                    self.starDetails[0]['Contents'].append({'Type': objLabel})
+                    self.starDetails[0]['nGG'] += 1
+                elif len(self.starDetails) > 1 and self.starDetails[1]['hasGG']: 
+                    self.starDetails[1]['Contents'].append({'Type': objLabel})
+                    self.starDetails[1]['nGG'] += 1
+                elif len(self.starDetails) > 2 and self.starDetails[2]['hasGG']: 
+                    self.starDetails[2]['Contents'].append({'Type': objLabel})
+                    self.starDetails[2]['nGG'] += 1  
 
                 # Remove the GG from the pool
 
@@ -1125,31 +1134,39 @@ class System:
                         x = random.randint(0, len(self.starDetails) - 1)
                         if self.starDetails[x]['hasGG']:
                             self.starDetails[x]['Contents'].append({'Type': objLabel})
+                            self.starDetails[x]['nGG'] + 1
                             ggPlaced = True
 
             # Now divide up the planetoid belts
-
+            x = 0 
             if nPB > 0:
 
                 i = 1
+
                 while i <= nPB:
 
                     x = random.randint(0, len(self.starDetails) - 1)
                     self.starDetails[x]['Contents'].append({'Type': 'Planetoid Belt'})
                     i += 1
+                self.starDetails[x]['nPB'] = i - 1
+            else: self.starDetails[x]['nPB'] = 0
 
             # Finally divide up the rocky planets
 
+            
             if nRW > 0:
                 
                 i = 1
+                
                 while i <= nRW:
-
+                    
                     x = random.randint(0, len(self.starDetails) - 1)
-                    self.starDetails[x]['Contents'].append({'Type': 'Rocky World', 'Subtype': rockyWorlds[i-1]}) 
-                    i += 1          
+                    self.starDetails[x]['Contents'].append({'Type': 'Rocky World', 'Subtype': rockyWorlds[i-1], 'Status': 'Unplaced'}) 
+                    i += 1   
+                    self.starDetails[x]['nRW'] += 1
+               
     
-        return nPB, nGG, nRW
+        return nGG, nPB
 
         
         # Special code for black holes will go here
@@ -1457,170 +1474,208 @@ class System:
     
     # Place rocky worlds
 
-    def place_rockyWorlds(self, nGG, nRW):
+    def place_rockyWorlds(self):
 
-        # Ok lets start with anyrocky worlds orbiting the primary system, then move to the other bodies
+        # Inner function to place close in worlds, executed this way to make it reusable for mixed systems
+
+        def place_closeOrbits(self, stardetails, count):
+
+            # Calculate the base orbital distance for close in worlds
+
+            print('DEBUG STAR ' + str(self.starDetails.index(stardetails)))
+
+            baseOrbitDistance = round(TR_Support.D6Rollx2() * 0.5 * (stardetails['diameter']/2), 5)
+            print('DEBUG: Close orbit base distance = ' + str(baseOrbitDistance))
+
+            # Find the correct resonance sequence
+
+            # First, find the list of resonance sequences corresponding to the number of rocky worlds
+
+            if count <= 2: worldseqs = RES_SEQ[0]
+            else: worldseqs = RES_SEQ[count - 2]
+            
+
+            # Now randomly select a sequence from the list of sequences
+        
+            thisseq = random.choice(worldseqs)
+
+            print(thisseq)
+
+            i = 0
+
+            for contents in stardetails['Contents']:                
+                if contents['Type'] == 'Rocky World' and contents['Status'] != 'Placed':
+                    if i < count:
+                        
+
+                        # Place the world in the correct orbit
+
+                        thisOrbitRes = thisseq[i]
+                        thisOrbit = round(thisOrbitRes * baseOrbitDistance, 3)
+
+                        print('DEBUG: Placing rocky world ' + str(i) + ' at ' + str(thisOrbit) + ' AU')
+                        contents['Orbital Distance'] = thisOrbit
+                        contents['Status'] = 'Placed'
+
+                        i += 1
+
+        # And another inner function to place worlds in near-Bodean orbits
+
+        def place_nearBodeanOrbits(self, stardetails, count):
+            print('DEBUG: Placing Near Bodean Orbits for ' + str(count) + ' rocky worlds')
+
+            # Select the base orbit
+            # For systems with gas giants, the base orbit is the orbit of the innermost gas giant
+            # Otherwise use the frost line formula
+
+            if 'firstGG' in stardetails: fGG = stardetails['firstGG']
+            else: fGG = (stardetails['Frost Line'] / 10) * (TR_Support.D6Roll() + 2)
+            print('DEBUG: Bodean worlds base orbit distance = ' + str(fGG))
+
+            # Initialise a counter to track the number of worlds placed
+
+            rwc = 1
+            takenorbits_i = []
+            takenorbits_o = []
+
+            for contents in stardetails['Contents']:
+                
+                if contents['Type'] == 'Rocky World' and contents['Status'] != 'Placed':
+                    if rwc <= count:
+                        
+
+                        # Place the odd numbered rocky worlds inward of the base orbit
+                        # Make sure worlds do not share the same orbit
+
+                        if rwc % 2 == 1:
+
+                            orbittaken = True
+                            orbroll = 7
+                            while orbittaken:
+                                orbroll = TR_Support.D6Rollx2()
+                                if orbroll in takenorbits_i: orbittaken = True
+                                else: orbittaken = False
+                            
+                            takenorbits_i.append(orbroll)
+                            if orbroll == 3: orbresult = fGG * 0.3
+                            elif orbroll in [4, 5]: orbresult = fGG * 0.4
+                            elif orbroll in [6, 7, 8]: orbresult = fGG * 0.5
+                            elif orbroll in [9, 10]: orbresult = fGG * 0.6
+                            elif orbroll == 11: orbresult = fGG * 0.7
+                            elif orbroll == 12: orbresult = fGG * 0.85
+                            else:
+
+                                # Unusual orbit placement here
+                                # Placeholder orbit placement for now
+
+                                orbresult = fGG * 0.2
+
+
+                        else:
+
+                            orbittaken = True
+                            orbroll = 7
+                            while orbittaken:
+                                orbroll = TR_Support.D6Rollx2()
+                                if orbroll in takenorbits_o: orbittaken = True
+                                else: orbittaken = False
+
+                            takenorbits_o.append(orbroll)
+                            if orbroll == 3: orbresult = fGG * 1.5
+                            elif orbroll in [4, 5]: orbresult = fGG * 1.75
+                            elif orbroll in [6, 7, 8]: orbresult = fGG * 2
+                            elif orbroll in [9, 10]: orbresult = fGG * 2.25
+                            elif orbroll == 11: orbresult = fGG * 2.5
+                            elif orbroll == 12: orbresult = fGG * 3
+                            else:
+
+                                # Unusual orbit placement here
+
+                                # Placeholder function for now
+                                orbresult = fGG * 4.5
+
+                                
+                        
+                        # Round off the orbit distances to avoid additional digits associated with float division
+                        orbresult = round(orbresult, 3)
+
+                        print('DEBUG: Placing rocky world ' + str(rwc) + ' at ' + str(orbresult) + ' AU')
+                        contents['Orbital Distance'] = orbresult
+                        contents['Status'] = 'Placed'
+                        rwc += 1
+        
+        # Ok lets start with any rocky worlds orbiting the primary system, then move to the other bodies
 
         for stardetails in self.starDetails:
 
-                # Iterate through all of the contents picking out only the rocky worlds for placement
+            # Iterate through all of the contents picking out only the rocky worlds for placement
+            # Determine rocky world orbital structure
+            # Default to near bodean if something weird occurs and a value isn't assigned
 
-                # Calculate the base orbital distance
+            rwOrbitType = 'NB'
 
-                print('DEBUG STAR ' + str(self.starDetails.index(stardetails)))
+            x = TR_Support.D6Rollx2()
 
-                baseOrbitDistance = round(TR_Support.D6Rollx2() * 0.5 * (stardetails['diameter']/2), 5)
-                print('DEBUG: Rocky World base orbit distance = ' + str(baseOrbitDistance))
-                print('DEBUG: Placing rocky worlds')
+            # Natural 12 automatically indicates near-Bodean orbits
 
-                # Determine rocky world orbital structure
-                # Default to near boead if something weird occurs and a value isn't assigned
+            if x == 12: rwOrbitType = 'NB'
 
-                rwOrbitType = 'NB'
+            # If only one rocky world, it cannot be close in - place in a 'bodean' orbit
 
-                x = TR_Support.D6Rollx2()
+            elif stardetails['nRW'] == 1: rwOrbitType = 'NB'
 
-                # Natural 12 automatically indicates near-Bodean orbits
+            else:
 
-                if x == 12: rwOrbitType = 'NB'
+                # Modify the roll for the star's mass
 
-                # If only one rocky world, it cannot be close in - place in a 'bodean' orbit
+                if stardetails['mass'] <= 0.5: x -= 2
+                else: x += round(stardetails['mass'])
 
-                elif nRW == 1: rwOrbitType = 'NB'
+                # Apply modifier for gas giants
 
-                else:
+                x += (stardetails['nGG'] - 1)
 
-                    # Modify the roll for the star's mass
+                print('DEBUG: Roll total = ' + str(x))
 
-                    if stardetails['mass'] <= 0.5: x -= 2
-                    else: x += round(stardetails['mass'])
+                # TODO:  Check if hot gas giants are present and if so default to near-Bodean
 
-                    # Apply modifier for gas giants
-
-                    x += (nGG - 1)
-
-                    print('DEBUG: Roll total = ' + str(x))
-
-                    # TODO:  Check if hot gas giants are present and if so default to near-Bodean
-
-                    if x <= 6: rwOrbitType = 'CO'
-                    # elif x in [7, 8, 9, 10, 11]: rwOrbitType = 'MX'
-                    else: rwOrbitType = 'NB'
+                if x <= 6: rwOrbitType = 'CO'
+                elif x in [7, 8, 9, 10, 11]: rwOrbitType = 'MX'
+                else: rwOrbitType = 'NB'
 
                 # Generate world orbits for case Close Orbits (only)
 
-                    if rwOrbitType == 'CO':
-                    
-                        print('DEBUG: Placing Close Orbits for ' + str(nRW) + ' rocky worlds')
+                if rwOrbitType == 'CO': 
+                    print('DEBUG:  Close orbits required for ' + str(stardetails['nRW']) + ' worlds')
+                    place_closeOrbits(self, stardetails, stardetails['nRW'])
+        
+                # Place orbits for Near Bodean type orbits
+                
+                elif rwOrbitType == 'NB': 
+                    print('DEBUG:  Near Bodean orbits required for ' + str(stardetails['nRW']) + ' worlds')
+                    place_nearBodeanOrbits(self, stardetails, stardetails['nRW'])
 
-                        # Find the correct resonance sequence
+                # Place mixed orbits
 
-                        # First, find the list of resonance sequences corresponding to the number of rocky worlds
-                        
-                        worldseqs = RES_SEQ[nRW - 2]
+                else:
 
-                        # Now randomly select a sequence from the list of sequences
-                   
-                        thisseq = random.choice(worldseqs)
+                    # First split the rocky worlds into close-in and near-Bodean
 
-                        print(thisseq)
+                    print('DEBUG: Placing mixed rocky world orbits')
 
-                        i = 0
+                    nClose = random.randint(1, stardetails['nRW'] - 1)
+                    nNearBodean = stardetails['nRW'] - nClose
 
-                        for contents in stardetails['Contents']:
+                    # Now go place the respective orbits
 
-                            if contents['Type'] == 'Rocky World':
-                                contents['Status'] = 'Unplaced'
+                    print('DEBUG:  Close orbits required for ' + str(nClose) + ' worlds')
+                    place_closeOrbits(self, stardetails, nClose)
+                    print('DEBUG:  Near Bodean orbits required for ' + str(nNearBodean) + ' worlds')
+                    place_nearBodeanOrbits(self, stardetails, nNearBodean)
 
-                                # Place the world in the correct orbit
 
-                                thisOrbitRes = thisseq[i]
-                                thisOrbit = round(thisOrbitRes * baseOrbitDistance, 3)
-
-                                print('DEBUG: Placing rocky world ' + str(i) + ' at ' + str(thisOrbit) + ' AU')
-                                contents['Orbital Distance'] = thisOrbit
-                                contents['Status'] = 'Placed'
-
-                                i += 1
-
-                    # Place orbits for Near Bodean type orbits
-                    
-                    elif rwOrbitType == 'NB':
-                        print('DEBUG: Placing Near Bodean Orbits for ' + str(nRW) + ' rocky worlds')
-
-                        # Select the base orbit
-                        # 1 - for systems with gas giants, the base orbit is the orbit of the innermost gas giant
-
-                        if 'firstGG' in stardetails:
-                            fGG = stardetails['firstGG']
-
-                            # Initialise a counter to track the number of worlds placed
-
-                            rwc = 1
-                            takenorbits_i = []
-                            takenorbits_o = []
-
-                            for contents in stardetails['Contents']:
-                                if contents['Type'] == 'Rocky World':
-                                    contents['Status'] = 'Unplaced'
-
-                                    # Place the odd numbered rocky worlds inward of the base orbit
-                                    # Make sure worlds do not share the same orbit
-
-                                    if rwc % 2 == 1:
-
-                                        orbittaken = True
-                                        while orbittaken:
-                                            orbroll = TR_Support.D6Rollx2()
-                                            if orbroll in takenorbits_i: orbittaken = True
-                                            else: orbittaken = False
-                                        
-                                        takenorbits_i.append(orbroll)
-                                        if orbroll == 3: orbresult = fGG * 0.3
-                                        elif orbroll in [4, 5]: orbresult = fGG * 0.4
-                                        elif orbroll in [6, 7, 8]: orbresult = fGG * 0.5
-                                        elif orbroll in [9, 10]: orbresult = fGG * 0.6
-                                        elif orbroll == 11: orbresult = fGG * 0.7
-                                        elif orbroll == 12: orbresult = fGG * 0.85
-                                        else:
-
-                                            # Unusual orbit placement here
-
-                                            pass
-
-                                    else:
-
-                                        orbittaken = True
-                                        while orbittaken:
-                                            orbroll = TR_Support.D6Rollx2()
-                                            if orbroll in takenorbits_o: orbittaken = True
-                                            else: orbittaken = False
-
-                                        takenorbits_o.append(orbroll)
-                                        if orbroll == 3: orbresult = fGG * 1.5
-                                        elif orbroll in [4, 5]: orbresult = fGG * 1.75
-                                        elif orbroll in [6, 7, 8]: orbresult = fGG * 2
-                                        elif orbroll in [9, 10]: orbresult = fGG * 2.25
-                                        elif orbroll == 11: orbresult = fGG * 2.5
-                                        elif orbroll == 12: orbresult = fGG * 3
-                                        else:
-
-                                            # Unusual orbit placement here
-
-                                            pass
-                                    
-                                    # Round off the orbit distances to avoid additional digits associated with float division
-                                    orbresult = round(orbresult, 3)
-
-                                    print('DEBUG: Placing rocky world ' + str(rwc) + ' at ' + str(orbresult) + ' AU')
-                                    contents['Orbital Distance'] = orbresult
-                                    contents['Status'] = 'Placed'
-                                    rwc += 1
-
-                        # 2 - otherwise 
-
-                    # Sweep up any unplaced panetoid belts and put them inside the innermost planet if possible
-                    # If not place them in an available spot
+                # Sweep up any unplaced panetoid belts and put them inside the innermost planet if possible
+                # If not place them in an available spot
 
 
 
@@ -1823,7 +1878,7 @@ class System:
 
 
 
-            nBelts, nGiants, nRocky = self.gen_worldPool()
+            nBelts, nGiants = self.gen_worldPool()
 
             if sysPrimary in ['Star System', 'Brown Dwarf']:
 
@@ -1838,7 +1893,7 @@ class System:
 
                 # Plase rocky worlds
 
-                self.place_rockyWorlds(nGiants, nRocky)
+                self.place_rockyWorlds()
 
 
                 # Assign each object to an orbital zone around its primary
