@@ -31,6 +31,7 @@ GOVTLMOD = {0: 1, 5: 1, 7: 2, 13: -2, 14: -2}
 
 # Subsector generation constants
 
+CSUM_DENSITY_MAP = {"EMPTY": 0, "SCATTERED": 20, "DISPERSED": 35, "AVERAGE": 50, "CROWDED": 60, "DENSE": 75}
 DENSITY_VALUES = ["EMPTY", "RIFT", "SPARSE", "SCATTERED", "STANDARD", "DENSE"]
 DENSITY_LOOKUP = {0: 0, 1: 4, 2: 18, 3: 33, 4: 50, 5: 66}
 SUBSECLETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']
