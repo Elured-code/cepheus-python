@@ -42,4 +42,3 @@ tinydb==4.1.1
 toml==0.10.1
 Werkzeug==1.0.1
 wrapt==1.12.1
-wxPython==4.0.7
