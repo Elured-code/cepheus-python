@@ -17,7 +17,7 @@
 #
 
 import logging
-from ppretty import ppretty
+# from ppretty import ppretty
 import random
 import sys
 from tinydb import TinyDB, Query
